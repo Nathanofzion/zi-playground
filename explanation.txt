@@ -1,0 +1,39 @@
+Sure, I can help you develop a home page with the features you described. Here's a breakdown of the requirements and how they can be implemented:
+
+Homepage Design and Layout:
+
+The homepage should feature a prominent 3D logo animation using three.js and react.js.
+The logo animation should involve the 'Zi' and '3g' elements emerging from a block, creating a striking visual effect.
+The background should incorporate particle effects using the provided code snippet.
+The homepage should display the text "Connect the World With Zig3" on the left side.
+On mobile devices, the text should be positioned below the cube on top.
+Upon clicking the text, the cube should transform into the Zig3 logo, with the 'Zi' and '3g' elements emerging in 3D while the Earth fades out.
+The transformed logo should retain the original Zig3 logo's transparency.
+Interactive Theme:
+
+Implement a light and dark theme toggle using the provided Prima effect colors (sun and moon).
+The theme toggle should seamlessly switch between the light and dark color schemes.
+Login and Navigation:
+
+Upon loading the transformed homepage, display the text "Login with a wallet".
+Integrate relevant buttons and links using the provided link matrix code.
+Ensure smooth navigation between different sections of the website.
+New Zig3 Logo:
+
+Design a new Zig3 logo with equivalent transparency to the existing logo.
+Maintain consistency in the logo's visual identity across all platforms.
+Additional Considerations:
+
+Optimize the code for performance and responsiveness.
+Ensure cross-browser compatibility.
+Implement proper error handling and user feedback mechanisms.
+Explanation of Requirements:
+
+The use of three.js and react.js will enable the creation of a dynamic and interactive 3D logo animation.
+The particle effects will enhance the visual appeal and create a captivating atmosphere.
+The text placement and transformation on mobile devices provide a seamless user experience across different screen sizes.
+The light and dark theme toggle caters to user preferences and accessibility.
+The "Login with a wallet" prompt and link matrix code facilitate user interaction and navigation.
+The new Zig3 logo maintains brand consistency while introducing a fresh element.
+Please note that this is a high-level overview of the project requirements. The actual implementation may involve additional details and considerations.
+
