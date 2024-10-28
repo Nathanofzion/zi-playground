@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 
 import { Box, CircularProgress, Modal, useMediaQuery } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';

@@ -1,3 +1,4 @@
+import React from 'react';
 import { standalone, testnet, mainnet } from '@soroban-react/chains';
 import { SorobanReactProvider } from '@soroban-react/core';
 import { freighter } from '@soroban-react/freighter';
@@ -17,7 +18,7 @@ const findWalletChainByName = (name) => {
 };
 
 // Get the active chain based on the environment variable or default to testnet
-const activeChainName = import.meta.env.VITE_PUBLIC_STELLAR_NETWORK || 'testnet';
+const activeChainName = import.meta.env.PUBLIC_STELLAR_NETWORK || 'testnet';
 const activeChain = findWalletChainByName(activeChainName) || testnet;
 
 // Set allowed connectors
