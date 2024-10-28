@@ -1,55 +1,84 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import BgParticles from "./components/BgParticles";
 import Hero from "./pages/Hero";
 import sun from "./assets/sun.svg";
 import moon from "./assets/moon.svg";
+import { AppContext, ColorModeContext } from "./contexts/context";
+import { useMemo } from "react";
+import Header from "./components/layouts/Header";
+import { BrowserRouter } from "react-router-dom";
+import { theme } from "./helpers/theme/theme"
+import { ThemeProvider } from "@mui/material";
+import MySorobanReactProvider from './soroban/MySorobanReactProvider';
+import InkathonProvider from './inkathon/InkathonProvider';
+import Toolbar from '@mui/material/Toolbar';
+import ConnectWalletModal from "./components/modal/ConnectWalletModal";
+
 
 const App = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isConnectWalletModal, setConnectWalletModal] = useState(false);
 
-  // Function to toggle between dark and light modes
-  const toggleTheme = () => {
-    setIsDarkMode((prevMode) => !prevMode);
+  const [maxHops, setMaxHops] = useState(2);
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarTitle, setSnackbarTitle] = useState('Swapped');
+  const [snackbarType, setSnackbarType] = useState('SWAP');
+
+
+  const [mode, setMode] = useState('dark');
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+      },
+    }),
+    [],
+  );
+
+  const appContextValues = {
+    ConnectWalletModal: {
+      isConnectWalletModalOpen: isConnectWalletModal,
+      setConnectWalletModalOpen: setConnectWalletModal,
+    },
+    SnackbarContext: {
+      openSnackbar,
+      snackbarMessage,
+      snackbarTitle,
+      snackbarType,
+      setOpenSnackbar,
+      setSnackbarMessage,
+      setSnackbarTitle,
+      setSnackbarType,
+    },
+    Settings: {
+      maxHops,
+      setMaxHops,
+    },
   };
-
-  // Effect to persist the theme choice to local storage
-  useEffect(() => {
-    // Retrieve the theme choice from local storage
-    const savedTheme = localStorage.getItem("theme");
-
-    // If a theme choice exists in local storage, set it as the current theme
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === "dark");
-    }
-  }, []); // Empty dependency array ensures this effect runs only once on mount
-
-  // Effect to update local storage when the theme changes
-  useEffect(() => {
-    // Save the current theme choice to local storage
-    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
-  }, [isDarkMode]);
 
   return (
     <>
-      <Hero isDarkMode={isDarkMode} />
-      <BgParticles isDarkMode={isDarkMode} />
-      <div className="darkmodediv">
-        {isDarkMode ? (
-          <img
-            src={moon}
-            className="darkmodebtn"
-            alt="Moon"
-            onClick={toggleTheme}
-          />
-        ) : (
-          <img
-            src={sun}
-            className="darkmodebtn"
-            alt="Sun"
-            onClick={toggleTheme}
-          />
-        )}
-      </div>
+      <BrowserRouter>
+        <ThemeProvider theme={theme(mode)}>
+          <MySorobanReactProvider>
+            <InkathonProvider>
+              <ColorModeContext.Provider value={colorMode}>
+                <AppContext.Provider value={appContextValues}>
+                  <Toolbar>
+                    <Header isDrawerOpen={openSnackbar} setDrawerOpen={setOpenSnackbar} />
+                  </Toolbar>
+                  <div>
+                    <Hero isDarkMode={mode == 'dark'} />
+                    <BgParticles isDarkMode={mode == 'dark'} />
+                  </div>
+                  <ConnectWalletModal />
+                </AppContext.Provider>
+              </ColorModeContext.Provider>
+            </ InkathonProvider>
+          </MySorobanReactProvider>
+        </ThemeProvider>
+      </BrowserRouter>
     </>
   );
 };
