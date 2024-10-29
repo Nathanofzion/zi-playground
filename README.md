@@ -22,8 +22,14 @@ The project is be setup to work in a monorepo structure, use pnpm is used as the
    pnpm install
    ```
 
-4. **Run Project Locally**.
+4. **Build Project Locally**.
 
    ```bash
-   pnpm run dev
+  pnpm run build
+   ```
+
+5. **Run Project Locally**.
+
+   ```bash
+pnpm preview
    ```
