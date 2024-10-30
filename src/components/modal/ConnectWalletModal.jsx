@@ -13,6 +13,7 @@ import { AlertCircle } from 'react-feather';
 import Bowser from 'bowser';
 import { isConnected } from '@stellar/freighter-api';
 import { isConnected as isConnectedLobstr } from '@lobstrco/signer-extension-api';
+import PasskeyIDWallet from '../wallet/PasskeyIDWallet';
 
 const Title = styled('div')`
   font-size: 24px;
@@ -251,6 +252,7 @@ const ConnectWalletContent = ({
                                 </WalletBox>
                             );
                         })}
+                        <PasskeyIDWallet />
                     </ContentWrapper>
                     {/* TODO: add link to terms of service */}
                     <FooterText isMobile={isMobile}>
