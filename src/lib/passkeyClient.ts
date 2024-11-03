@@ -1,12 +1,10 @@
 import { SorobanRpc } from '@stellar/stellar-sdk';
 import { PasskeyKit, SACClient } from 'passkey-kit';
 
-import {
-    PUBLIC_STELLAR_RPC_URL,
-    PUBLIC_STELLAR_NETWORK_PASSPHRASE,
-    PUBLIC_FACTORY_CONTRACT_ADDRESS,
-    PUBLIC_NATIVE_CONTRACT_ADDRESS,
-} from '$env/static/public';
+const PUBLIC_STELLAR_RPC_URL = "https://soroban-testnet.stellar.org";
+const PUBLIC_STELLAR_NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
+const PUBLIC_FACTORY_CONTRACT_ADDRESS = "CCPLERXCJZB7LX2VOSOCBNRN754FRLHI6Y2AVOQBA5L7C2ZJX5RFVVET";
+const PUBLIC_NATIVE_CONTRACT_ADDRESS = "CCPLERXCJZB7LX2VOSOCBNRN754FRLHI6Y2AVOQBA5L7C2ZJX5RFVVET";
 
 export const rpc = new SorobanRpc.Server(PUBLIC_STELLAR_RPC_URL);
 
