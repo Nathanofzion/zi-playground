@@ -13,7 +13,11 @@ import { AlertCircle } from 'react-feather';
 import Bowser from 'bowser';
 import { isConnected } from '@stellar/freighter-api';
 import { isConnected as isConnectedLobstr } from '@lobstrco/signer-extension-api';
-import PasskeyIDWallet from '../wallet/PasskeyIDWallet';
+
+import { account, getContractId } from '$lib/passkeyClient';
+import { contractId } from '$lib/stores/contractId';
+import { keyId } from '$lib/stores/keyId';
+import base64url from 'base64url';
 
 const Title = styled('div')`
   font-size: 24px;
@@ -179,6 +183,21 @@ const ConnectWalletContent = ({
         }
     };
 
+    const handlePasskeyLogin = async () => {
+        try {
+            const { keyId: kid, contractId: cid } = await account.connectWallet({
+                getContractId,
+            });
+
+            const keyId_base64url = base64url(kid);
+
+            keyId.set(keyId_base64url);
+            contractId.set(cid);
+        } catch (err) {
+            /* empty */
+        }
+    }
+
     useEffect(() => {
         const newWalletsStatus = walletsStatus.map(async (walletStatus) => {
             if (walletStatus.name === 'freighter') {
@@ -252,7 +271,16 @@ const ConnectWalletContent = ({
                                 </WalletBox>
                             );
                         })}
-                        <PasskeyIDWallet />
+                        <WalletBox onClick={handlePasskeyLogin}>
+                            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                                <img
+                                    alt='passkey'
+                                    src='/img/img/passkey.png'
+                                    style={{ width: 24, height: 24, borderRadius: 6 }}
+                                />
+                                <span>PasskeyID Wallet</span>
+                            </div>
+                        </WalletBox>
                     </ContentWrapper>
                     {/* TODO: add link to terms of service */}
                     <FooterText isMobile={isMobile}>
