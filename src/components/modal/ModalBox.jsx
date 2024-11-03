@@ -6,8 +6,8 @@ import { Box } from '@mui/material';
 const ContentWrapper = styled(Box)`
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  right: 16px;
+  transform: translate(0, -50%);
 
   min-height: 100px;
   min-width: 200px;
