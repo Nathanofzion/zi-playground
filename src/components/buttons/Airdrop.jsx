@@ -42,6 +42,7 @@ const ActiveButton = styled(BaseButton)`
     border: 1px solid transparent;
     outline: none;
   }
+  overflow: hidden;
 `
 
 export function AirdropButton({ style, light }) {
