@@ -13,6 +13,7 @@ import MySorobanReactProvider from './soroban/MySorobanReactProvider';
 import InkathonProvider from './inkathon/InkathonProvider';
 import Toolbar from '@mui/material/Toolbar';
 import ConnectWalletModal from "./components/modal/ConnectWalletModal";
+import MobileDrawer from "./components/layouts/MobileDrawer";
 
 
 const App = () => {
@@ -67,6 +68,7 @@ const App = () => {
                 <AppContext.Provider value={appContextValues}>
                   <Toolbar>
                     <Header isDrawerOpen={openSnackbar} setDrawerOpen={setOpenSnackbar} />
+                    <MobileDrawer isDrawerOpen={openSnackbar} setDrawerOpen={setOpenSnackbar} />
                   </Toolbar>
                   <div>
                     <Hero isDarkMode={mode == 'dark'} />
