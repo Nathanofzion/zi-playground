@@ -3,10 +3,10 @@ import { Box, Chip, Menu, MenuItem, useMediaQuery } from '@mui/material';
 import { alpha, styled, useTheme } from '@mui/material/styles';
 import { useInkathon } from '@scio-labs/use-inkathon';
 import { useSorobanReact } from '@soroban-react/core';
-import { WalletButton } from '../buttons/WalletButton';
 import React, { useContext } from 'react';
-import { shortenAddress } from '../../helpers/address'
 import { AppContext } from '../../contexts/context';
+import { shortenAddress } from '../../helpers/address';
+import { WalletButton } from '../buttons/WalletButton';
 
 const StyledMenu = styled((props) => (
     <Menu
@@ -162,12 +162,6 @@ export const HeaderChip = ({
                     </>)
                 :
                 (<>
-                    <Chip
-                        onClick={canDisconnect ? handleDropdownClick : onClick}
-                        sx={profileChipStyle}
-                        label={label}
-                        {...rest}
-                    />
                     <StyledMenu
                         id="account-menu"
                         aria-labelledby="account-button"
@@ -220,7 +214,6 @@ export default function ProfileSection() {
 
     return (
         <Box display="flex" gap="8px">
-            {!isMobile && <ActiveChainHeaderChip />}
             {(sorobanContext.address ? (
                 <HeaderChip
                     label={

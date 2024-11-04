@@ -22,10 +22,12 @@ import base64url from 'base64url';
 const Title = styled('div')`
   font-size: 24px;
   font-weight: 500;
+  color: ${({ theme }) => theme.palette.custom.textPrimary};
 `;
 const Subtitle = styled('div')`
   font-size: 14px;
   font-weight: 500;
+  color: ${({ theme }) => theme.palette.custom.textPrimary};
   & > span {
     display: block;
   }
@@ -60,6 +62,7 @@ const WalletBox = styled('div')`
   cursor: pointer;
   display: flex;
   background-color: ${({ theme }) => theme.palette.customBackground.surface};
+  color: ${({ theme }) => theme.palette.custom.textPrimary};
   border-radius: 12px;
   padding: 16px;
   flex-direction: row;
@@ -74,6 +77,7 @@ const FooterText = styled('div')`
   font-size: 12px;
   font-weight: 600;
   text-align: ${({ isMobile }) => (isMobile ? 'center' : 'left')};
+  color: ${({ theme }) => theme.palette.custom.textPrimary};
   & > span {
     color: ${({ theme }) => theme.palette.custom.textLinks};
   }

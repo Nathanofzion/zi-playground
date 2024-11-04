@@ -1,12 +1,13 @@
 import { Box, Switch, styled, useMediaQuery, useTheme } from '@mui/material';
 import logo from '../../assets/logo.png';
 
-import { ActiveAirdropButton, AirdropButton } from '../buttons/Airdrop';
-import { ColorModeContext } from "../../contexts/context"
 import React from 'react';
 import { Menu } from 'react-feather';
-import ProfileSection, { ActiveChainHeaderChip } from './ProfileSection';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { ColorModeContext } from "../../contexts/context";
+import { ActiveAirdropButton, AirdropButton } from '../buttons/Airdrop';
+import { ButtonPrimary } from '../buttons/Button';
+import ProfileSection from './ProfileSection';
 
 const darkModeMoon = '/assets/darkModeMoon1.svg';
 const lightModeSun = '/assets/lightModeSun1.svg';
@@ -15,13 +16,13 @@ const HeaderContainer = styled('div')`
   display: flex;
   flex-direction: column;
   width: 100%;
-  z-index: 10;
+  z-index: 1100;
 `
 
 const MainBox = styled('div')`
   display: flex;
   width: 100%;
-  padding: ${({ isMobile }) => (isMobile ? '24px 10px' : '24px 24px')};
+  padding: ${({ isMobile }) => (isMobile ? '24px 10px' : '24px 75px')};
   align-items: center;
   justify-content: space-between;
   gap: 40px;
@@ -66,9 +67,10 @@ const NavBarContainer = styled('div')`
 const ButtonsBox = styled('div')`
   display: flex;
   align-items: center;
+  gap: 8px;
 `;
 
-const NavItem = styled('a', {
+const NavItem = styled(Link, {
     shouldForwardProp: (prop) => prop !== 'active',
 })`
   display: flex;
@@ -79,7 +81,6 @@ const NavItem = styled('a', {
   background: ${({ active }) => (active ? '#00615F' : '')};
   text-align: center;
   color: ${({ theme, active }) => (active ? '#FFFFFF' : theme.palette.custom.textTertiary)};
-  font-family: Inter;
   font-size: 20px;
   font-weight: 600;
   line-height: 140%;
@@ -97,7 +98,6 @@ const NavItemMobile = styled('a', {
   background: ${({ active }) => (active ? '#00615F' : '')};
   text-align: center;
   color: ${({ theme, active }) => (active ? '#FFFFFF' : theme.palette.custom.textTertiary)};
-  font-family: Inter;
   font-size: 16px;
   font-weight: 600;
   line-height: 100%;
@@ -130,7 +130,7 @@ export const ModeSwitch = styled((props) => (
         },
     },
     '& .MuiSwitch-thumb': {
-        
+
         backgroundColor: '#F88F6D',
         width: 40,
         height: 40,
@@ -197,7 +197,7 @@ export default function Header({ isDrawerOpen, setDrawerOpen, }) {
                             {navItems.map((item) => (
                                 <NavItem
                                     key={item.href}
-                                    href={item.href}
+                                    to={item.href}
                                     active={item.label === 'Swap' ? (pathname.includes(item.href) || pathname === '/') : pathname.includes(item.href)}
                                     target={item.target}
                                     data-testid="nav-link"
@@ -212,14 +212,15 @@ export default function Header({ isDrawerOpen, setDrawerOpen, }) {
                                 defaultChecked={theme.palette.mode === 'dark' ? true : false}
                                 onChange={(e) => colorMode.toggleColorMode()}
                             />
-                            <AirdropButton style={{ width: '150px' }} />
+                            <ButtonPrimary style={{ width: '160px' }}>Testnet</ButtonPrimary>
+                            <AirdropButton style={{ width: '105px' }} />
                             <ProfileSection />
                         </ButtonsBox>
                     </>
                 ) : (
                     <>
                         <Box display="flex" alignItems="center" gap="18px" >
-                            <ActiveChainHeaderChip isMobile={isMobile} />
+                            <ButtonPrimary style={{ width: '100px', height: 33, borderRadius: 4, fontSize: 14, overflow: 'hidden' }}>Testnet</ButtonPrimary>
                             <ActiveAirdropButton style={{ marginLeft: '8px' }} />
                             <Menu
                                 onClick={() => setDrawerOpen(!isDrawerOpen)}

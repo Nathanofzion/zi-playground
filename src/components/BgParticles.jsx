@@ -38,7 +38,7 @@ const BgParticles = ({ isDarkMode }) => {
       options={{
         background: {
           color: {
-            value: isDarkMode ? "#222" : "#ffffff",
+            value: isDarkMode ? "#0F1016" : "#ffffff",
           },
         },
         fpsLimit: 120,
