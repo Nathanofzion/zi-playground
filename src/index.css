@@ -1,13 +1,19 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
   overflow-x: hidden;
   font-family: "Montserrat", sans-serif;
 }
 
 .container {
   width: 100%;
+  height: calc(100vh - 130px);
   background-image: linear-gradient(to bottom, #ddd, #aaa);
   margin: auto;
   padding: 1rem;
@@ -15,7 +21,7 @@
 
 .hero-div {
   width: 100%;
-  height: calc(100vh - 2rem);
+  height: 100%;
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -31,7 +37,7 @@
 
 .hero-subdiv {
   width: 50%;
-  height: calc(100vh - 2rem);
+  height: 100%;
   display: flex;
   align-items: center;
   text-align: center;
@@ -70,12 +76,14 @@
     font-size: 3.5rem;
     text-align: center;
   }
+
   .hero-model {
     width: 90%;
     height: 20rem;
     display: flex;
     align-items: center;
   }
+
   .hero-2 {
     width: 90%;
     align-items: normal;
@@ -117,7 +125,8 @@
   /* opacity: 0; */
   transform: translateY(-1000px);
   display: inline-block;
-  margin-right: 2px; /* Adjust the margin as needed to create space between characters */
+  margin-right: 2px;
+  /* Adjust the margin as needed to create space between characters */
   animation: fallIn 0.5s ease-out forwards;
 }
 

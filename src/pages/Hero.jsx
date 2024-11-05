@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+// eslint-disable-next-line no-unused-vars
+import { Box } from "@mui/material";
+import PropTypes from "prop-types";
+// eslint-disable-next-line no-unused-vars
+import React, { useContext, useState } from "react";
+import { ButtonPrimary } from "../components/buttons/Button";
 import Earth from "../components/Earth";
+import { AppContext } from "../contexts/context";
 
 const Hero = ({ isDarkMode }) => {
-  const [startAnimation, setStartAnimation] = useState(false);
+  const { ConnectWalletModal: { setConnectWalletModalOpen } } = useContext(AppContext);
 
-  const handleLogin = () => {
-    setStartAnimation(true);
-  };
+  const [startAnimation/*, setStartAnimation*/] = useState(false);
+
+  // const handleLogin = () => {
+  //   setStartAnimation(true);
+  // };
 
   const MatrixText = ({ text, delay }) => (
     <span
@@ -17,8 +25,8 @@ const Hero = ({ isDarkMode }) => {
           text === "Choose A Wallet To Login"
             ? "3rem"
             : delay === 0
-            ? "2rem"
-            : "1rem",
+              ? "2rem"
+              : "1rem",
         fontWeight: delay === 0 ? "bold" : "normal",
         animationDelay: `${delay}s`,
         display: "block",
@@ -29,6 +37,15 @@ const Hero = ({ isDarkMode }) => {
       {text}
     </span>
   );
+
+  MatrixText.propTypes = {
+    text: PropTypes.string,
+    delay: PropTypes.number,
+  }
+
+  const handleConnect = () => {
+    setConnectWalletModalOpen(true);
+  }
 
   const GridItem = ({ title, text, url, buttonUrl }) => (
     <div style={{ flex: 1 }}>
@@ -60,6 +77,13 @@ const Hero = ({ isDarkMode }) => {
       </a>
     </div>
   );
+
+  GridItem.propTypes = {
+    title: PropTypes.string,
+    text: PropTypes.string,
+    url: PropTypes.url,
+    buttonUrl: PropTypes.url,
+  }
 
   return (
     <div className="container">
@@ -113,9 +137,11 @@ const Hero = ({ isDarkMode }) => {
                 >
                   Connect the World With Zig3
                 </h1>
-                <button className="loginbtn" onClick={handleLogin}>
-                  Login
-                </button>
+                <Box sx={{ mt: '16px', display: 'flex', justifyContent: 'center' }}>
+                  <ButtonPrimary sx={{ width: 'unset' }} onClick={handleConnect}>
+                    Connect wallet
+                  </ButtonPrimary>
+                </Box>
               </>
             )}
           </div>
@@ -123,15 +149,19 @@ const Hero = ({ isDarkMode }) => {
       </div>
 
       {/* Media query to adjust text sizes on smaller viewports */}
-      <style jsx>{`
+      <style>{`
         @media (max-width: 768px) {
           .matrix-text {
             font-size: 1rem;
           }
         }
       `}</style>
-    </div>
+    </div >
   );
 };
+
+Hero.propTypes = {
+  isDarkMode: PropTypes.bool,
+}
 
 export default Hero;

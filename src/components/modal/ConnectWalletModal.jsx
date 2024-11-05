@@ -1,29 +1,30 @@
-import React, { useContext, useState, useEffect } from 'react';
-
+import { isConnected as isConnectedLobstr } from '@lobstrco/signer-extension-api';
 import { Box, CircularProgress, Modal, useMediaQuery } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';
 import { useSorobanReact } from '@soroban-react/core';
-import { AppContext } from '../../contexts/context';
-import freighterLogoBlack from '../../assets/FreighterWalletBlack.svg';
-import freighterLogoWhite from '../../assets/FreighterWalletWhite.svg';
-import ModalBox from './ModalBox';
-import { ButtonPrimary } from '../buttons/Button';
-import { AlertCircle } from 'react-feather';
-
-import Bowser from 'bowser';
 import { isConnected } from '@stellar/freighter-api';
-import { isConnected as isConnectedLobstr } from '@lobstrco/signer-extension-api';
+import base64url from 'base64url';
+import Bowser from 'bowser';
+import PropTypes from 'prop-types';
+// eslint-disable-next-line no-unused-vars
+import React, { useContext, useEffect, useState } from 'react';
+import { AlertCircle } from 'react-feather';
 
 import { account, getContractId } from '$lib/passkeyClient';
 import { contractId } from '$lib/stores/contractId';
 import { keyId } from '$lib/stores/keyId';
-import base64url from 'base64url';
+import freighterLogoBlack from '../../assets/FreighterWalletBlack.svg';
+import freighterLogoWhite from '../../assets/FreighterWalletWhite.svg';
+import { AppContext } from '../../contexts/context';
+import { ButtonPrimary } from '../buttons/Button';
+import ModalBox from './ModalBox';
 
 const Title = styled('div')`
   font-size: 24px;
   font-weight: 500;
   color: ${({ theme }) => theme.palette.custom.textPrimary};
 `;
+
 const Subtitle = styled('div')`
   font-size: 14px;
   font-weight: 500;
@@ -36,14 +37,6 @@ const Subtitle = styled('div')`
 const Text = styled('div')`
   font-size: 12px;
   font-weight: 300;
-  textwrap: wrap;
-  & > span {
-    display: block;
-  }
-`;
-const Info = styled('div')`
-  font-size: 10px;
-  font-weight: 100;
   textwrap: wrap;
   & > span {
     display: block;
@@ -83,16 +76,6 @@ const FooterText = styled('div')`
   }
 `;
 
-export const ConnectWalletStyles = {
-    Title,
-    Subtitle,
-    Text,
-    Info,
-    ContentWrapper,
-    WalletBox,
-    FooterText,
-};
-
 const ConnectWalletContent = ({
     isMobile,
     wallets,
@@ -101,17 +84,14 @@ const ConnectWalletContent = ({
     const theme = useTheme();
     const { ConnectWalletModal } = useContext(AppContext);
     const { setConnectWalletModalOpen } = ConnectWalletModal;
-    const [errorMessage, setErrorMessage] = useState(null);
     const sorobanContext = useSorobanReact();
     const { setActiveConnectorAndConnect } = sorobanContext;
-    const [walletsStatus, setWalletsStatus] =
-        useState(
-            [
-                { name: 'freighter', isInstalled: false, isLoading: true },
-                { name: 'xbull', isInstalled: false, isLoading: true },
-                { name: 'lobstr', isInstalled: false, isLoading: true },
-            ]
-        );
+    const [walletsStatus, setWalletsStatus] = useState([
+        { name: 'freighter', isInstalled: false, isLoading: true },
+        { name: 'xbull', isInstalled: false, isLoading: true },
+        { name: 'lobstr', isInstalled: false, isLoading: true },
+    ]);
+
     const browser = Bowser.getParser(window.navigator.userAgent).getBrowserName();
 
     const installWallet = (wallet) => {
@@ -225,7 +205,7 @@ const ConnectWalletContent = ({
         Promise.all(newWalletsStatus).then((updatedWalletsStatus) => {
             setWalletsStatus(updatedWalletsStatus);
         });
-    }, []);
+    }, [walletsStatus]);
 
     return (
         <ModalBox>
@@ -347,6 +327,12 @@ const ConnectWalletContent = ({
     );
 };
 
+ConnectWalletContent.propTypes = {
+    isMobile: PropTypes.bool,
+    wallets: PropTypes.array,
+    onError: PropTypes.func,
+}
+
 const ErrorContent = ({
     isMobile,
     handleClick,
@@ -378,6 +364,12 @@ const ErrorContent = ({
         </ModalBox>
     );
 };
+
+ErrorContent.propTypes = {
+    isMobile: PropTypes.bool,
+    handleClick: PropTypes.func,
+    errorMessage: PropTypes.string,
+}
 
 export default function ConnectWalletModal() {
     const theme = useTheme();
