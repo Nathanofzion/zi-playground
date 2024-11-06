@@ -1,19 +1,18 @@
-import React, { useState } from "react";
-import BgParticles from "./components/BgParticles";
-import Hero from "./pages/Hero";
-import sun from "./assets/sun.svg";
-import moon from "./assets/moon.svg";
-import { AppContext, ColorModeContext } from "./contexts/context";
-import { useMemo } from "react";
-import Header from "./components/layouts/Header";
-import { BrowserRouter } from "react-router-dom";
-import { theme } from "./helpers/theme/theme"
 import { ThemeProvider } from "@mui/material";
-import MySorobanReactProvider from './soroban/MySorobanReactProvider';
-import InkathonProvider from './inkathon/InkathonProvider';
 import Toolbar from '@mui/material/Toolbar';
-import ConnectWalletModal from "./components/modal/ConnectWalletModal";
+// eslint-disable-next-line no-unused-vars
+import React, { useMemo, useState } from "react";
+import { BrowserRouter } from "react-router-dom";
+
+import BgParticles from "./components/BgParticles";
+import Header from "./components/layouts/Header";
 import MobileDrawer from "./components/layouts/MobileDrawer";
+import ConnectWalletModal from "./components/modal/ConnectWalletModal";
+import { AppContext, ColorModeContext } from "./contexts/context";
+import { theme } from "./helpers/theme/theme";
+import InkathonProvider from './inkathon/InkathonProvider';
+import Hero from "./pages/Hero";
+import MySorobanReactProvider from './soroban/MySorobanReactProvider';
 
 
 const App = () => {
@@ -70,11 +69,11 @@ const App = () => {
                     <Header isDrawerOpen={openSnackbar} setDrawerOpen={setOpenSnackbar} />
                     <MobileDrawer isDrawerOpen={openSnackbar} setDrawerOpen={setOpenSnackbar} />
                   </Toolbar>
-                  <div>
-                    <Hero isDarkMode={mode == 'dark'} />
-                    <BgParticles isDarkMode={mode == 'dark'} />
-                  </div>
                   <ConnectWalletModal />
+                  <div style={{ flexGrow: 1 }}>
+                    <BgParticles isDarkMode={mode == 'dark'} />
+                    <Hero isDarkMode={mode == 'dark'} />
+                  </div>
                 </AppContext.Provider>
               </ColorModeContext.Provider>
             </ InkathonProvider>

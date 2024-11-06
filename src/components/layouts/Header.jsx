@@ -22,6 +22,9 @@ const MainBox = styled(Box)`
   align-items: center;
   justify-content: space-between;
   gap: 40px;
+  @media screen and (max-width: 1024px) {
+    gap: 16px;
+  }
 `;
 
 const BorderBox = styled('div')`
@@ -46,7 +49,7 @@ const NavBarMobile = styled('div')`
   width: 100%;
   padding: 8px 16px;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   border-radius: 32px;
   background: ${({ theme }) => theme.palette.background.paper};
   box-shadow: 0px 4px 10px 0px rgba(136, 102, 221, 0.03);
@@ -64,6 +67,9 @@ const ButtonsBox = styled('div')`
   display: flex;
   align-items: center;
   gap: 8px;
+  @media screen and (max-width: 1024px) {
+    gap: 4px;
+  }
 `;
 
 const NavItem = styled(Link, {
@@ -83,11 +89,11 @@ const NavItem = styled(Link, {
   text-decoration: none;
 `;
 
-const NavItemMobile = styled('a', {
+const NavItemMobile = styled(Link, {
     shouldForwardProp: (prop) => prop !== 'active',
 })`
   display: flex;
-  padding: 8px 18px;
+  padding: 8px 10px;
   align-items: center;
   gap: 10px;
   border-radius: 18px;
@@ -106,6 +112,7 @@ export const ModeSwitch = styled((props) => (
     width: 100,
     height: 56,
     padding: 0,
+    margin: 0,
     '& .MuiSwitch-switchBase': {
         padding: 0,
         margin: 8,
@@ -230,7 +237,7 @@ export default function Header() {
                         {navItems.map((item) => (
                             <NavItemMobile
                                 key={item.href}
-                                href={item.href}
+                                to={item.href}
                                 active={item.label === 'Swap' ? (pathname.includes(item.href) || pathname === '/') : pathname.includes(item.href)}
                             >
                                 {item.label}

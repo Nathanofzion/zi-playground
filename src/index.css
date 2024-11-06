@@ -11,6 +11,12 @@
   font-family: "Montserrat", sans-serif;
 }
 
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .container {
   width: 100%;
   height: calc(100vh - 130px);
@@ -79,7 +85,6 @@
 
   .hero-model {
     width: 90%;
-    height: 20rem;
     display: flex;
     align-items: center;
   }
@@ -87,7 +92,6 @@
   .hero-2 {
     width: 90%;
     align-items: normal;
-    height: 30rem;
   }
 }
 
