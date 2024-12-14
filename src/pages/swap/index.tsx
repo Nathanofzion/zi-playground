@@ -1,7 +1,7 @@
 import { useSorobanReact } from '@soroban-react/core';
-import SEO from 'components/SEO';
-import { SwapComponent } from 'components/Swap/SwapComponent';
-import { xlmTokenList } from 'constants/xlmToken';
+import SEO from '@/components/SEO';
+import { SwapComponent } from '@/components/Swap/SwapComponent';
+import { xlmTokenList } from '@/constants/xlmToken';
 import { useEffect, useState } from 'react';
 import { Field } from 'state/swap/actions';
 import { SwapState } from 'state/swap/reducer';

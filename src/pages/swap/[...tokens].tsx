@@ -1,15 +1,15 @@
+import SEO from '@/components/SEO';
+import { SwapComponent } from '@/components/Swap/SwapComponent';
 import { useSorobanReact } from '@soroban-react/core';
-import SEO from 'components/SEO';
-import { SwapComponent } from 'components/Swap/SwapComponent';
-import { xlmTokenList } from 'constants/xlmToken';
-import { useRouter } from 'next/router';
+import { xlmTokenList } from '@/constants/xlmToken';
+import { useNavigate } from 'react-router';
 import { Field } from 'state/swap/actions';
 
 export default function SwapPage() {
   const { activeChain } = useSorobanReact();
   const xlmToken = xlmTokenList.find((set) => set.network === activeChain?.network)?.assets
 
-  const router = useRouter();
+  const router = useNavigate();
 
   const { tokens } = router.query;
 
@@ -41,7 +41,7 @@ export default function SwapPage() {
   return (
     <>
       <SEO title="Swap - Soroswap" description="Soroswap Swap" />
-      <SwapComponent prefilledState={prefilledState}/>
+      <SwapComponent prefilledState={prefilledState} />
     </>
   );
 }

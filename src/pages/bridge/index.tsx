@@ -1,7 +1,7 @@
 import { Box, Paper, styled } from '@mui/material';
-import BridgeComponent from 'components/Bridge/BridgeComponent'
+import BridgeComponent from '@/components/Bridge/BridgeComponent'
 
-import SEO from 'components/SEO';
+import SEO from '@/components/SEO';
 
 export default function BridgePage() {
   return (

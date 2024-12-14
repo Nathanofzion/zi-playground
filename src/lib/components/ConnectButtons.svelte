@@ -21,8 +21,8 @@
     import ChevronDown from 'lucide-svelte/icons/chevron-down';
     import Copy from 'lucide-svelte/icons/copy';
     import { Wallet, CircleDollarSign, HelpingHand, LogOut, LoaderCircle } from 'lucide-svelte';
-    import Identicon from '$lib/components/ui/Identicon.svelte';
-    import TruncatedAddress from '$lib/components/ui/TruncatedAddress.svelte';
+    import Identicon from '$lib/@/components/ui/Identicon.svelte';
+    import TruncatedAddress from '$lib/@/components/ui/TruncatedAddress.svelte';
     import { seContractLink } from '$lib/stellarExpert';
     import { networks } from 'ye_olde_guestbook';
     import SuperpeachEmbed from './ui/SuperpeachEmbed.svelte';

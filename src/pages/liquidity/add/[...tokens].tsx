@@ -1,14 +1,14 @@
+import AddLiquidityComponent from '@/components/Liquidity/Add/AddLiquidityComponent';
+import SEO from '@/components/SEO';
 import { useSorobanReact } from '@soroban-react/core';
-import AddLiquidityComponent from 'components/Liquidity/Add/AddLiquidityComponent';
-import SEO from 'components/SEO';
-import { xlmTokenList } from 'constants/xlmToken';
-import { useRouter } from 'next/router';
+import { xlmTokenList } from '@/constants/xlmToken';
+import { useNavigate } from 'react-router';
 
 export default function AddLiquidityPage() {
   const { activeChain } = useSorobanReact();
   const xlmToken = xlmTokenList.find((set) => set.network === activeChain?.network)?.assets
 
-  const router = useRouter();
+  const router = useNavigate();
 
   const { tokens } = router.query;
 

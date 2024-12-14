@@ -1,12 +1,12 @@
-import AddLiquidityComponent from 'components/Liquidity/Add/AddLiquidityComponent';
-import SEO from 'components/SEO';
-import { useApiTokens } from 'hooks/tokens/useApiTokens';
-import { useRouter } from 'next/router';
+import AddLiquidityComponent from '@/components/Liquidity/Add/AddLiquidityComponent';
+import SEO from '@/components/SEO';
+import { useApiTokens } from '@/hooks/tokens/useApiTokens';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 export default function AddLiquidityPage() {
   const { tokens } = useApiTokens();
-  const router = useRouter();
+  const router = useNavigate();
 
   useEffect(() => {
     if (!tokens) return;

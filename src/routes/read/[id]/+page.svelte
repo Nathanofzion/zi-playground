@@ -1,5 +1,5 @@
 <script lang="ts">
-    import GuestbookMessage from '$lib/components/GuestbookMessage.svelte';
+    import GuestbookMessage from '$lib/@/components/GuestbookMessage.svelte';
     import type { PageData } from './$types';
 
     export let data: PageData;

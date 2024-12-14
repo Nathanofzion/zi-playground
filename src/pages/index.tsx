@@ -1,11 +1,11 @@
 import { useSorobanReact } from '@soroban-react/core';
-import { SwapComponent } from 'components/Swap/SwapComponent';
-import { xlmTokenList } from 'constants/xlmToken';
+import { SwapComponent } from '@/components/Swap/SwapComponent';
+import { xlmTokenList } from '@/constants/xlmToken';
 import { useEffect, useState } from 'react';
 import ReactGA from 'react-ga';
 import { Field } from 'state/swap/actions';
 import { SwapState } from 'state/swap/reducer';
-import SEO from '../src/components/SEO';
+import SEO from '../src/@/components/SEO';
 
 const TAG_ID = process.env.NEXT_PUBLIC_TAG_ID;
 if (TAG_ID && TAG_ID != ''){

@@ -1,32 +1,29 @@
+import { ButtonPrimary } from '@/components/Buttons/Button';
+import { WalletButton } from '@/components/Buttons/WalletButton';
+import { AutoColumn } from '@/components/Column';
+import LiquidityPoolInfoModal from '@/components/Liquidity/LiquidityPoolInfoModal';
+import { LPPercentage } from '@/components/Liquidity/styleds';
+import CurrencyLogo from '@/components/Logo/CurrencyLogo';
+import { Dots } from '@/components/Pool/styleds';
+import { AutoRow } from '@/components/Row';
+import SettingsTab from '@/components/Settings';
+import { BodySmall, SubHeader } from '@/components/Text';
+import { AppContext } from '@/contexts';
+import { LpTokensObj } from '@/functions/getLpTokens';
+import useGetLpTokens from '@/hooks/useGetLpTokens';
 import { CircularProgress, styled, useMediaQuery, useTheme } from '@mui/material';
 import { useSorobanReact } from '@soroban-react/core';
-import { ButtonPrimary } from 'components/Buttons/Button';
-import { WalletButton } from 'components/Buttons/WalletButton';
-import { AutoColumn } from 'components/Column';
-import LiquidityPoolInfoModal from 'components/Liquidity/LiquidityPoolInfoModal';
-import { LPPercentage } from 'components/Liquidity/styleds';
-import CurrencyLogo from 'components/Logo/CurrencyLogo';
-import { Dots } from 'components/Pool/styleds';
-import { AutoRow } from 'components/Row';
-import SettingsTab from 'components/Settings';
-import { BodySmall, SubHeader } from 'components/Text';
-import { AppContext } from 'contexts';
-import { LpTokensObj } from 'functions/getLpTokens';
-import useGetLpTokens from 'hooks/useGetLpTokens';
-import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
-import SEO from '../../src/components/SEO';
+import { useNavigate } from 'react-router';
+import SEO from '../../src/@/components/SEO';
 
 const PageWrapper = styled(AutoColumn)`
   position: relative;
-  background: ${({ theme }) => `linear-gradient(${theme.palette.customBackground.bg2}, ${
-    theme.palette.customBackground.bg2
-  }) padding-box,
-              linear-gradient(150deg, rgba(136,102,221,1) 0%, rgba(${
-                theme.palette.mode == 'dark' ? '33,29,50,1' : '255,255,255,1'
-              }) 35%, rgba(${
-                theme.palette.mode == 'dark' ? '33,29,50,1' : '255,255,255,1'
-              }) 65%, rgba(136,102,221,1) 100%) border-box`};
+  background: ${({ theme }) => `linear-gradient(${theme.palette.customBackground.bg2}, ${theme.palette.customBackground.bg2
+    }) padding-box,
+              linear-gradient(150deg, rgba(136,102,221,1) 0%, rgba(${theme.palette.mode == 'dark' ? '33,29,50,1' : '255,255,255,1'
+    }) 35%, rgba(${theme.palette.mode == 'dark' ? '33,29,50,1' : '255,255,255,1'
+    }) 65%, rgba(136,102,221,1) 100%) border-box`};
   border: 1px solid transparent;
   border-radius: 16px;
   padding: 32px;
@@ -81,7 +78,7 @@ const StatusWrapper = styled('div')`
 export default function LiquidityPage() {
   const sorobanContext = useSorobanReact();
   const { address } = sorobanContext;
-  const router = useRouter();
+  const router = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { ConnectWalletModal } = useContext(AppContext);

@@ -1,11 +1,12 @@
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
-    plugins: [svelte()],
+    plugins: [react()],
     resolve: {
         alias: {
-            '$lib': '/src/lib'
+            '$lib': '/src/lib',
+            '@': '/src',
         }
     }
 });

@@ -1,5 +1,5 @@
 import { ButtonLight, ButtonPrimary } from '../buttons/Button';
-import { AppContext } from '../../contexts/context';
+import { AppContext } from '@/contexts';
 import React, { useContext } from 'react';
 
 

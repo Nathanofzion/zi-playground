@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Identicon from '$lib/components/ui/Identicon.svelte';
+    import Identicon from '$lib/@/components/ui/Identicon.svelte';
     import type { Message } from 'ye_olde_guestbook';
     import StellarExpertLink from './ui/StellarExpertLink.svelte';
 
