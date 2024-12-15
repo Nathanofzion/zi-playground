@@ -84,6 +84,7 @@ const NavItem = styled(Link, {
   font-size: 20px;
   font-weight: 600;
   line-height: 140%;
+  text-decoration: none;
 `;
 
 const NavItemMobile = styled(Link, {

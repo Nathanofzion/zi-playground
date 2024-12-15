@@ -16,6 +16,7 @@ import ModalBox from './ModalBox';
 const Title = styled('div')`
   font-size: 24px;
   font-weight: 500;
+  color: ${({ theme }) => theme.palette.custom.textPrimary};
 `;
 const Subtitle = styled('div')`
   font-size: 14px;
@@ -23,6 +24,7 @@ const Subtitle = styled('div')`
   &> span {
     display: block;
   }
+  color: ${({ theme }) => theme.palette.custom.textPrimary};
 `;
 
 const Text = styled('div')`
@@ -61,6 +63,7 @@ const WalletBox = styled('div')`
   align-items: center;
   gap: 10px;
   align-self: stretch;
+  color: ${({ theme }) => theme.palette.custom.textPrimary};
 `;
 
 const FooterText = styled('div') <{ isMobile: boolean }>`
@@ -71,6 +74,7 @@ const FooterText = styled('div') <{ isMobile: boolean }>`
   &> span {
     color: ${({ theme }) => theme.palette.custom.textLinks};
   }
+  color: ${({ theme }) => theme.palette.custom.textPrimary};
 `;
 
 export const ConnectWalletStyles = {
