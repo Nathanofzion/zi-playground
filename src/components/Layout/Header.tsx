@@ -9,7 +9,7 @@ import Link from '@/components/Link';
 import { ColorModeContext } from '@/providers/ColorModeProvider';
 import ProfileSection, { ActiveChainHeaderChip } from './ProfileSection';
 
-const logo = '/assets/logo.png';
+const logo = '/logo.png';
 const darkModeMoon = '/assets/darkModeMoon1.svg';
 const lightModeSun = '/assets/lightModeSun1.svg';
 
