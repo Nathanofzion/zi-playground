@@ -1,5 +1,4 @@
 import { Address, xdr } from '@stellar/stellar-sdk';
-import { Buffer } from 'buffer';
 import { bufToBigint } from 'bigint-conversion';
 import { I128 } from './xdr';
 

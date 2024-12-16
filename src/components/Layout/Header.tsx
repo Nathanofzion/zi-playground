@@ -102,6 +102,7 @@ const NavItemMobile = styled(Link, {
   font-size: 16px;
   font-weight: 600;
   line-height: 100%;
+  text-decoration: none;
 `;
 
 export const ModeSwitch = styled((props: SwitchProps) => (
