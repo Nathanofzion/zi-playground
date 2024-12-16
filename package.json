@@ -50,7 +50,6 @@
     "bigint-conversion": "^2.4.3",
     "bignumber.js": "^9.1.2",
     "bowser": "^2.11.0",
-    "buffer": "^6.0.3",
     "lucide-svelte": "^0.414.0",
     "passkey-kit": "^0.6.1",
     "polished": "^4.3.1",
