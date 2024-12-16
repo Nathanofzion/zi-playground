@@ -1,5 +1,5 @@
-import { ButtonPrimary } from '@/components/Buttons/Button';
-import { WalletButton } from '@/components/Buttons/WalletButton';
+import { ButtonPrimary } from '@/components/buttons/Button';
+import { WalletButton } from '@/components/buttons/WalletButton';
 import { AutoColumn } from '@/components/Column';
 import LiquidityPoolInfoModal from '@/components/Liquidity/LiquidityPoolInfoModal';
 import { LPPercentage } from '@/components/Liquidity/styleds';

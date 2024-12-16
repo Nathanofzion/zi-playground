@@ -1,4 +1,4 @@
-import { ButtonPrimary } from "@/components/Buttons/Button";
+import { ButtonPrimary } from "@/components/buttons/Button";
 import Earth from "@/components/Earth";
 import { AppContext } from "@/contexts";
 import { ColorMode, ColorModeContext } from "@/providers/ColorModeProvider";

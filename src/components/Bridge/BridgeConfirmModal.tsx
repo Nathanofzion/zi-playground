@@ -1,7 +1,7 @@
 import { Box, Button, Modal, Typography, useTheme } from '@mui/material';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import BigNumber from 'bignumber.js';
-import { ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonPrimary } from '@/components/buttons/Button';
 import { CloseButton } from '@/components/Buttons/CloseButton';
 import { AutoColumn } from '@/components/Column';
 import CopyTxHash from '@/components/CopyTxHash/CopyTxHash';

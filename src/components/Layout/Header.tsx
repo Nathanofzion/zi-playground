@@ -4,7 +4,7 @@ import { useLocation } from 'react-router';
 
 import { Box, Switch, SwitchProps, styled, useMediaQuery, useTheme } from '@mui/material';
 
-import { ActiveAirdropButton, AirdropButton } from '@/components/Buttons/Airdrop';
+import { ActiveAirdropButton, AirdropButton } from '@/components/buttons/Airdrop';
 import Link from '@/components/Link';
 import { ColorModeContext } from '@/providers/ColorModeProvider';
 import ProfileSection, { ActiveChainHeaderChip } from './ProfileSection';

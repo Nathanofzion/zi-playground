@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { Box, CircularProgress } from '@mui/material';
-import { ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonPrimary } from '@/components/buttons/Button';
 import { ButtonText } from '@/components/Text';
 import { ConnectPendulumWalletButton } from './ConnectPendulumWalletButton';
 import { useInkathon } from '@scio-labs/use-inkathon';

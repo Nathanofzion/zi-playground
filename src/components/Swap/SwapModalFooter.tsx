@@ -1,7 +1,7 @@
 import { CircularProgress, styled, useTheme } from '@mui/material';
 import { useSorobanReact } from '@soroban-react/core';
 import BigNumber from 'bignumber.js';
-import { ButtonError, SmallButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonError, SmallButtonPrimary } from '@/components/buttons/Button';
 import Column from '@/components/Column';
 import CurrencyLogo from '@/components/Logo/CurrencyLogo';
 import Row, { AutoRow, RowBetween, RowFixed } from '@/components/Row';

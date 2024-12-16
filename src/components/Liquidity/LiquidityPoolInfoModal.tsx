@@ -1,4 +1,4 @@
-import { ButtonOutlined, ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonOutlined, ButtonPrimary } from '@/components/buttons/Button';
 import { CloseButton } from '@/components/Buttons/CloseButton';
 import Column from '@/components/Column';
 import CurrencyLogo from '@/components/Logo/CurrencyLogo';

@@ -1,5 +1,5 @@
-import { ButtonError } from '@/components/Buttons/Button';
-import { WalletButton } from '@/components/Buttons/WalletButton';
+import { ButtonError } from '@/components/buttons/Button';
+import { WalletButton } from '@/components/buttons/WalletButton';
 import { DarkGrayCard } from '@/components/Card';
 import { AutoColumn, ColumnCenter } from '@/components/Column';
 import CurrencyInputPanel from '@/components/CurrencyInputPanel';

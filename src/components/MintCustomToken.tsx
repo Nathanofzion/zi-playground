@@ -6,7 +6,7 @@ import { AppContext, SnackbarIconType } from '@/contexts';
 
 import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import CardContent from '@mui/material/CardContent';
-import { ButtonPrimary } from './Buttons/Button';
+import { ButtonPrimary } from './buttons/Button';
 import { TextInput } from './Inputs/TextInput';
 import WrapStellarAssetModal from './Modals/WrapStellarAssetModal';
 import { BodySmall } from './Text';

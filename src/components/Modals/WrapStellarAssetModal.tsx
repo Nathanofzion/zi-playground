@@ -1,9 +1,9 @@
 import { Box, CircularProgress, Modal, useTheme } from '@mui/material';
 import { wrapStellarAsset } from '@soroban-react/contracts';
 import { useSorobanReact } from '@soroban-react/core';
-import { ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonPrimary } from '@/components/buttons/Button';
 import { CloseButton } from '@/components/Buttons/CloseButton';
-import { WalletButton } from '@/components/Buttons/WalletButton';
+import { WalletButton } from '@/components/buttons/WalletButton';
 import { AutoColumn } from '@/components/Column';
 import { RowBetween } from '@/components/Row';
 import { LoadingIndicatorOverlay, LogoContainer } from '@/components/Swap/PendingModalContent/Logos';

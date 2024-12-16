@@ -10,7 +10,7 @@ import { useSorobanReact } from '@soroban-react/core';
 import { Connector } from '@soroban-react/types';
 import { isConnected } from '@stellar/freighter-api';
 
-import { ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonPrimary } from '@/components/buttons/Button';
 import ModalBox from './ModalBox';
 
 const Title = styled('div')`

@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Modal, styled } from '@mui/material';
 import { setTrustline } from '@soroban-react/contracts';
 import { useSorobanReact } from '@soroban-react/core';
-import { ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonPrimary } from '@/components/buttons/Button';
 import { AutoColumn } from '@/components/Column';
 import ConfirmSwapModal, { useConfirmModalState } from '@/components/Swap/ConfirmSwapModal';
 import SwapDetailsDropdown from '@/components/Swap/SwapDetailsDropdown';

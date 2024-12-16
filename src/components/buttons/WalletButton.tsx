@@ -1,4 +1,4 @@
-import { ButtonLight, ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonLight, ButtonPrimary } from '@/components/buttons/Button';
 import { AppContext } from '@/contexts';
 import React, { useContext } from 'react';
 

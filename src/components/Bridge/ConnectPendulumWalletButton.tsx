@@ -8,7 +8,7 @@ import {
   useInkathon,
 } from '@scio-labs/use-inkathon';
 import { Box, CircularProgress, Modal, useMediaQuery, useTheme } from '@mui/material';
-import { ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonPrimary } from '@/components/buttons/Button';
 import { ButtonText } from '@/components/Text';
 import { ConnectWalletStyles } from '@/components/Modals/ConnectWalletModal';
 import { useSorobanReact } from '@soroban-react/core';

@@ -3,7 +3,7 @@ import { Box, Chip, Menu, MenuItem, MenuProps, useMediaQuery } from '@mui/materi
 import { alpha, styled, useTheme } from '@mui/material/styles';
 import { useInkathon } from '@scio-labs/use-inkathon';
 import { SorobanContextType, useSorobanReact } from '@soroban-react/core';
-import { WalletButton } from '@/components/Buttons/WalletButton';
+import { WalletButton } from '@/components/buttons/WalletButton';
 import { AppContext } from '@/contexts';
 import React, { useContext } from 'react';
 import { shortenAddress } from '@/helpers/address';

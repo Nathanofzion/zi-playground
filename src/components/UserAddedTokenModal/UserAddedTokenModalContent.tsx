@@ -1,5 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import { ButtonPrimary } from '@/components/Buttons/Button';
+import { ButtonPrimary } from '@/components/buttons/Button';
 import { CloseButton } from '@/components/Buttons/CloseButton';
 import { AutoColumn } from '@/components/Column';
 import { RowBetween } from '@/components/Row';
