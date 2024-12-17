@@ -1,6 +1,7 @@
 import ClipboardComponent from '@/components/Clipboard/ClipboardComponent';
 import CurrencyLogo from '@/components/Logo/CurrencyLogo';
 import { shortenAddress } from '@/helpers/address';
+import { relevantTokensType } from '@/hooks';
 import useBoolean, { UseBooleanReturnProps } from '@/hooks/useBoolean';
 import useGetMyBalances from '@/hooks/useGetMyBalances';
 import useTable from '@/hooks/useTable';
@@ -15,7 +16,6 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
-import { relevantTokensType } from 'hooks';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 

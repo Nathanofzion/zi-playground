@@ -25,8 +25,8 @@ const App = () => {
           </Toolbar>
           <ConnectWalletModal />
           <Routes>
+            <Route path='/' element={<Hero />} />
             <Route path='/balance' element={<Balance />} />
-            <Route path='/hero' element={<Hero />} />
           </Routes>
         </Box>
       </Box>

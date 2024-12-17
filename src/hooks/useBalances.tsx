@@ -2,8 +2,7 @@ import BigNumber from 'bignumber.js';
 
 import { contractInvoke } from '@soroban-react/contracts';
 import { SorobanContextType } from '@soroban-react/core';
-import { xdr } from '@stellar/stellar-sdk';
-import { AccountResponse } from '@stellar/stellar-sdk/lib/horizon';
+import { AccountResponse, xdr } from '@stellar/stellar-sdk';
 
 import { scValToJs } from '@/helpers/convert';
 import { formatTokenAmount } from '@/helpers/format';

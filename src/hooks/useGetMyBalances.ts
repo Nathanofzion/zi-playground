@@ -1,20 +1,19 @@
+import { TokenType } from '@/interfaces';
 import { SorobanContextType, useSorobanReact } from '@soroban-react/core';
-import BigNumber from 'bignumber.js';
-import { TokenType } from 'interfaces';
-import { useCallback } from 'react';
 import { BASE_FEE } from '@stellar/stellar-sdk';
+import BigNumber from 'bignumber.js';
+import { useCallback } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { useAllTokens } from './tokens/useAllTokens';
 import { tokenBalances } from './useBalances';
 import useGetSubentryCount from './useGetSubentryCount';
 import useHorizonLoadAccount from './useHorizonLoadAccount';
-import { AccountResponse } from '@stellar/stellar-sdk/lib/horizon';
 
 interface FetchBalancesProps {
   address?: string;
   tokens: TokenType[];
   sorobanContext: SorobanContextType;
-  account: AccountResponse | undefined;
+  account?: any;
 }
 
 const fetchBalances = async ({ address, tokens, sorobanContext, account }: FetchBalancesProps) => {
@@ -30,7 +29,7 @@ function calculateAvailableBalance(
   networkFees?: string | number | BigNumber | null,
   subentryCount?: number,
 ): BigNumber {
-  if(!balance) return BigNumber(0)
+  if (!balance) return BigNumber(0)
   const baseBalance = new BigNumber(balance).shiftedBy(-7);
   const adjustment = new BigNumber(networkFees ?? Number(BigNumber(BASE_FEE).shiftedBy(-7)))
     .plus(1)

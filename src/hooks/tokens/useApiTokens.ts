@@ -1,7 +1,7 @@
-import { useSorobanReact } from '@soroban-react/core';
-import { TokenMapType, TokenType, tokensResponse } from 'interfaces';
-import { useEffect, useState } from 'react';
+import { TokenMapType, TokenType, tokensResponse } from '@/interfaces';
 import { fetchTokens } from '@/services/tokens';
+import { useSorobanReact } from '@soroban-react/core';
+import { useEffect, useState } from 'react';
 import useSWRImmutable from 'swr/immutable';
 import { tokensToMap } from './utils';
 

@@ -1,5 +1,5 @@
+import { TokenMapType, TokenType, tokensResponse } from '@/interfaces';
 import { useSorobanReact } from '@soroban-react/core';
-import { TokenMapType, TokenType, tokensResponse } from 'interfaces';
 import { useEffect, useState } from 'react';
 import { tokensToMap } from './utils';
 

@@ -1,7 +1,7 @@
-import { SorobanContextType } from '@soroban-react/core';
 import { getClassicStellarAsset, isAddress } from '@/helpers/address';
 import { getTokenDecimals, getTokenName, getTokenSymbol } from '@/helpers/soroban';
-import { TokenMapType, TokenType, tokensResponse } from 'interfaces';
+import { TokenMapType, TokenType, tokensResponse } from '@/interfaces';
+import { SorobanContextType } from '@soroban-react/core';
 
 export const tokensToMap = (tokens: TokenType[]) => {
   if (!tokens) return {};
