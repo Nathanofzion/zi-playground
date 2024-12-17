@@ -1,4 +1,4 @@
-import { ColorModeContext } from "@/providers/ColorModeProvider";
+import { ColorModeContext } from "@/providers/ThemeProvider";
 import { useCallback, useContext, useEffect, useState } from "react";
 import Particles from "react-particles";
 import { loadImageShape } from "tsparticles-shape-image";

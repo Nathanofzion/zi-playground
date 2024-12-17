@@ -1,5 +1,9 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
 
+import { ThemeProvider } from "@mui/material";
+
+import { theme } from "@/themes";
+
 export enum ColorMode {
     LIGHT = 'light',
     DARK = 'dark',
@@ -27,8 +31,10 @@ export default function ({ children }: { children: ReactNode }) {
     }
 
     return (
-        <ColorModeContext.Provider value={{ colorMode, toggleColorMode }}>
-            {children}
-        </ColorModeContext.Provider>
+        <ThemeProvider theme={theme(colorMode)}>
+            <ColorModeContext.Provider value={{ colorMode, toggleColorMode }}>
+                {children}
+            </ColorModeContext.Provider>
+        </ThemeProvider>
     )
 }

@@ -1,7 +1,7 @@
 import { ButtonPrimary } from "@/components/buttons/Button";
 import Earth from "@/components/Earth";
 import { AppContext } from "@/contexts";
-import { ColorMode, ColorModeContext } from "@/providers/ColorModeProvider";
+import { ColorMode, ColorModeContext } from "@/providers/ThemeProvider";
 import { Box, styled } from "@mui/material";
 import { useContext, useState } from "react";
 

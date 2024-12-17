@@ -1,11 +1,9 @@
-import { ThemeProvider } from "@mui/material";
 import { FC, ReactNode, useState } from "react";
 
 import { AppContext } from "@/contexts";
-import { theme } from "@/helpers/theme/theme";
 import InkathonProvider from "@/providers/InkathonProvider";
+import ColorModeProvider from "./ThemeProvider";
 import MySorobanReactProvider from "./SorobanReactProvider";
-import ColorModeProvider from "./ColorModeProvider";
 
 interface Props {
     children: ReactNode;
@@ -13,7 +11,6 @@ interface Props {
 
 const Provider: FC<Props> = ({ children }) => {
     const [isConnectWalletModal, setConnectWalletModal] = useState(false);
-    const [mode, setMode] = useState("dark");
     const [maxHops, setMaxHops] = useState(2);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [snackbarTitle, setSnackbarTitle] = useState("Swapped");
@@ -42,17 +39,16 @@ const Provider: FC<Props> = ({ children }) => {
     };
 
     return (
-        <ThemeProvider theme={theme(mode)}>
+        <ColorModeProvider>
             <MySorobanReactProvider>
                 <InkathonProvider>
-                    <ColorModeProvider>
-                        <AppContext.Provider value={appContextValues}>
-                            {children}
-                        </AppContext.Provider>
-                    </ColorModeProvider>
+                    <AppContext.Provider value={appContextValues}>
+                        {children}
+                    </AppContext.Provider>
                 </ InkathonProvider>
             </MySorobanReactProvider>
-        </ThemeProvider>
+        </ColorModeProvider>
+
     )
 }
 

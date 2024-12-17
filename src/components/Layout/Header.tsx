@@ -6,7 +6,7 @@ import { Box, Switch, SwitchProps, styled, useMediaQuery, useTheme } from '@mui/
 
 import { ActiveAirdropButton, AirdropButton } from '@/components/buttons/Airdrop';
 import Link from '@/components/Link';
-import { ColorModeContext } from '@/providers/ColorModeProvider';
+import { ColorModeContext } from '@/providers/ThemeProvider';
 import ProfileSection, { ActiveChainHeaderChip } from './ProfileSection';
 
 const logo = '/logo.png';

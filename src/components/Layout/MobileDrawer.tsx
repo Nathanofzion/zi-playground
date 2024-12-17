@@ -4,7 +4,7 @@ import { styled, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 
-import { ColorModeContext } from '@/providers/ColorModeProvider';
+import { ColorModeContext } from '@/providers/ThemeProvider';
 import { ModeSwitch } from './Header';
 import ProfileSection from './ProfileSection';
 
