@@ -111,8 +111,8 @@ importers:
         specifier: ^0.414.0
         version: 0.414.0(svelte@4.2.19)
       passkey-kit:
-        specifier: ^0.6.1
-        version: 0.6.1(@capacitor/core@5.7.8)
+        specifier: ^0.10.4
+        version: 0.10.4
       polished:
         specifier: ^4.3.1
         version: 4.3.1
@@ -961,17 +961,9 @@ packages:
     resolution: {integrity: sha512-vN5p+1kl59GVKMvTHt55NzzmYVxprfJD+ql7U9NFIfKCBkYE55LYtS+WtPlaYOyzydrKI8Nezd+aZextrd+FMA==}
     engines: {node: '>=6.9.0'}
 
-  '@capacitor/core@5.7.8':
-    resolution: {integrity: sha512-rrZcm/2vJM0WdWRQup1TUidbjQV9PfIadSkV4rAGLD7R6PuzZSMPGT0gmoZzCRlXkqrazrWWDkurei3ozU02FA==}
-
   '@creit.tech/xbull-wallet-connect@0.3.0':
     resolution: {integrity: sha512-pByi0bTAWd2ZdolVtkXcAU1DYTtz/cJc/IkRUz9x9/1NsFVyrM4UxE8tHgVZ3mwrJ4josoDwYP957ynQw195YQ==}
     engines: {node: '>=16'}
-
-  '@darkedges/capacitor-native-webauthn@0.0.4':
-    resolution: {integrity: sha512-/dbNpjKyh3Ofh2oXheDgi4YrXPlO6/wKHtCOb+bRYLMirDC4oAuJ4kgIDoKygKkEN2BnU2hypCPDIC53omcbOg==}
-    peerDependencies:
-      '@capacitor/core': ^5.0.0
 
   '@emotion/babel-plugin@11.13.5':
     resolution: {integrity: sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==}
@@ -2063,17 +2055,11 @@ packages:
   '@scure/bip39@1.5.0':
     resolution: {integrity: sha512-Dop+ASYhnrwm9+HA/HwXg7j2ZqM6yk2fyLWb5znexjctFY3+E+eU8cIWI0Pql0Qx4hPZCijlGq4OL71g+Uz30A==}
 
-  '@simplewebauthn/browser@10.0.0':
-    resolution: {integrity: sha512-hG0JMZD+LiLUbpQcAjS4d+t4gbprE/dLYop/CkE01ugU/9sKXflxV5s0DRjdz3uNMFecatRfb4ZLG3XvF8m5zg==}
+  '@simplewebauthn/browser@11.0.0':
+    resolution: {integrity: sha512-KEGCStrl08QC2I561BzxqGiwoknblP6O1YW7jApdXLPtIqZ+vgJYAv8ssLCdm1wD8HGAHd49CJLkUF8X70x/pg==}
 
-  '@simplewebauthn/browser@9.0.1':
-    resolution: {integrity: sha512-wD2WpbkaEP4170s13/HUxPcAV5y4ZXaKo1TfNklS5zDefPinIgXOpgz1kpEvobAsaLPa2KeH7AKKX/od1mrBJw==}
-
-  '@simplewebauthn/types@10.0.0':
-    resolution: {integrity: sha512-SFXke7xkgPRowY2E+8djKbdEznTVnD5R6GO7GPTthpHrokLvNKw8C3lFZypTxLI7KkCfGPfhtqB3d7OVGGa9jQ==}
-
-  '@simplewebauthn/types@9.0.1':
-    resolution: {integrity: sha512-tGSRP1QvsAvsJmnOlRQyw/mvK9gnPtjEc5fg2+m8n+QUa+D7rvrKkOYyfpy42GTs90X3RDOnqJgfHt+qO67/+w==}
+  '@simplewebauthn/types@11.0.0':
+    resolution: {integrity: sha512-b2o0wC5u2rWts31dTgBkAtSNKGX0cvL6h8QedNsKmj8O4QoLFQFR3DBVBUlpyVEhYKA+mXGUaXbcOc4JdQ3HzA==}
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -2139,14 +2125,20 @@ packages:
   '@stellar/stellar-base@12.1.1':
     resolution: {integrity: sha512-gOBSOFDepihslcInlqnxKZdIW9dMUO1tpOm3AtJR33K2OvpXG6SaVHCzAmCFArcCqI9zXTEiSoh70T48TmiHJA==}
 
-  '@stellar/stellar-sdk@12.1.0':
-    resolution: {integrity: sha512-Va0hu9SaPezmMbO5eMwL5D15Wrx1AGWRtxayUDRWV2Fr3ynY58mvCZS1vsgNQ4kE8MZe3nBVKv6T9Kzqwgx1PQ==}
+  '@stellar/stellar-base@13.0.1':
+    resolution: {integrity: sha512-Xbd12mc9Oj/130Tv0URmm3wXG77XMshZtZ2yNCjqX5ZbMD5IYpbBs3DVCteLU/4SLj/Fnmhh1dzhrQXnk4r+pQ==}
 
   '@stellar/stellar-sdk@12.2.0':
     resolution: {integrity: sha512-Wy5sDOqb5JvAC76f4sQIV6Pe3JNyZb0PuyVNjwt3/uWsjtxRkFk6s2yTHTefBLWoR+mKxDjO7QfzhycF1v8FXQ==}
 
   '@stellar/stellar-sdk@12.3.0':
     resolution: {integrity: sha512-F2DYFop/M5ffXF0lvV5Ezjk+VWNKg0QDX8gNhwehVU3y5LYA3WAY6VcCarMGPaG9Wdgoeh1IXXzOautpqpsltw==}
+
+  '@stellar/stellar-sdk@13.0.0':
+    resolution: {integrity: sha512-+wvmKi+XWwu27nLYTM17EgBdpbKohEkOfCIK4XKfsI4WpMXAqvnqSm98i9h5dAblNB+w8BJqzGs1JY0PtTGm4A==}
+
+  '@stellar/stellar-sdk@13.1.0':
+    resolution: {integrity: sha512-ARQkUdyGefXdTgwSF0eONkzv/geAqUfyfheJ9Nthz6GAr5b41fNwWW9UtE8JpXC4IpvE3t5elIUN5hKJzASN9w==}
 
   '@substrate/connect-extension-protocol@1.0.1':
     resolution: {integrity: sha512-161JhCC1csjH3GE5mPLEd7HbWtwNSPJBg3p1Ksz9SFlTzj/bgEwudiRN2y5i0MoLGCIJRYKyKGMxVnd29PzNjg==}
@@ -3220,6 +3212,12 @@ packages:
   fb-watchman@2.0.2:
     resolution: {integrity: sha512-p5161BqbuCaSnB8jIbzQHOlpgsPmK5rJVDfDKO91Axs5NC1uu3HRQm6wt9cd9/+GtQQIO53JdGXXoyDpTAsgYA==}
 
+  feaxios@0.0.20:
+    resolution: {integrity: sha512-g3hm2YDNffNxA3Re3Hd8ahbpmDee9Fv1Pb1C/NoWsjY7mtD8nyNeJytUzn+DK0Hyl9o6HppeWOrtnqgmhOYfWA==}
+
+  feaxios@0.0.23:
+    resolution: {integrity: sha512-eghR0A21fvbkcQBgZuMfQhrXxJzC0GNUGC9fXhBge33D+mFDTwl0aJ35zoQQn575BhyjQitRc5N4f+L4cP708g==}
+
   fetch-blob@3.2.0:
     resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
     engines: {node: ^12.20 || >= 14.13}
@@ -3619,6 +3617,10 @@ packages:
   is-regex@1.2.1:
     resolution: {integrity: sha512-MjYsKHO5O7mCsmRGxWcLWheFqN9DJ/2TmngvjKXihe6efViPqc274+Fx/4fYj/r03+ESvBdTXK0V6tA3rgez1g==}
     engines: {node: '>= 0.4'}
+
+  is-retry-allowed@3.0.0:
+    resolution: {integrity: sha512-9xH0xvoggby+u0uGF7cZXdrutWiBiaFG8ZT4YFPXL8NzkyAwX3AKGLeFQLvzDpM430+nDFBZ1LHkie/8ocL06A==}
+    engines: {node: '>=12'}
 
   is-set@2.0.3:
     resolution: {integrity: sha512-iPAjerrse27/ygGLxw+EBR9agv9Y6uLeYVJMu+QNCoouJ1/1ri0mGrcWpfCqFZuzzx3WjtwxG098X+n4OuRkPg==}
@@ -4307,14 +4309,14 @@ packages:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
     engines: {node: '>= 0.8'}
 
-  passkey-factory-sdk@0.2.1:
-    resolution: {integrity: sha512-Rj85iy2VNF0eqna2xl+Wkcr5ucg3GsIiO8AQAF2LYDeBECqAnMCqizgQz+kctXTOQXhA9lD7CUYOLX0P5Bot9g==}
+  passkey-factory-sdk@0.6.1:
+    resolution: {integrity: sha512-tVZ54n5Y3s6WbFU7/RCFC85I7fw3XmgYm369ftfS03dRtLTHgoLNeNefDa3Awlar9/F5HVUEmLNZD5zHgrBV/A==}
 
-  passkey-kit-sdk@0.2.1:
-    resolution: {integrity: sha512-C+/+Tm3gNHIiNYx1fsbYhlpJIGDGUV/xiMCmBm7q7iIwlKGyinFMUQh4L2laXpQO7bw/GtlTVs6aAD5IQN69Vw==}
+  passkey-kit-sdk@0.6.1:
+    resolution: {integrity: sha512-RLHvdOn9U6lr259bci+SrspDUIulkCjwTqHL6C6T7LNgj0wJsUM90y+bKye6VkldeDuaANFJuYhQZy+lxojHnA==}
 
-  passkey-kit@0.6.1:
-    resolution: {integrity: sha512-1ygqIaoY6hhkACGtqHJEIlb34GvL6Z09oSy1WNQW5T3Y0a9U4UUWHSZ4B+nAC7P6nIlg1sAsCgblw/UwRJCn5Q==}
+  passkey-kit@0.10.4:
+    resolution: {integrity: sha512-vminjkfzYc3KLbWPLIaNrVmOmWKnzNOCavZjAx5CTIoB4bVwHbf58YeN8h5Z/R5m21iKX2jrEIZZeaV6ySqS/w==}
 
   path-exists@3.0.0:
     resolution: {integrity: sha512-bpC7GYwiDYQ4wYLe+FA8lhRjhQCMcQGuSgGGqDkg/QerRWw9CmGRT0iSOVRSZJ29NMLZgIzqaljJ63oaL4NIJQ==}
@@ -4760,8 +4762,8 @@ packages:
   rxjs@7.8.1:
     resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
 
-  sac-sdk@0.1.0:
-    resolution: {integrity: sha512-jr17D5Ac0UXbBkwztwCJI0dWYDmCCNGG0CXuMbDCJcj1t9f9ljV4Izqfn7V9I/p+b5td+NKhjwwocovqzJP6Sg==}
+  sac-sdk@0.3.1:
+    resolution: {integrity: sha512-CoAwOTe6MSVAyWM6ivYxbLsQnS9HYemBiQXRhhttx3/F/Y0DlClbxNeo0vIpe9jqKWDkmvCY+OfUK48QmDua0A==}
 
   sade@1.8.1:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
@@ -6602,20 +6604,11 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  '@capacitor/core@5.7.8':
-    dependencies:
-      tslib: 2.8.1
-
   '@creit.tech/xbull-wallet-connect@0.3.0':
     dependencies:
       rxjs: 7.8.1
       tweetnacl: 1.0.3
       tweetnacl-util: 0.15.1
-
-  '@darkedges/capacitor-native-webauthn@0.0.4(@capacitor/core@5.7.8)':
-    dependencies:
-      '@capacitor/core': 5.7.8
-      '@simplewebauthn/browser': 9.0.1
 
   '@emotion/babel-plugin@11.13.5':
     dependencies:
@@ -8302,17 +8295,11 @@ snapshots:
       '@noble/hashes': 1.6.1
       '@scure/base': 1.2.1
 
-  '@simplewebauthn/browser@10.0.0':
+  '@simplewebauthn/browser@11.0.0':
     dependencies:
-      '@simplewebauthn/types': 10.0.0
+      '@simplewebauthn/types': 11.0.0
 
-  '@simplewebauthn/browser@9.0.1':
-    dependencies:
-      '@simplewebauthn/types': 9.0.1
-
-  '@simplewebauthn/types@10.0.0': {}
-
-  '@simplewebauthn/types@9.0.1': {}
+  '@simplewebauthn/types@11.0.0': {}
 
   '@sinclair/typebox@0.27.8': {}
 
@@ -8409,17 +8396,16 @@ snapshots:
     optionalDependencies:
       sodium-native: 4.3.1
 
-  '@stellar/stellar-sdk@12.1.0':
+  '@stellar/stellar-base@13.0.1':
     dependencies:
-      '@stellar/stellar-base': 12.1.1
-      axios: 1.7.9
+      '@stellar/js-xdr': 3.1.2
+      base32.js: 0.1.0
       bignumber.js: 9.1.2
-      eventsource: 2.0.2
-      randombytes: 2.1.0
-      toml: 3.0.0
-      urijs: 1.19.11
-    transitivePeerDependencies:
-      - debug
+      buffer: 6.0.3
+      sha.js: 2.4.11
+      tweetnacl: 1.0.3
+    optionalDependencies:
+      sodium-native: 4.3.1
 
   '@stellar/stellar-sdk@12.2.0':
     dependencies:
@@ -8439,6 +8425,32 @@ snapshots:
       axios: 1.7.9
       bignumber.js: 9.1.2
       eventsource: 2.0.2
+      randombytes: 2.1.0
+      toml: 3.0.0
+      urijs: 1.19.11
+    transitivePeerDependencies:
+      - debug
+
+  '@stellar/stellar-sdk@13.0.0':
+    dependencies:
+      '@stellar/stellar-base': 13.0.1
+      axios: 1.7.9
+      bignumber.js: 9.1.2
+      eventsource: 2.0.2
+      feaxios: 0.0.20
+      randombytes: 2.1.0
+      toml: 3.0.0
+      urijs: 1.19.11
+    transitivePeerDependencies:
+      - debug
+
+  '@stellar/stellar-sdk@13.1.0':
+    dependencies:
+      '@stellar/stellar-base': 13.0.1
+      axios: 1.7.9
+      bignumber.js: 9.1.2
+      eventsource: 2.0.2
+      feaxios: 0.0.23
       randombytes: 2.1.0
       toml: 3.0.0
       urijs: 1.19.11
@@ -9795,6 +9807,14 @@ snapshots:
     dependencies:
       bser: 2.1.1
 
+  feaxios@0.0.20:
+    dependencies:
+      is-retry-allowed: 3.0.0
+
+  feaxios@0.0.23:
+    dependencies:
+      is-retry-allowed: 3.0.0
+
   fetch-blob@3.2.0:
     dependencies:
       node-domexception: 1.0.0
@@ -10204,6 +10224,8 @@ snapshots:
       gopd: 1.2.0
       has-tostringtag: 1.0.2
       hasown: 2.0.2
+
+  is-retry-allowed@3.0.0: {}
 
   is-set@2.0.3: {}
 
@@ -11001,32 +11023,30 @@ snapshots:
 
   parseurl@1.3.3: {}
 
-  passkey-factory-sdk@0.2.1:
+  passkey-factory-sdk@0.6.1:
     dependencies:
-      '@stellar/stellar-sdk': 12.1.0
+      '@stellar/stellar-sdk': 13.0.0
       buffer: 6.0.3
     transitivePeerDependencies:
       - debug
 
-  passkey-kit-sdk@0.2.1:
+  passkey-kit-sdk@0.6.1:
     dependencies:
-      '@stellar/stellar-sdk': 12.1.0
+      '@stellar/stellar-sdk': 13.0.0
       buffer: 6.0.3
     transitivePeerDependencies:
       - debug
 
-  passkey-kit@0.6.1(@capacitor/core@5.7.8):
+  passkey-kit@0.10.4:
     dependencies:
-      '@darkedges/capacitor-native-webauthn': 0.0.4(@capacitor/core@5.7.8)
-      '@simplewebauthn/browser': 10.0.0
-      '@stellar/stellar-sdk': 12.1.0
+      '@simplewebauthn/browser': 11.0.0
+      '@stellar/stellar-sdk': 13.1.0
       base64url: 3.0.1
       buffer: 6.0.3
-      passkey-factory-sdk: 0.2.1
-      passkey-kit-sdk: 0.2.1
-      sac-sdk: 0.1.0
+      passkey-factory-sdk: 0.6.1
+      passkey-kit-sdk: 0.6.1
+      sac-sdk: 0.3.1
     transitivePeerDependencies:
-      - '@capacitor/core'
       - debug
 
   path-exists@3.0.0: {}
@@ -11543,9 +11563,9 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  sac-sdk@0.1.0:
+  sac-sdk@0.3.1:
     dependencies:
-      '@stellar/stellar-sdk': 12.1.0
+      '@stellar/stellar-sdk': 13.0.0
       buffer: 6.0.3
     transitivePeerDependencies:
       - debug
