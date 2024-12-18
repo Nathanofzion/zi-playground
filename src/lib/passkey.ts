@@ -3,9 +3,9 @@ import { PasskeyKit } from 'passkey-kit';
 
 import passkeyImage from '/img/img/passkey.png';
 
-const STELLAR_RPC_URL = import.meta.env.NEXT_PUBLIC_STELLAR_RPC_URL;
-const STELLAR_NETWORK_PASSPHRASE = import.meta.env.NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE;
-const FACTORY_CONTRACT_ID = import.meta.env.NEXT_PUBLIC_FACTORY_CONTRACT_ADDRESS;
+const STELLAR_RPC_URL = "https://soroban-testnet.stellar.org";
+const STELLAR_NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
+const FACTORY_CONTRACT_ID = "CAUN2AYT2VHF362EO7BFB6FM763F4F3AKRNTNOVLI4HC6LFGQFYQ6CB6";
 
 const passkey = () => {
     const passkeyKit = new PasskeyKit({
