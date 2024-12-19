@@ -37,7 +37,7 @@ const passkey = () => {
 
         getPublicKey: async () => {
             if (!connected || !publicKey) {
-                const wallet = await passkeyKit.connectWallet();
+                const wallet = await passkeyKit.createWallet("Zafegard", "Zafegard Admin");
                 const contractBytes = StrKey.decodeContract(wallet.contractId);
                 connected = true;
                 publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
