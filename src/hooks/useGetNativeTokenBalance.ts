@@ -3,8 +3,6 @@ import useSWRImmutable from 'swr/immutable';
 import nativeTokens from '../../public/native_tokens.json';
 import { tokenBalance } from './useBalances';
 
-console.log(nativeTokens);
-
 interface FetchBalanceProps {
   sorobanContext: SorobanContextType;
   address?: string;

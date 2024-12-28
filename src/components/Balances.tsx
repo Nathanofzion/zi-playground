@@ -5,11 +5,10 @@ import { Networks } from '@stellar/stellar-sdk';
 import { AppContext } from '@/contexts';
 import useGetMyBalances from '@/hooks/useGetMyBalances';
 import { Box, CircularProgress, Paper, Typography, styled } from '@mui/material';
-// import { useMintTestToken } from '@/hooks/useMintTestToken';
 import { TokenType } from '@/interfaces';
 import BalancesTable from './BalancesTable/BalancesTable';
-import { ButtonPrimary } from './buttons/Button';
-import { WalletButton } from './buttons/WalletButton';
+import { ButtonPrimary } from './Buttons/Buttons';
+import { WalletButton } from './Buttons/WalletButton';
 
 const PageWrapper = styled(Paper)`
   background: ${({ theme }) => `linear-gradient(${theme.palette.customBackground.bg2}, ${theme.palette.customBackground.bg2

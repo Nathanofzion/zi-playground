@@ -1,4 +1,4 @@
-import { ButtonError, ButtonLight, ButtonPrimary } from '@/components/buttons/Button';
+import { ButtonError, ButtonLight, ButtonPrimary } from '@/components/Buttons/Buttons';
 import Column, { AutoColumn } from '@/components/Column';
 import CurrencyLogo from '@/components/Logo/CurrencyLogo';
 import DoubleCurrencyLogo from '@/components/Logo/DoubleLogo';

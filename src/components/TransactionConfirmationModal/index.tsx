@@ -1,6 +1,6 @@
 import { Box, Modal, useMediaQuery, useTheme } from '@mui/material';
 import { useSorobanReact } from '@soroban-react/core';
-import { ButtonLight, ButtonPrimary } from '@/components/buttons/Button';
+import { ButtonLight, ButtonPrimary } from '@/components/Buttons/Buttons';
 import { CloseButton } from '@/components/Buttons/CloseButton';
 import { AutoColumn } from '@/components/Column';
 import CopyTxHash from '@/components/CopyTxHash/CopyTxHash';

@@ -46,8 +46,8 @@ export async function tokenBalance(
     });
 
     return scValToJs(tokenBalance as xdr.ScVal) as BigNumber;
-  } catch (error) {
-    // console.log("Token address doesnt exist", error);
+  } catch (err) {
+    console.error(err);
     return null;
   }
 }

@@ -7,7 +7,7 @@ import { Box, Switch, SwitchProps, styled, useMediaQuery, useTheme } from '@mui/
 import { ActiveAirdropButton, AirdropButton } from '@/components/buttons/Airdrop';
 import Link from '@/components/Link';
 import { ColorModeContext } from '@/providers/ThemeProvider';
-import ProfileSection, { ActiveChainHeaderChip } from './ProfileSection';
+import ProfileSection from './ProfileSection';
 
 const logo = '/logo.png';
 const darkModeMoon = '/assets/darkModeMoon1.svg';
@@ -50,7 +50,7 @@ const NavBarMobile = styled('div')`
   width: 100%;
   padding: 8px 16px;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   border-radius: 32px;
   background: ${({ theme }) => theme.palette.background.paper};
   box-shadow: 0px 4px 10px 0px rgba(136, 102, 221, 0.03);
@@ -62,11 +62,6 @@ const NavBarContainer = styled('div')`
   display: flex;
   left: 50%;
   transform: translateX(-50%);
-`;
-
-const ButtonsBox = styled('div')`
-  display: flex;
-  align-items: center;
 `;
 
 const NavItem = styled(Link, {
@@ -91,9 +86,8 @@ const NavItemMobile = styled(Link, {
   shouldForwardProp: (prop) => prop !== 'active',
 }) <{ active?: boolean }>`
   display: flex;
-  padding: 8px 18px;
+  padding: 8px 10px;
   align-items: center;
-  gap: 10px;
   border-radius: 18px;
   background: ${({ active }) => (active ? '#00615F' : '')};
   text-align: center;
@@ -152,8 +146,6 @@ export const ModeSwitch = styled((props: SwitchProps) => (
   },
 }));
 
-
-
 interface HeaderProps {
   isDrawerOpen: boolean;
   setDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -203,60 +195,57 @@ export default function Header({ isDrawerOpen, setDrawerOpen }: HeaderProps) {
           alt={'Soroswap'}
         />
 
-        {!isMobile ? (
-          <>
-            <NavBar data-testid="nav">
-              {navItems.map((item) => (
-                <NavItem
-                  key={item.href}
-                  href={item.href}
-                  active={item.label === 'Swap' ? (pathname.includes(item.href) || pathname === '/') : pathname.includes(item.href)}
-                  target={item.target}
-                  data-testid="nav-link"
-                >
-                  {item.label}
-                </NavItem>
-              ))}
-            </NavBar>
-            <ButtonsBox>
-              <ModeSwitch
-                sx={{ m: 1 }}
-                defaultChecked={theme.palette.mode === 'dark' ? true : false}
-                onChange={toggleColorMode}
-              />
-              <AirdropButton style={{ marginRight: '8px' }} />
-              <ProfileSection />
-            </ButtonsBox>
-          </>
-        ) : (
-          <>
-            <Box display="flex" alignItems="center" gap="18px" >
-              <ActiveChainHeaderChip isMobile={isMobile} />
-              <ActiveAirdropButton style={{ marginLeft: '8px' }} />
-              <Menu
-                onClick={() => setDrawerOpen(!isDrawerOpen)}
-                width={24}
-                height={24}
-                color={theme.palette.custom.borderColor}
-              />
-            </Box>
-            <NavBarContainer>
-              <NavBarMobile>
-                {navItems.map((item) => (
-                  <NavItemMobile
-                    key={item.href}
-                    href={item.href}
-                    active={item.label === 'Swap' ? (pathname.includes(item.href) || pathname === '/') : pathname.includes(item.href)}
-                  >
-                    {item.label}
-                  </NavItemMobile>
-                ))}
-              </NavBarMobile>
-            </NavBarContainer>
-          </>
-        )}
+        <NavBar data-testid="nav" sx={{ display: { xs: 'none', lg: 'flex' } }}>
+          {navItems.map((item) => (
+            <NavItem
+              key={item.href}
+              href={item.href}
+              active={item.label === 'Swap' ? (pathname.includes(item.href) || pathname === '/') : pathname.includes(item.href)}
+              target={item.target}
+              data-testid="nav-link"
+            >
+              {item.label}
+            </NavItem>
+          ))}
+        </NavBar>
+
+        <NavBarContainer sx={{ display: { lg: 'none' } }}>
+          <NavBarMobile>
+            {navItems.map((item, index) => (
+              <NavItemMobile
+                key={index}
+                href={item.href}
+                target={item.target} rel={''}
+                active={item.label === 'Swap' ? (pathname.includes(item.href) || pathname === '/') : pathname.includes(item.href)}
+              >
+                {item.label}
+              </NavItemMobile>
+            ))}
+          </NavBarMobile>
+        </NavBarContainer>
+
+        <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          {!isMobile && (
+            <ModeSwitch
+              sx={{ display: { base: 'none', lg: 'block' } }}
+              defaultChecked={theme.palette.mode === 'dark' ? true : false}
+              onChange={toggleColorMode}
+            />
+          )}
+          {isMobile ? <ActiveAirdropButton /> : <AirdropButton />}
+          {/* <ActiveChainHeaderChip isMobile={isMobile} /> */}
+          <ProfileSection />
+          {isMobile && (
+            <Menu
+              onClick={() => setDrawerOpen(!isDrawerOpen)}
+              width={24}
+              height={24}
+              color={theme.palette.custom.borderColor}
+            />
+          )}
+        </Box>
       </MainBox>
       <BorderBox />
-    </HeaderContainer>
+    </HeaderContainer >
   );
 }

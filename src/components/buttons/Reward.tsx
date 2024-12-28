@@ -1,6 +1,6 @@
 import { darken } from 'polished';
 import { styled } from '@mui/material';
-import { BaseButton, ButtonLight, ButtonPrimary } from '@/components/buttons/Button';
+import { BaseButton, ButtonLight, ButtonPrimary } from '@/components/Buttons/Buttons';
 import React from 'react';
 
 const ActiveButton = styled(BaseButton)`

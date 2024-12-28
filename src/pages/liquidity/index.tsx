@@ -1,4 +1,4 @@
-import { ButtonPrimary } from '@/components/buttons/Button';
+import { ButtonPrimary } from '@/components/Buttons/Buttons';
 import { WalletButton } from '@/components/buttons/WalletButton';
 import { AutoColumn } from '@/components/Column';
 import LiquidityPoolInfoModal from '@/components/Liquidity/LiquidityPoolInfoModal';

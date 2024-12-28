@@ -1,4 +1,4 @@
-import { ButtonError } from '@/components/buttons/Button';
+import { ButtonError } from '@/components/Buttons/Buttons';
 import { WalletButton } from '@/components/buttons/WalletButton';
 import { DarkGrayCard } from '@/components/Card';
 import { AutoColumn, ColumnCenter } from '@/components/Column';

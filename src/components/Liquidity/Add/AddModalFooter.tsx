@@ -1,6 +1,6 @@
 import { styled, useTheme } from '@mui/material';
 import BigNumber from 'bignumber.js';
-import { ButtonError } from '@/components/buttons/Button';
+import { ButtonError } from '@/components/Buttons/Buttons';
 import Column from '@/components/Column';
 import CurrencyLogo from '@/components/Logo/CurrencyLogo';
 import Row, { AutoRow } from '@/components/Row';

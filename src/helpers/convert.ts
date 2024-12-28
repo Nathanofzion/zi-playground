@@ -16,26 +16,26 @@ export const decodei128ScVal = (value: any) => {
 };
 
 export function scvalToBigInt(scval: xdr.ScVal | undefined): BigInt {
-  switch (scval?.switch()) {
+  switch (scval?.switch().name) {
     case undefined: {
       return BigInt(0);
     }
-    case xdr.ScValType.scvU64(): {
+    case xdr.ScValType.scvU64().name: {
       const { high, low } = scval.u64();
       return bufToBigint(new Uint32Array([high, low]));
     }
-    case xdr.ScValType.scvI64(): {
+    case xdr.ScValType.scvI64().name: {
       const { high, low } = scval.i64();
       return bufToBigint(new Int32Array([high, low]));
     }
-    case xdr.ScValType.scvU128(): {
+    case xdr.ScValType.scvU128().name: {
       const parts = scval.u128();
       const a = parts.hi();
       const b = parts.lo();
       return decodei128ScVal(scval);
       // return bufToBigint(new Uint32Array([a.high, a.low, b.high, b.low]));
     }
-    case xdr.ScValType.scvI128(): {
+    case xdr.ScValType.scvI128().name: {
       const parts = scval.i128();
       const a = parts.hi();
       const b = parts.lo();
@@ -58,45 +58,45 @@ export function scValStrToJs<T>(base64Xdr: string): T {
 }
 
 export function scValToJs<T>(val: xdr.ScVal): T {
-  switch (val?.switch()) {
-    case xdr.ScValType.scvBool(): {
+  switch (val?.switch().name) {
+    case xdr.ScValType.scvBool().name: {
       return val.b() as unknown as T;
     }
-    case xdr.ScValType.scvVoid():
+    case xdr.ScValType.scvVoid().name:
     case undefined: {
       return 0 as unknown as T;
     }
-    case xdr.ScValType.scvU32(): {
+    case xdr.ScValType.scvU32().name: {
       return val.u32() as unknown as T;
     }
-    case xdr.ScValType.scvI32(): {
+    case xdr.ScValType.scvI32().name: {
       return val.i32() as unknown as T;
     }
-    case xdr.ScValType.scvU64():
-    case xdr.ScValType.scvI64():
-    case xdr.ScValType.scvU128():
-    case xdr.ScValType.scvI128():
-    case xdr.ScValType.scvU256():
-    case xdr.ScValType.scvI256(): {
+    case xdr.ScValType.scvU64().name:
+    case xdr.ScValType.scvI64().name:
+    case xdr.ScValType.scvU128().name:
+    case xdr.ScValType.scvI128().name:
+    case xdr.ScValType.scvU256().name:
+    case xdr.ScValType.scvI256().name: {
       return scvalToBigInt(val) as unknown as T;
     }
-    case xdr.ScValType.scvAddress(): {
+    case xdr.ScValType.scvAddress().name: {
       return Address.fromScVal(val).toString() as unknown as T;
     }
-    case xdr.ScValType.scvString(): {
+    case xdr.ScValType.scvString().name: {
       return val.str().toString() as unknown as T;
     }
-    case xdr.ScValType.scvSymbol(): {
+    case xdr.ScValType.scvSymbol().name: {
       return val.sym().toString() as unknown as T;
     }
-    case xdr.ScValType.scvBytes(): {
+    case xdr.ScValType.scvBytes().name: {
       return val.bytes() as unknown as T;
     }
-    case xdr.ScValType.scvVec(): {
+    case xdr.ScValType.scvVec().name: {
       type Element = ElementType<T>;
       return val?.vec()?.map((v) => scValToJs<Element>(v)) as unknown as T;
     }
-    case xdr.ScValType.scvMap(): {
+    case xdr.ScValType.scvMap().name: {
       type Key = KeyType<T>;
       type Value = ValueType<T>;
       let res: any = {};
@@ -125,13 +125,13 @@ export function scValToJs<T>(val: xdr.ScVal): T {
       });
       return res as unknown as T;
     }
-    case xdr.ScValType.scvContractInstance():
+    case xdr.ScValType.scvContractInstance().name:
       return val.instance() as unknown as T;
-    case xdr.ScValType.scvLedgerKeyNonce():
+    case xdr.ScValType.scvLedgerKeyNonce().name:
       return val.nonceKey() as unknown as T;
-    case xdr.ScValType.scvTimepoint():
+    case xdr.ScValType.scvTimepoint().name:
       return val.timepoint() as unknown as T;
-    case xdr.ScValType.scvDuration():
+    case xdr.ScValType.scvDuration().name:
       return val.duration() as unknown as T;
     // TODO: Add this case when merged
     // case xdr.ScValType.scvError():
