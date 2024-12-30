@@ -1,112 +1,64 @@
-import { useContext, useState } from 'react';
-
-import { Networks } from '@stellar/stellar-sdk';
-
-import { AppContext } from '@/contexts';
-import useGetMyBalances from '@/hooks/useGetMyBalances';
-import { Box, CircularProgress, Paper, Typography, styled } from '@mui/material';
-import { TokenType } from '@/interfaces';
-import BalancesTable from './BalancesTable/BalancesTable';
-import { ButtonPrimary } from './Buttons/Buttons';
-import { WalletButton } from './Buttons/WalletButton';
+import useGetNativeTokenBalance from '@/hooks/useGetNativeTokenBalance';
+import { Box, Paper, styled, Typography } from '@mui/material';
+import { useSorobanReact } from '@soroban-react/core';
+import copy from 'copy-to-clipboard';
+import { useState } from 'react';
+import { Check, Clipboard } from 'react-feather';
 
 const PageWrapper = styled(Paper)`
-  background: ${({ theme }) => `linear-gradient(${theme.palette.customBackground.bg2}, ${theme.palette.customBackground.bg2
-    }) padding-box,
-              linear-gradient(150deg, rgba(136,102,221,1) 0%, rgba(${theme.palette.mode == 'dark' ? '33,29,50,1' : '255,255,255,1'
-    }) 35%, rgba(${theme.palette.mode == 'dark' ? '33,29,50,1' : '255,255,255,1'
-    }) 65%, rgba(136,102,221,1) 100%) border-box`};
-  border: 1px solid transparent;
-  border-radius: 16px;
   padding: 32px 48px;
   width: 100%;
-  max-width: 860px;
+  max-width: 480px;
+  background: ${({ theme }) => `linear-gradient(${theme.palette.customBackground.bg2}, ${theme.palette.customBackground.bg2}) padding-box, linear-gradient(150deg, rgba(136,102,221,1) 0%, rgba(${theme.palette.mode == 'dark' ? '33,29,50,1' : '255,255,255,1'}) 35%, rgba(${theme.palette.mode == 'dark' ? '33,29,50,1' : '255,255,255,1'}) 65%, rgba(136,102,221,1) 100%) border-box`};
+  border: 1px solid transparent;
+  border-radius: 16px;
 `;
 
 export function Balances() {
-  const { sorobanContext, refetch } = useGetMyBalances();
+  const { address } = useSorobanReact();
+  const { data: tokenBalance } = useGetNativeTokenBalance();
+  const [copied, setCopied] = useState(false);
 
-  const isMainnet = sorobanContext.activeChain?.networkPassphrase === Networks.PUBLIC;
+  const handleCopy = () => {
+    if (address) {
+      copy(address);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    }
+  }
 
-  // const mintTestTokens = useMintTestToken();
-  const { ConnectWalletModal } = useContext(AppContext);
-  const { isConnectWalletModalOpen, setConnectWalletModalOpen } = ConnectWalletModal;
-
-  const [currentMintingToken, setCurrentMintingToken] = useState<TokenType | null>(null);
-  const [isMinting, setIsMinting] = useState(false);
-
-  const handleMint = () => {
-    // setIsMinting(true);
-    // mintTestTokens({
-    //   onTokenMintedStart(token) {
-    //     setCurrentMintingToken(token);
-    //   },
-    //   onTokenMintedSuccess(token) {
-    //     setCurrentMintingToken(null);
-    //     refetch();
-    //   },
-    //   onTokenMintedError(token) {
-    //     setCurrentMintingToken(null);
-    //   },
-    // }).finally(() => {
-    //   setIsMinting(false);
-    // });
-  };
-
-  const getButtonTxt = () => {
-    if (isMinting)
-      return (
-        <Box display="flex" alignItems="center" gap="6px">
-          Minting {currentMintingToken?.code} <CircularProgress size="18px" />
-        </Box>
-      );
-    return `Mint test tokens`;
-  };
-
-  const isButtonDisabled = () => {
-    if (isMinting) return true;
-    return false;
-  };
-
-  return (
-    <PageWrapper>
-      {!sorobanContext.address ? (
-        <>
-          <Typography gutterBottom variant="h5">
-            {"Your token's balance:"}
-          </Typography>
-          <Typography gutterBottom>Connect your wallet to see your tokens balances</Typography>
-          <WalletButton />
-        </>
-      ) : (
-        <>
-          <Box
-            display="flex"
-            flexWrap="wrap"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={2}
-          >
-            <Typography gutterBottom variant="h5">
-              {"Your token's balance:"}
-            </Typography>
-            {!isMainnet && (
-              <ButtonPrimary
-                onClick={handleMint}
-                disabled={isButtonDisabled()}
-                style={{ maxWidth: 250 }}
-              >
-                {getButtonTxt()}
-              </ButtonPrimary>
-            )}
-          </Box>
+  if (address) {
+    return (
+      <PageWrapper>
+        <Box display='flex' justifyContent='space-between'>
+          <Box width='48px' height='48px' backgroundColor='#fff4' borderRadius='9999px' />
           <Box>
-            <BalancesTable />
+            <Typography fontWeight='bold'>Balance</Typography>
+            <Typography fontWeight='bold'>{tokenBalance ? (Number(tokenBalance.data) / 10000000) : 0} XLM</Typography>
           </Box>
-        </>
-      )}
+        </Box>
+        <Box>
+          <Typography fontWeight='bold'>
+            Your wallet
+          </Typography>
+          <Box display='flex' gap='8px' alignItems='center'>
+            <Typography p='4px' backgroundColor='rgba(6, 182, 212, 0.2)' fontSize='12px' borderRadius='4px'>
+              {`${address.slice(0, 19)}...${address.slice(address.length - 3, address.length)}`}
+            </Typography>
+            <Box width='32px' height='32px' display='flex' justifyContent='center' alignItems='center' backgroundColor='rgba(100, 116, 139, 0.2)' borderRadius='9999px' onClick={handleCopy}>
+              {copied ? (
+                <Check size='16px' />
+              ) : (
+                <Clipboard size='16px' />
+              )}
+            </Box>
+          </Box>
+        </Box>
+      </PageWrapper>
+    )
+  }
 
-      {/* {sorobanContext.address && !isMainnet && <MintCustomToken />} */}
-    </PageWrapper>
-  );
+  return <></>
 }
