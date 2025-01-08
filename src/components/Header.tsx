@@ -1,12 +1,15 @@
 'use client';
-import { truncateAddress } from "@/utils";
+import { useState } from "react";
+
 import { Box, Flex, Image } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
-import { useState } from "react";
+
+import BalanceModal from "@/components/modals/BalanceModal";
+import ConnectWalletModal from "@/components/modals/ConnectWalletModal";
+import ServicesModal from "@/components/modals/ServicesModal";
+import { truncateAddress } from "@/utils";
+
 import Button from "./Button";
-import BalanceModal from "./modals/BalanceModal";
-import ConnectWalletModal from "./modals/ConnectWalletModal";
-import ServicesModal from "./modals/ServicesModal";
 import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 

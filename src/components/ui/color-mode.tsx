@@ -37,7 +37,7 @@ export const ColorModeButton = () => {
         <input id="toggleSwitch" type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} />
         <span className="slider">
           <span>
-            {useColorModeValue(<Image src="/images/sun.png" />, <Image src="/images/moon.png" />)}
+            {useColorModeValue(<Image alt="sun" src="/images/sun.png" />, <Image alt="moon" src="/images/moon.png" />)}
           </span>
         </span>
       </label>

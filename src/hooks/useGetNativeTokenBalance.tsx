@@ -1,7 +1,7 @@
 import { nativeTokens } from '@/constants';
 import { SorobanContextType, useSorobanReact } from '@soroban-react/core';
 import useSWRImmutable from 'swr/immutable';
-import { tokenBalance, tokenDecimals } from './useBalances';
+import { tokenBalance } from './useBalances';
 
 const fetchBalance = async (sorobanContext: SorobanContextType, address?: string) => {
     if (!sorobanContext || !address) throw new Error('Missing sorobanContext or address');
@@ -15,12 +15,14 @@ const fetchBalance = async (sorobanContext: SorobanContextType, address?: string
     try {
         await sorobanContext.server?.getAccount(address);
     } catch (err: any) {
+        console.error(err.message);
         throw new Error('Not valid account');
     }
 
     try {
         return tokenBalance(networkNativeToken.address, address, sorobanContext);
     } catch (err: any) {
+        console.error(err.message);
         throw new Error('Error while getting token balance');
     }
 };

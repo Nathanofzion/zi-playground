@@ -13,7 +13,11 @@ const activeChain = chains.find((chain) => chain.id === activeChainName) || test
 
 const connectors = [passkey(), freighter(), lobstr()];
 
-export default function ({ children }: { children: ReactNode }) {
+interface Props {
+    children: ReactNode;
+}
+
+export default function ({ children }: Props) {
     return (
         <SorobanReactProvider
             chains={chains}
