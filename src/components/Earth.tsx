@@ -34,8 +34,8 @@ function Earth({ startAnimation, ...props }: EarthProps) {
             }
 
             if (ref.current.material) {
-                ref.current.material.transparent = true;
-                ref.current.material.opacity = opacity;
+                (ref.current.material as any).transparent = true;
+                (ref.current.material as any).opacity = opacity;
             }
         }
     });
@@ -45,7 +45,7 @@ function Earth({ startAnimation, ...props }: EarthProps) {
             <mesh
                 castShadow
                 ref={ref}
-                geometry={nodes.Object_4.geometry}
+                geometry={(nodes.Object_4 as any).geometry}
                 material={materials["Scene_-_Root"]}
                 scale={1.128}
             />
@@ -59,12 +59,12 @@ interface TextOnFacesProps {
 
 const TextOnFaces = ({ startAnimation }: TextOnFacesProps) => {
     const cubeRef = useRef<any>();
-    const textMeshes = useRef([]);
+    const textMeshes = useRef<any[]>([]);
 
     useEffect(() => {
         const cube = cubeRef.current;
 
-        const addLogoToFace = (modelPath, position, rotation) => {
+        const addLogoToFace = (modelPath: string, position: any, rotation: any) => {
             const loader = new GLTFLoader();
 
             loader.load(modelPath, function (gltf) {
@@ -74,7 +74,7 @@ const TextOnFaces = ({ startAnimation }: TextOnFacesProps) => {
                 logo.rotation.copy(rotation);
                 logo.scale.set(3, 3, 3);
 
-                logo.traverse((child) => {
+                logo.traverse((child: any) => {
                     if (child.isMesh) {
                         child.material.transparent = true;
                         child.material.opacity = 0;
@@ -90,7 +90,7 @@ const TextOnFaces = ({ startAnimation }: TextOnFacesProps) => {
                     if (opacity >= 1) {
                         clearInterval(fadeInInterval);
                     }
-                    logo.traverse((child) => {
+                    logo.traverse((child: any) => {
                         if (child.isMesh) {
                             child.material.opacity = opacity;
                         }
