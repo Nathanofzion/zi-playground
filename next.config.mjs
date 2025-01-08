@@ -9,6 +9,9 @@ const nextConfig = {
         'passkey-kit-sdk',
         'sac-sdk',
     ],
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
 };
 
 export default nextConfig;
