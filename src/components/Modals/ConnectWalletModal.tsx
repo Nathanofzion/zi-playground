@@ -1,310 +1,90 @@
-import { AppContext } from '@/contexts';
-import Bowser from 'bowser';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { AlertCircle } from 'react-feather';
-
-import { isConnected as isConnectedLobstr } from '@lobstrco/signer-extension-api';
-import { Box, CircularProgress, Modal, useMediaQuery } from '@mui/material';
-import { styled, useTheme } from '@mui/material/styles';
-import { useSorobanReact } from '@soroban-react/core';
+'use client';
+import { Flex, For, Image, Link, Text } from "@chakra-ui/react";
+import { useSorobanReact } from "@soroban-react/core";
 import { Connector } from '@soroban-react/types';
-import { isConnected } from '@stellar/freighter-api';
-
-import { ButtonPrimary } from '@/components/Buttons/Buttons';
-import ModalBox from './ModalBox';
-
-const Title = styled('div')`
-  font-size: 24px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.palette.custom.textPrimary};
-`;
-const Subtitle = styled('div')`
-  font-size: 14px;
-  font-weight: 500;
-  &> span {
-    display: block;
-  }
-  color: ${({ theme }) => theme.palette.custom.textPrimary};
-`;
-
-const Text = styled('div')`
-  font-size: 12px;
-  font-weight: 300;
-  textwrap: wrap;
-  &> span {
-    display: block;
-  }
-`;
-const Info = styled('div')`
-  font-size: 10px;
-  font-weight: 100;
-  textwrap: wrap;
-  &> span {
-    display: block;
-  }
-`;
-
-const ContentWrapper = styled('div') <{ isMobile: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  font-family: Inter;
-  text-align: ${({ isMobile }) => (isMobile ? 'center' : 'left')};
-`;
-
-const WalletBox = styled('div')`
-  cursor: pointer;
-  display: flex;
-  background-color: ${({ theme }) => theme.palette.customBackground.surface};
-  border-radius: 12px;
-  padding: 16px;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  align-self: stretch;
-  color: ${({ theme }) => theme.palette.custom.textPrimary};
-`;
-
-const FooterText = styled('div') <{ isMobile: boolean }>`
-  opacity: 0.5;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: ${({ isMobile }) => (isMobile ? 'center' : 'left')};
-  &> span {
-    color: ${({ theme }) => theme.palette.custom.textLinks};
-  }
-  color: ${({ theme }) => theme.palette.custom.textPrimary};
-`;
-
-export const ConnectWalletStyles = {
-  Title,
-  Subtitle,
-  Text,
-  Info,
-  ContentWrapper,
-  WalletBox,
-  FooterText,
-};
-
-interface IWalletState {
-  name: string;
-  isInstalled: boolean;
-  isLoading: boolean;
+import { FC, useEffect, useState } from "react";
+import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
+import { ModalProps } from "../common/Modal";
+import { useColorModeValue } from "../ui/color-mode";
+interface IWallet {
+    id: string;
+    name: string;
+    sname?: string;
+    iconUrl: string;
+    isConnected: boolean;
 }
 
-const ConnectWalletContent = ({
-  isMobile,
-  onError,
-}: {
-  isMobile: boolean;
-  onError: any;
-}) => {
-  const theme = useTheme();
-  const { ConnectWalletModal: { setConnectWalletModalOpen } } = useContext(AppContext);
-  const { setActiveConnectorAndConnect, connectors: wallets } = useSorobanReact();
-  const [walletStates, setWalletStates] = useState<IWalletState[]>([]);
+const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
+    const { setActiveConnectorAndConnect, connectors } = useSorobanReact();
+    const [wallets, setWallets] = useState<IWallet[]>([]);
 
-  const updateWalletStates = useCallback(async () => {
-    const walletStates = await Promise.all(wallets.map(async (wallet) => {
-      let connected = false;
-      if (wallet.id === 'freighter')
-        connected = await isConnected();
-      if (wallet.id === 'xbull' && (window as any).xBullSDK)
-        connected = true;
-      if (wallet.id === 'lobstr')
-        connected = await isConnectedLobstr();
-      if (wallet.id === 'passkey')
-        connected = true;
-      return { name: wallet.id, isInstalled: connected, isLoading: false };
-    }));
-    setWalletStates(walletStates);
-  }, [wallets]);
+    useEffect(() => {
+        (async () => {
+            const wallets = await Promise.all(connectors.map(async (connector) => ({
+                id: connector.id,
+                name: connector.name,
+                sname: connector.shortName,
+                iconUrl: typeof connector.iconUrl == 'string' ? connector.iconUrl : await connector.iconUrl(),
+                isConnected: await connector.isConnected(),
+            })));
+            setWallets(wallets);
+        })();
+    }, [connectors]);
 
-  useEffect(() => {
-    updateWalletStates();
-  }, [updateWalletStates]);
-
-  const browser = Bowser.getParser(window.navigator.userAgent).getBrowserName();
-
-  const installWallet = (wallet: any) => {
-    if (wallet.id === 'freighter') {
-      switch (browser) {
-        case 'Firefox':
-          window.open('https://addons.mozilla.org/en-US/firefox/addon/freighter/', '_blank');
-          break;
-        default:
-          window.open(
-            'https://chromewebstore.google.com/detail/freighter/bcacfldlkkdogcmkkibnjlakofdplcbk',
-            '_blank',
-          );
-          break;
-      }
-    } else if (wallet.id === 'xbull') {
-      switch (browser) {
-        case 'Firefox':
-          window.open('https://addons.mozilla.org/es/firefox/addon/xbull-wallet/', '_blank');
-          break;
-        default:
-          window.open(
-            'https://chromewebstore.google.com/detail/xbull-wallet/omajpeaffjgmlpmhbfdjepdejoemifpe',
-            '_blank',
-          );
-          break;
-      }
-    } else if (wallet.id === 'lobstr') {
-      switch (browser) {
-        default:
-          window.open(
-            'https://chromewebstore.google.com/detail/lobstr-signer-extension/ldiagbjmlmjiieclmdkagofdjcgodjle',
-            '_blank',
-          );
-          break;
-      }
+    const handleConnect = async (connector: Connector) => {
+        const isConnected = await connector.isConnected();
+        if (!isConnected) {
+            const userAgent = navigator.userAgent;
+            if (/android/i.test(userAgent)) {
+                window.open(connector.downloadUrls?.android, '_blank');
+            } else if (/iPad|iPhone|iPod/i.test(userAgent)) {
+                window.open(connector.downloadUrls?.ios, '_blank');
+            } else {
+                window.open(connector.downloadUrls?.browserExtension, '_blank');
+            }
+            return;
+        }
+        setActiveConnectorAndConnect?.(connector);
+        onClose?.();
     }
-    setTimeout(() => {
-      window.location.reload();
-    }, 30000);
-  };
 
-  const connectWallet = async (wallet: Connector) => {
-    try {
-      setActiveConnectorAndConnect?.(wallet);
-      setConnectWalletModalOpen(false);
-    } catch (err: any) {
-      console.error(err.message);
-      const errorMessage = `${err}`;
-      if (errorMessage.includes(`Error: Wallet hasn't been set upp`)) {
-        onError(`Error: Wallet hasn't been set up. Please set up your xBull wallet.`);
-      } else {
-        onError('Something went wrong. Please try again.');
-      }
-    }
-  };
-
-  const handleClick = async (
-    wallet: Connector,
-    walletState: { name: string; isInstalled: boolean; isLoading: boolean } | undefined,
-  ) => {
-    if (!walletState || walletState.isLoading) return;
-
-    if (!isMobile) {
-      const isWalletInstalled = walletState.isInstalled;
-      if (isWalletInstalled) {
-        connectWallet(wallet);
-      } else {
-        installWallet(wallet);
-      }
-    } else if (isMobile) {
-      connectWallet(wallet);
-    }
-  };
-
-  return (
-    <ModalBox>
-      <ContentWrapper isMobile={isMobile}>
-        <Title>Connect a wallet to continue</Title>
-        <Subtitle>
-          Choose how you want to connect.{' '}
-          <span>If you don’t have a wallet, you can select a provider and create one.</span>
-        </Subtitle>
-        {wallets?.map((wallet, index) => {
-          const walletState = walletStates.find((walletState) => walletState.name === wallet.id);
-          return (
-            <WalletBox key={index} onClick={() => handleClick(wallet, walletState)}>
-              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <img alt={wallet.id} src={typeof wallet.iconUrl == 'string' ? wallet.iconUrl : ''} width={24} height={24} style={{ borderRadius: '4px' }} />
-                <span>{wallet.name} Wallet</span>
-              </div>
-              {walletState ? (
-                (walletState.isInstalled)
-                  ? <span style={{ color: theme.palette.custom.textQuaternary }}>{walletState.name == 'passkey' ? 'Available' : 'Detected'}</span>
-                  : <span style={{ color: theme.palette.error.main }}>Install</span>
-              ) : <CircularProgress size={16} />}
-            </WalletBox>
-          );
-        })}
-      </ContentWrapper>
-      <FooterText isMobile={isMobile}>
-        By connecting a wallet, you agree to Soroswap <span>Terms of Service</span>
-      </FooterText>
-    </ModalBox>
-  );
-};
-
-const ErrorContent = ({
-  isMobile,
-  handleClick,
-  errorMessage,
-}: {
-  isMobile: boolean;
-  handleClick: () => void;
-  errorMessage: string;
-}) => {
-  const theme = useTheme();
-  return (
-    <ModalBox>
-      <ContentWrapper isMobile={isMobile}>
-        <Box display="flex" alignItems="center" gap="16px">
-          <AlertCircle size="32px" stroke={theme.palette.customBackground.accentCritical} />
-          <Title>Connection Error</Title>
-        </Box>
-        <Box>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            gap="8px"
-            marginBottom="12px"
-          >
-            <Text style={{ textWrap: 'pretty' }}>{errorMessage}</Text>
-          </Box>
-          <ButtonPrimary onClick={handleClick} style={{ marginTop: 32 }}>
-            Try again
-          </ButtonPrimary>
-        </Box>
-      </ContentWrapper>
-    </ModalBox>
-  );
-};
-
-export default function ConnectWalletModal() {
-  const theme = useTheme();
-  const { ConnectWalletModal } = useContext(AppContext);
-  const { isConnectWalletModalOpen, setConnectWalletModalOpen } = ConnectWalletModal;
-
-  const isMobile = useMediaQuery(theme.breakpoints.down(768));
-
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const handleError = (error: string) => {
-    setErrorMessage(error);
-  };
-
-  return (
-    <Modal
-      open={isConnectWalletModalOpen}
-      onClose={() => {
-        setConnectWalletModalOpen(false);
-        setErrorMessage(null);
-      }}
-      aria-labelledby="modal-wallet-connect"
-      aria-describedby="modal-wallet-disconnect"
-    >
-      <div>
-        {errorMessage ? (
-          <ErrorContent
-            isMobile={isMobile}
-            handleClick={() => setErrorMessage(null)}
-            errorMessage={errorMessage}
-          />
-        ) : (
-          <ConnectWalletContent
-            isMobile={isMobile}
-            onError={handleError}
-          />
-        )}
-      </div>
-    </Modal>
-  );
+    return (
+        <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent left={{ base: '50%', lg: '85%' }} p='32px' w='full' maxW={{ base: '360px', lg: '420px' }} direction='column' gap='24px'>
+                <ModalCloseButton />
+                <Text fontSize='24px'>
+                    Connect a wallet to continue
+                </Text>
+                <Text fontSize='14px'>
+                    Choose how you want to connect.
+                    If you don&apos;t have a wallet, you can select a provider and create one.
+                </Text>
+                <Flex direction='column' gap='16px'>
+                    <For each={wallets}>
+                        {(wallet, index) => (
+                            <Flex key={wallet.id} p='16px' justify='space-between' bg={useColorModeValue('#F8F8F8', '#0F1016')} rounded='16px' cursor='pointer' onClick={() => handleConnect(connectors[index])}>
+                                <Flex gap='16px'>
+                                    <Image alt={wallet.sname} src={wallet.iconUrl} w='24px' h='24px' rounded='8px' />
+                                    <Text>
+                                        {wallet.name} Wallet
+                                    </Text>
+                                </Flex>
+                                {wallet.isConnected ? (
+                                    <Text color={useColorModeValue('#F66B3C', '#B4EFAF')}>
+                                        {wallet.sname == 'Passkey' ? 'Available' : 'Detected'}
+                                    </Text>
+                                ) : <Text color='#F66B3C'>Install</Text>}
+                            </Flex>
+                        )}
+                    </For>
+                </Flex>
+                <Text fontSize='12px' color={useColorModeValue('#00615F', 'white')} opacity={0.5}>
+                    By connecting a wallet, you agree to Soroswap <Link color={useColorModeValue('#F66B3C', '#00615F')}>Terms of Service</Link>
+                </Text>
+            </ModalContent>
+        </Modal>
+    )
 }
+
+export default ConnectWalletModal;

@@ -1,23 +1,23 @@
-export interface TokenType {
-  code: string;
-  issuer?: string;
-  contract: string;
-  name?: string;
-  org?: string;
-  domain?: string;
-  icon?: string;
-  decimals?: number;
+export interface ITokenType {
+    code: string;
+    issuer?: string;
+    contract: string;
+    name?: string;
+    org?: string;
+    domain?: string;
+    icon?: string;
+    decimals?: number;
 }
 
-export interface tokensResponse {
-  network: string;
-  tokens: TokenType[];
+export interface ITokensResponse {
+    network: string;
+    tokens: ITokenType[];
 }
 
-export type TokenMapType = {
-  [key: string]: TokenType;
+export type ITokenTypeMap = {
+    [key: string]: ITokenType;
 };
 
-export type TokenBalancesMap = {
-  [tokenAddress: string]: { usdValue: number; balance: string };
+export type ITokenBalancesMap = {
+    [tokenAddress: string]: { usdValue: number; balance: string };
 };

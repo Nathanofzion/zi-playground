@@ -1,35 +1,36 @@
-# React + Vite
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-1. This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules. Currently, two official plugins are available:
+## Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+First, run the development server:
 
-The project is be setup to work in a monorepo structure, use pnpm is used as the package manager therefore you should install pnpm globally (if you haven't already):
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-   ```bash
-   npm install -g pnpm
-   ```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-2. **Clone Your Fork**: Clone the forked repository to your local machine.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-   ```bash
-   git clone https://github.com/<your-username>/nathan_project.git
-   ```
-3. **Install Node modules**.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-   ```bash
-   pnpm install
-   ```
+## Learn More
 
-4. **Build Project Locally**.
+To learn more about Next.js, take a look at the following resources:
 
-   ```bash
-   pnpm run build
-   ```
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-5. **Build Project Locally**.
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-   ```bash
-   pnpm preview
-   ```
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

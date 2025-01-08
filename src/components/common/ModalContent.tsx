@@ -1,0 +1,26 @@
+import { Flex, FlexProps } from "@chakra-ui/react";
+import { FC } from "react";
+import { useColorModeValue } from "../ui/color-mode";
+
+const ModalContent: FC<FlexProps> = (props) => {
+    return (
+        <Flex
+            position='fixed'
+            zIndex={1020}
+            transform='auto'
+            left='50%' top='50%'
+            translateX='-50%' translateY='-50%'
+            bg={useColorModeValue(
+                'linear-gradient(#F8F8F8, #F8F8F8) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;',
+                'linear-gradient(#13141E, #13141E) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;',
+            )}
+            color={useColorModeValue('#00615F', 'white')}
+            shadow='0px 4px 10px 0px rgba(136, 102, 221, 0.1);'
+            border='2px solid transparent'
+            rounded='16px'
+            {...props}
+        />
+    )
+}
+
+export default ModalContent;

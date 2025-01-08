@@ -1,11 +1,9 @@
 import { StrKey } from '@stellar/stellar-sdk';
 import { PasskeyKit } from 'passkey-kit';
 
-import passkeyImage from '/img/img/passkey.png';
-
-const STELLAR_RPC_URL = "https://soroban-testnet.stellar.org";
-const STELLAR_NETWORK_PASSPHRASE = "Test SDF Network ; September 2015";
-const FACTORY_CONTRACT_ID = "CAUN2AYT2VHF362EO7BFB6FM763F4F3AKRNTNOVLI4HC6LFGQFYQ6CB6";
+const STELLAR_RPC_URL = process.env.NEXT_PUBLIC_STELLAR_RPC_URL;
+const STELLAR_NETWORK_PASSPHRASE = process.env.NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE;
+const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID;
 
 const passkey = () => {
     const passkeyKit = new PasskeyKit({
@@ -21,11 +19,11 @@ const passkey = () => {
         id: 'passkey',
         name: "PasskeyID",
         shortName: "Passkey",
-        iconUrl: passkeyImage,
+        iconUrl: '/images/passkey.png',
         iconBackground: '',
         installed: true,
 
-        isConnected: async () => connected,
+        isConnected: async () => true,
 
         getNetworkDetails: async () => {
             return {
@@ -37,7 +35,7 @@ const passkey = () => {
 
         getPublicKey: async () => {
             if (!connected || !publicKey) {
-                const wallet = await passkeyKit.createWallet("Zafegard", "Zafegard Admin");
+                const wallet = await passkeyKit.createWallet("Zi Airdrop Playground", "");
                 const contractBytes = StrKey.decodeContract(wallet.contractId);
                 connected = true;
                 publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
@@ -53,8 +51,10 @@ const passkey = () => {
             if (!connected)
                 throw new Error('Not connected');
 
-            const result = await passkeyKit.sign(xdr);
-            return result;
+            const res = await passkeyKit.sign(xdr);
+
+            if (res) return 'success';
+            else return 'error';
         }
     }
 }

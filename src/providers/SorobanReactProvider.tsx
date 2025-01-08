@@ -1,42 +1,27 @@
+'use client';
+import passkey from '@/lib/passkey';
 import { mainnet, standalone, testnet } from '@soroban-react/chains';
 import { SorobanReactProvider } from '@soroban-react/core';
 import { freighter } from '@soroban-react/freighter';
 import { lobstr } from '@soroban-react/lobstr';
-import { xbull } from '@soroban-react/xbull';
+import { ReactNode } from 'react';
 
-import useMounted from '@/hooks/useMounted';
-import passkey from '../lib/passkey';
+const chains = process.env.NODE_ENV === 'production' ? [testnet, mainnet] : [standalone, testnet, mainnet];
 
-// Set allowed chains:
-const chains =
-  import.meta.env.NODE_ENV === 'production' ? [testnet, mainnet] : [standalone, testnet, mainnet];
+const activeChainName = process.env.PUBLIC_STELLAR_NETWORK || 'testnet';
+const activeChain = chains.find((chain) => chain.id === activeChainName) || testnet;
 
-// Set chain by default:
-// Helper function
-const findWalletChainByName = (name) => {
-  return chains.find((chain) => chain.id === name);
-};
+const connectors = [passkey(), freighter(), lobstr()];
 
-// Get the active chain based on the environment variable or default to testnet
-const activeChainName = import.meta.env.PUBLIC_STELLAR_NETWORK || 'testnet';
-const activeChain = findWalletChainByName(activeChainName) || testnet;
-
-// Set allowed connectors
-const connectors = [freighter(), xbull(), lobstr(), passkey()];
-
-export default function ({ children }) {
-  const mounted = useMounted();
-
-  if (!mounted) return null;
-
-  return (
-    <SorobanReactProvider
-      chains={chains}
-      appName={'Soroswap'}
-      connectors={connectors}
-      activeChain={activeChain}
-    >
-      {children}
-    </SorobanReactProvider>
-  );
+export default function ({ children }: { children: ReactNode }) {
+    return (
+        <SorobanReactProvider
+            chains={chains}
+            appName={'Soroswap'}
+            connectors={connectors}
+            activeChain={activeChain}
+        >
+            {children}
+        </SorobanReactProvider>
+    );
 }
