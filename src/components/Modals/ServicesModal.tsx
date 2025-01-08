@@ -1,5 +1,8 @@
-import { Grid } from "@chakra-ui/react";
+'use client';
 import { FC } from "react";
+
+import { Grid } from "@chakra-ui/react";
+
 import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";

@@ -1,11 +1,14 @@
 'use client';
+import { FC, useEffect, useState } from "react";
+
 import { Flex, For, Image, Link, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 import { Connector } from '@soroban-react/types';
-import { FC, useEffect, useState } from "react";
+
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 import { useColorModeValue } from "../ui/color-mode";
+
 interface IWallet {
     id: string;
     name: string;

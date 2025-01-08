@@ -1,9 +1,11 @@
+'use client';
 import { FC } from "react";
 
 import { Flex, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
 import useGetNativeTokenBalance from "@/hooks/useGetNativeTokenBalance";
+
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 
