@@ -7,9 +7,9 @@ import { useSorobanReact } from "@soroban-react/core";
 import { truncateAddress } from "@/utils";
 
 import Button from "./Button";
-import BalanceModal from "./modal/BalanceModal";
-import ConnectWalletModal from "./modal/ConnectWalletModal";
-import ServicesModal from "./modal/ServicesModal";
+import BalanceModal from "./modals/BalanceModal";
+import ConnectWalletModal from "./modals/ConnectWalletModal";
+import ServicesModal from "./modals/ServicesModal";
 import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
