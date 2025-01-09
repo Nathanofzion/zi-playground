@@ -54,7 +54,7 @@ const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
-            <ModalContent left={{ base: '50%', lg: '85%' }} p='32px' w='full' maxW={{ base: '360px', lg: '420px' }} direction='column' gap='24px'>
+            <ModalContent left={{ base: '50%', lg: '75%' }} p='32px' w='full' maxW={{ base: '360px', lg: '420px' }} direction='column' gap='24px'>
                 <ModalCloseButton />
                 <Text fontSize='24px'>
                     Connect a wallet to continue

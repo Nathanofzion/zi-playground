@@ -11,7 +11,7 @@ const ServicesModal: FC<ModalProps> = (props) => {
     return (
         <Modal {...props}>
             <ModalOverlay />
-            <ModalContent left={{ base: '50%', lg: '85%' }} p='48px' w='full' maxW={{ base: '360px', lg: '480px' }}>
+            <ModalContent left={{ base: '50%', lg: '75%' }} p='48px' w='full' maxW={{ base: '360px', lg: '480px' }}>
                 <ModalCloseButton />
                 <Grid w='full' templateColumns='repeat(2, minmax(0, 1fr))' gap='32px'>
                     <Button size='2xl'>
