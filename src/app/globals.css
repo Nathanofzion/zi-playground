@@ -48,12 +48,6 @@ a {
   height: 48px;
 }
 
-@media not all and (min-width: 1024px) {
-  .toggle {
-    display: none;
-  }
-}
-
 .toggle input {
   opacity: 0;
   width: 0;
