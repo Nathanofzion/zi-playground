@@ -1,9 +1,10 @@
-'use client';
-import { useState } from "react";
+"use client"
+import { useContext, useState } from "react";
 
 import { Box, Flex, Image } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
+import { AppContext } from "@/providers";
 import { truncateAddress } from "@/utils";
 
 import Button from "./Button";
@@ -15,6 +16,7 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 const Header = () => {
     const { address, disconnect } = useSorobanReact();
+    const { setStartAnimation } = useContext(AppContext);
     const [showBalanceModal, setShowBalanceModal] = useState(false);
     const [showServicesModal, setShowServicesModal] = useState(false);
     const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
@@ -60,7 +62,10 @@ const Header = () => {
                                 </MenuRoot>
                             </>
                         ) : (
-                            <Button size='lg' onClick={() => setShowConnectWalletModal(true)}>Connect</Button>
+                            <Button size='lg' onClick={() => {
+                                setShowConnectWalletModal(true);
+                                setStartAnimation?.(true);
+                            }}>Connect</Button>
                         )}
                     </Flex>
                 </Flex>

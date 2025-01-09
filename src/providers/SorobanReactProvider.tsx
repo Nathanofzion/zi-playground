@@ -1,4 +1,3 @@
-'use client';
 import passkey from '@/lib/passkey';
 import { mainnet, standalone, testnet } from '@soroban-react/chains';
 import { SorobanReactProvider } from '@soroban-react/core';

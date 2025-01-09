@@ -1,9 +1,11 @@
-'use client';
-import { ClientOnly } from "@chakra-ui/react";
+"use client"
 import { useCallback } from "react";
 import Particles from "react-particles";
 import { loadImageShape } from "tsparticles-shape-image";
 import { loadSlim } from "tsparticles-slim";
+
+import { ClientOnly } from "@chakra-ui/react";
+
 import { useColorModeValue } from "./ui/color-mode";
 
 const BgParticles = () => {

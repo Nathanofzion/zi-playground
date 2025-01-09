@@ -1,10 +1,12 @@
-import BgParticles from "@/components/BgParticles";
-import Header from "@/components/Header";
-import { Provider } from "@/components/ui/provider";
-import SorobanReactProvider from "@/providers/SorobanReactProvider";
-import { Flex } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+
+import { Flex } from "@chakra-ui/react";
+
+import BgParticles from "@/components/BgParticles";
+import Header from "@/components/Header";
+import Provider from "@/providers";
+
 import "./globals.css";
 
 const geistSans = localFont({
@@ -31,15 +33,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <SorobanReactProvider>
-          <Provider>
-            <BgParticles />
-            <Flex position='fixed' inset={0} direction='column' overflowY='auto'>
-              <Header />
-              {children}
-            </Flex>
-          </Provider>
-        </SorobanReactProvider>
+        <Provider>
+          <BgParticles />
+          <Flex position='fixed' inset={0} direction='column' overflowY='auto'>
+            <Header />
+            {children}
+          </Flex>
+        </Provider>
       </body>
     </html>
   );

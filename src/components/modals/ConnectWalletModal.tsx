@@ -1,4 +1,3 @@
-'use client';
 import { FC, useEffect, useState } from "react";
 
 import { Flex, For, Image, Link, Text } from "@chakra-ui/react";

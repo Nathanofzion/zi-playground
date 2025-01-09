@@ -1,4 +1,4 @@
-'use client';
+"use client"
 import {
     AccumulativeShadows,
     CameraControls,
@@ -15,7 +15,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
 interface EarthProps extends GroupProps {
-    startAnimation: boolean;
+    startAnimation?: boolean;
 }
 
 function Earth({ startAnimation, ...props }: EarthProps) {
@@ -54,7 +54,7 @@ function Earth({ startAnimation, ...props }: EarthProps) {
 }
 
 interface TextOnFacesProps {
-    startAnimation: boolean;
+    startAnimation?: boolean;
 }
 
 const TextOnFaces = ({ startAnimation }: TextOnFacesProps) => {
@@ -136,7 +136,7 @@ const TextOnFaces = ({ startAnimation }: TextOnFacesProps) => {
 };
 
 interface Props {
-    startAnimation: boolean;
+    startAnimation?: boolean;
 }
 
 export default function Viewer({ startAnimation }: Props) {
