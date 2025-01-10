@@ -42,10 +42,12 @@ a {
 }
 
 .toggle {
-  position: relative;
+  position: fixed;
+  right: 16px;
+  top: 112px;
   display: inline-block;
-  width: 96px;
-  height: 48px;
+  width: 48px;
+  height: 24px;
 }
 
 .toggle input {
@@ -56,28 +58,43 @@ a {
 
 .slider {
   position: absolute;
+  inset: 0;
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  transition: .2s;
-  border-radius: 48px;
 }
 
 .slider>span {
   position: absolute;
-  height: 40px;
-  width: 40px;
-  left: 4px;
-  bottom: 4px;
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  top: 2px;
   transition: .2s;
-  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 input:checked+.slider>span {
-  transform: translateX(48px);
+  transform: translateX(24px);
+}
+
+@media (min-width: 1024px) {
+  .toggle {
+    position: relative;
+    right: unset;
+    top: unset;
+    width: 96px;
+    height: 48px;
+  }
+
+  .slider>span {
+    height: 40px;
+    width: 40px;
+    left: 4px;
+    top: 4px;
+  }
+
+  input:checked+.slider>span {
+    transform: translateX(48px);
+  }
 }

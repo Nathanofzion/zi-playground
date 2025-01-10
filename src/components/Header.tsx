@@ -24,7 +24,7 @@ const Header = () => {
     return (
         <>
             <Flex position='sticky' top={0} px='16px' direction='column'>
-                <Flex p={{ base: '24px 16px', lg: '24px 64px' }} justify='space-between' align='center'>
+                <Flex p={{ base: '24px 0px', lg: '24px 64px' }} justify='space-between' align='center'>
                     <Image width={{ base: '48px', lg: '70px' }} height={{ base: '48px', lg: '70px' }} alt="logo" src="/logo.png" />
                     <Flex
                         position={{ base: 'fixed', lg: 'static' }}
@@ -55,9 +55,7 @@ const Header = () => {
                                         border='2px solid transparent'
                                         rounded='xl'
                                     >
-                                        <MenuItem p='8px 16px' value="disconnect" onClick={() => disconnect()}>
-                                            Disconnect
-                                        </MenuItem>
+                                        <MenuItem p='8px 16px' value="disconnect" onClick={() => disconnect()}>Disconnect</MenuItem>
                                     </MenuContent>
                                 </MenuRoot>
                             </>

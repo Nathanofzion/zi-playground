@@ -11,8 +11,8 @@ const ModalContent: FC<FlexProps> = (props) => {
             left='50%' top='50%'
             translateX='-50%' translateY='-50%'
             bg={useColorModeValue(
-                'linear-gradient(#F8F8F8, #F8F8F8) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;',
-                'linear-gradient(#13141E, #13141E) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;',
+                'linear-gradient(#F8F8F880, #F8F8F880) padding-box, linear-gradient(to bottom right, #a588e480, #b7fee080) border-box;',
+                'linear-gradient(#13141E80, #13141E80) padding-box, linear-gradient(to bottom right, #a588e480, #b7fee080) border-box;',
             )}
             color={useColorModeValue('#00615F', 'white')}
             shadow='0px 4px 10px 0px rgba(136, 102, 221, 0.1);'
