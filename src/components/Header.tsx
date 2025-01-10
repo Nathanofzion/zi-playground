@@ -23,7 +23,7 @@ const Header = () => {
 
     return (
         <>
-            <Flex position='sticky' top={0} px='16px' direction='column'>
+            <Flex position='sticky' top={0} zIndex={5} px='16px' direction='column'>
                 <Flex p={{ base: '24px 0px', lg: '24px 64px' }} justify='space-between' align='center'>
                     <Image width={{ base: '48px', lg: '70px' }} height={{ base: '48px', lg: '70px' }} alt="logo" src="/logo.png" />
                     <Flex
