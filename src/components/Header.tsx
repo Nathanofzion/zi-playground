@@ -16,7 +16,7 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 const Header = () => {
     const { address, disconnect } = useSorobanReact();
-    const { setStartAnimation, openAirdropModal, openStakingModal, openLoginModal, openParticlesGuideModal } = useContext(AppContext);
+    const { setStartAnimation, openStakingModal, openLoginModal, openParticlesGuideModal } = useContext(AppContext);
     const [showBalanceModal, setShowBalanceModal] = useState(false);
     const [showServicesModal, setShowServicesModal] = useState(false);
     const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
