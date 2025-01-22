@@ -16,7 +16,7 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 const Header = () => {
     const { address, disconnect } = useSorobanReact();
-    const { setStartAnimation } = useContext(AppContext);
+    const { setStartAnimation, openAirdropModal, openStakingModal, openLoginModal, openParticlesGuideModal } = useContext(AppContext);
     const [showBalanceModal, setShowBalanceModal] = useState(false);
     const [showServicesModal, setShowServicesModal] = useState(false);
     const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
@@ -32,12 +32,12 @@ const Header = () => {
                         transform='auto' translateX={{ base: '-50%', lg: 'unset' }}
                         gap={{ base: '4px', lg: '16px' }}
                     >
-                        <Button>Airdrop</Button>
-                        <Button>Staking</Button>
+                        <Button onClick={address ? openParticlesGuideModal : openLoginModal}>Airdrop</Button>
+                        <Button onClick={openStakingModal}>Staking</Button>
                         <Button>Rewards</Button>
                     </Flex>
                     <Flex gap={{ base: '8px', lg: '16px' }} align='center'>
-                        <ColorModeButton />
+                        <ColorModeButton position={{ base: 'fixed', lg: 'relative' }} top={{ base: '112px', lg: 'unset' }} right={{ base: '16px', lg: 'unset' }} />
                         {address ? (
                             <>
                                 <Button onClick={() => setShowBalanceModal(true)}>Balanace</Button>
