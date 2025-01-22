@@ -1,9 +1,9 @@
 "use client"
+import type { ThemeProviderProps } from "next-themes";
+import { ThemeProvider, useTheme } from "next-themes";
+import { FC, useState } from "react";
 
-import { ClientOnly, Image } from "@chakra-ui/react"
-import type { ThemeProviderProps } from "next-themes"
-import { ThemeProvider, useTheme } from "next-themes"
-import { useState } from "react"
+import { Box, ClientOnly, Flex, FlexProps, Image } from "@chakra-ui/react";
 
 export interface ColorModeProviderProps extends ThemeProviderProps { }
 
@@ -27,20 +27,37 @@ export function useColorModeValue<T>(light: T, dark: T) {
   return colorMode == "light" ? light : dark
 }
 
-export const ColorModeButton = () => {
+interface Props extends FlexProps {
+  guide?: boolean;
+}
+
+export const ColorModeButton: FC<Props> = ({ guide, ...props }) => {
   const { colorMode, setColorMode } = useColorMode()
   const [checked, setChecked] = useState(colorMode == 'dark')
 
   return (
     <ClientOnly>
-      <label className="toggle" onClick={() => setColorMode(checked ? 'light' : 'dark')}>
-        <input id="toggleSwitch" type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} />
-        <span className="slider">
-          <span>
-            {useColorModeValue(<Image alt="sun" src="/images/sun.png" />, <Image alt="moon" src="/images/moon.png" />)}
-          </span>
-        </span>
-      </label>
-    </ClientOnly>
+      <Flex
+        position='relative'
+        w={guide ? '96px' : { base: '48px', lg: '96px' }}
+        h={guide ? '48px' : { base: '24px', lg: '48px' }}
+        cursor='pointer'
+        onClick={() => {
+          setColorMode(checked ? 'light' : 'dark');
+          setChecked(!checked);
+        }}
+        {...props}
+      >
+        <Box
+          position='absolute' left={0} top='50%'
+          transform='auto'
+          translateX={colorMode == 'dark' ? (guide ? '48px' : { base: '24px', lg: '48px' }) : (guide ? '4px' : { base: '2px', lg: '4px' })}
+          translateY='-50%'
+          w={guide ? '40px' : { base: '20px', lg: '40px' }}
+        >
+          {useColorModeValue(<Image alt="sun" src="/images/sun.png" />, <Image alt="moon" src="/images/moon.png" />)}
+        </Box>
+      </Flex>
+    </ClientOnly >
   )
 }
