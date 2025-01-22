@@ -1,51 +1,23 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 
-import { Flex, For, Image, Link, Text } from "@chakra-ui/react";
+import { Flex, For, Link, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 import { Connector } from '@soroban-react/types';
+
+import useWallets from "@/hooks/useWallets";
+import { connect } from "@/lib/wallet";
 
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 import { useColorModeValue } from "../ui/color-mode";
-
-interface IWallet {
-    id: string;
-    name: string;
-    sname?: string;
-    iconUrl: string;
-    isConnected: boolean;
-}
+import { WalletConnectButton } from "../wallet";
 
 const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
     const { setActiveConnectorAndConnect, connectors } = useSorobanReact();
-    const [wallets, setWallets] = useState<IWallet[]>([]);
-
-    useEffect(() => {
-        (async () => {
-            const wallets = await Promise.all(connectors.map(async (connector) => ({
-                id: connector.id,
-                name: connector.name,
-                sname: connector.shortName,
-                iconUrl: typeof connector.iconUrl == 'string' ? connector.iconUrl : await connector.iconUrl(),
-                isConnected: await connector.isConnected(),
-            })));
-            setWallets(wallets);
-        })();
-    }, [connectors]);
+    const wallets = useWallets();
 
     const handleConnect = async (connector: Connector) => {
-        const isConnected = await connector.isConnected();
-        if (!isConnected) {
-            const userAgent = navigator.userAgent;
-            if (/android/i.test(userAgent)) {
-                window.open(connector.downloadUrls?.android, '_blank');
-            } else if (/iPad|iPhone|iPod/i.test(userAgent)) {
-                window.open(connector.downloadUrls?.ios, '_blank');
-            } else {
-                window.open(connector.downloadUrls?.browserExtension, '_blank');
-            }
-            return;
-        }
+        await connect(connector);
         setActiveConnectorAndConnect?.(connector);
         onClose?.();
     }
@@ -64,21 +36,7 @@ const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
                 </Text>
                 <Flex direction='column' gap='16px'>
                     <For each={wallets}>
-                        {(wallet, index) => (
-                            <Flex key={wallet.id} p='16px' justify='space-between' bg={useColorModeValue('#F8F8F8', '#0F1016')} rounded='16px' cursor='pointer' onClick={() => handleConnect(connectors[index])}>
-                                <Flex gap='16px'>
-                                    <Image alt={wallet.sname} src={wallet.iconUrl} w='24px' h='24px' rounded='8px' />
-                                    <Text>
-                                        {wallet.name} Wallet
-                                    </Text>
-                                </Flex>
-                                {wallet.isConnected ? (
-                                    <Text color={useColorModeValue('#F66B3C', '#B4EFAF')}>
-                                        {wallet.sname == 'Passkey' ? 'Available' : 'Detected'}
-                                    </Text>
-                                ) : <Text color='#F66B3C'>Install</Text>}
-                            </Flex>
-                        )}
+                        {(wallet, index) => <WalletConnectButton key={wallet.id} wallet={wallet} onClick={() => handleConnect(connectors[index])} />}
                     </For>
                 </Flex>
                 <Text fontSize='12px' color={useColorModeValue('#00615F', 'white')} opacity={0.5}>
