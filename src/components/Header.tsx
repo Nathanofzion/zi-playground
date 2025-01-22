@@ -32,9 +32,9 @@ const Header = () => {
                         transform='auto' translateX={{ base: '-50%', lg: 'unset' }}
                         gap={{ base: '4px', lg: '16px' }}
                     >
-                        <Button onClick={address ? openParticlesGuideModal : openLoginModal}>Airdrop</Button>
+                        <Button onClick={openParticlesGuideModal}>Airdrop</Button>
                         <Button onClick={openStakingModal}>Staking</Button>
-                        <Button>Rewards</Button>
+                        <Button onClick={openLoginModal}>Rewards</Button>
                     </Flex>
                     <Flex gap={{ base: '8px', lg: '16px' }} align='center'>
                         <ColorModeButton position={{ base: 'fixed', lg: 'relative' }} top={{ base: '112px', lg: 'unset' }} right={{ base: '16px', lg: 'unset' }} />

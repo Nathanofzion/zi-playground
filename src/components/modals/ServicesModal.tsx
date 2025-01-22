@@ -14,22 +14,22 @@ const ServicesModal: FC<ModalProps> = (props) => {
                 <ModalCloseButton />
                 <Grid w='full' templateColumns='repeat(2, minmax(0, 1fr))' gap='32px'>
                     <Button size='2xl'>
-                        Send
+                        Coming soon
                     </Button>
                     <Button size='2xl'>
-                        Receive
+                        Coming soon
                     </Button>
                     <Button size='2xl'>
-                        Swap
+                        Coming soon
                     </Button>
                     <Button size='2xl'>
-                        Liquidity
+                        Coming soon
                     </Button>
                     <Button size='2xl'>
-                        Bridge
+                        Coming soon
                     </Button>
                     <Button size='2xl'>
-                        Info
+                        Coming soon
                     </Button>
                 </Grid>
             </ModalContent>
