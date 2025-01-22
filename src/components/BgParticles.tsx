@@ -97,7 +97,7 @@ const BgParticles = () => {
                             },
                         },
                         size: {
-                            value: { min: 4, max: 12.5 },
+                            value: { min: 2.5, max: 6.5 },
                         },
                     },
                     detectRetina: true,
