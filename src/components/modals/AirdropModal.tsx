@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-import { Heading } from "@chakra-ui/react";
+import { Heading, Text } from "@chakra-ui/react";
 
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
@@ -14,6 +14,9 @@ const AirdropModal: FC<ModalProps> = (props) => {
                 <Heading as="h2" textAlign="center" size="lg">
                     AIRDROP
                 </Heading>
+                <Text textAlign='center'>
+                    Coming soon...
+                </Text>
             </ModalContent>
         </Modal>
     )
