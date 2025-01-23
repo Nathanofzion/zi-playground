@@ -16,7 +16,7 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 const Header = () => {
     const { address, disconnect } = useSorobanReact();
-    const { setStartAnimation, openStakingModal, openLoginModal, openParticlesGuideModal } = useContext(AppContext);
+    const { setStartAnimation, openAirdropModal, openStakingModal, openLoginModal } = useContext(AppContext);
     const [showBalanceModal, setShowBalanceModal] = useState(false);
     const [showServicesModal, setShowServicesModal] = useState(false);
     const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
@@ -32,7 +32,7 @@ const Header = () => {
                         transform='auto' translateX={{ base: '-50%', lg: 'unset' }}
                         gap={{ base: '4px', lg: '16px' }}
                     >
-                        <Button onClick={openParticlesGuideModal}>Airdrop</Button>
+                        <Button onClick={openAirdropModal}>Airdrop</Button>
                         <Button onClick={openStakingModal}>Staking</Button>
                         <Button onClick={openLoginModal}>Rewards</Button>
                     </Flex>
