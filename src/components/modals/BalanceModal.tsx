@@ -5,12 +5,14 @@ import { useSorobanReact } from "@soroban-react/core";
 
 import useGetNativeTokenBalance from "@/hooks/useGetNativeTokenBalance";
 
+import useAirdrop from "@/hooks/useAirdrop";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 
 const BalanceModal: FC<ModalProps> = (props) => {
     const { address } = useSorobanReact();
-    const { balance } = useGetNativeTokenBalance();
+    const { balance: nativeTokenBalance } = useGetNativeTokenBalance();
+    const { balance: airdropBalance } = useAirdrop();
 
     return (
         <Modal {...props}>
@@ -30,7 +32,10 @@ const BalanceModal: FC<ModalProps> = (props) => {
                         Balance
                     </Text>
                     <Text fontSize='14px'>
-                        {balance} XLM
+                        {nativeTokenBalance} XLM
+                    </Text>
+                    <Text fontSize='14px'>
+                        {airdropBalance} ZI
                     </Text>
                 </Flex>
             </ModalContent>
