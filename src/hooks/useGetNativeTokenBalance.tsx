@@ -1,6 +1,6 @@
 import { nativeTokens } from '@/constants';
 import { SorobanContextType, useSorobanReact } from '@soroban-react/core';
-import useSWRImmutable from 'swr/immutable';
+import { useQuery } from '@tanstack/react-query';
 import { tokenBalance } from './useBalances';
 
 const fetchBalance = async (sorobanContext: SorobanContextType, address?: string) => {
@@ -31,12 +31,15 @@ const useGetNativeTokenBalance = () => {
     const sorobanContext = useSorobanReact();
     const { address } = sorobanContext;
 
-    const { data, error, isLoading, mutate } = useSWRImmutable(
-        address ? ['native-balance', sorobanContext, address] : null,
-        ([, sorobanContext, address]) => fetchBalance(sorobanContext, address)
-    );
+    const { data, error, isLoading, refetch } = useQuery({
+        queryKey: ['getNativeTokenBalance', address],
+        queryFn: () => fetchBalance(sorobanContext, address),
+        enabled: !!address,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    });
 
-    return { balance: data, error, isLoading, mutate };
+    return { balance: data, error, isLoading, refetch };
 };
 
 export default useGetNativeTokenBalance;
