@@ -97,7 +97,7 @@ const Provider: FC<Props> = ({ children }) => {
                         <ParticlesGuideModal isOpen={showParticlesGuideModal} onClose={() => setShowParticlesGuideModal(false)} />
                     </SorobanReactProvider>
                 </QueryClientProvider>
-                <Toaster/>
+                <Toaster />
             </ThemeProvider>
         </AppContext.Provider>
     )
