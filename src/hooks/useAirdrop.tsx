@@ -37,8 +37,9 @@ const useAirdrop = () => {
     });
 
     const getAirdrop = async (action: Action) => {
-        if (!address) return;
         try {
+            if (!address)
+                throw new Error('Please connect wallet.');
             await contractInvoke({
                 contractAddress,
                 method: 'distribute_tokens',
@@ -53,6 +54,10 @@ const useAirdrop = () => {
             refetch();
         } catch (err: any) {
             console.error(err.message);
+            toaster.create({
+                title: `Error: ${err.message}`,
+                type: 'error',
+            });
         }
     }
 
