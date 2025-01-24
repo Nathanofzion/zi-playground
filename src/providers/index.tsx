@@ -1,6 +1,8 @@
 "use client"
 import { createContext, FC, ReactNode, useState } from "react";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import AirdropModal from "@/components/modals/AirdropModal";
 import BridgeModal from "@/components/modals/BridgeModal";
 import { CubeGuideModal, ParticlesGuideModal, PasskeyGuideModal, ThemeGuideModal } from "@/components/modals/guides";
@@ -12,6 +14,7 @@ import SendModal from "@/components/modals/SendModal";
 import StakingModal from "@/components/modals/StakingModal";
 import SwapModal from "@/components/modals/SwapModal";
 import { Provider as ThemeProvider } from "@/components/ui/provider";
+import { Toaster } from "@/components/ui/toaster";
 
 import SorobanReactProvider from "./SorobanReactProvider";
 
@@ -27,10 +30,15 @@ interface IApp {
     openInfoModal?: () => void;
     openStakingModal?: () => void;
     openAirdropModal?: () => void;
+    openPasskeyGuideModal?: () => void;
+    openCubeGuideModal?: () => void;
+    openThemeGuideModal?: () => void;
     openParticlesGuideModal?: () => void;
 }
 
 export const AppContext = createContext<IApp>({});
+
+const queryClient = new QueryClient();
 
 interface Props {
     children: ReactNode;
@@ -59,31 +67,37 @@ const Provider: FC<Props> = ({ children }) => {
             openAirdropModal: () => setShowAirdropModal(true),
             openStakingModal: () => setShowStakingModal(true),
             openLoginModal: () => setShowLoginModal(true),
-            openParticlesGuideModal: () => setShowParticlesGuideModal(true),
             openSendModal: () => setShowSendModal(true),
             openReceiveModal: () => setShowReceiveModal(true),
             openSwapModal: () => setShowSwapModal(true),
             openLiquidityModal: () => setShowLiquidityModal(true),
             openBridgeModal: () => setShowBridgeModal(true),
             openInfoModal: () => setShowInfoModal(true),
+            openPasskeyGuideModal: () => setShowPasskeyGuideModal(true),
+            openCubeGuideModal: () => setShowCubeGuideModal(true),
+            openThemeGuideModal: () => setShowThemeGuideModal(true),
+            openParticlesGuideModal: () => setShowParticlesGuideModal(true),
         }}>
             <ThemeProvider>
-                <SorobanReactProvider>
-                    {children}
-                    <AirdropModal isOpen={showAirdropModal} onClose={() => setShowAirdropModal(false)} />
-                    <StakingModal isOpen={showStakingModal} onClose={() => setShowStakingModal(false)} />
-                    <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-                    <SendModal isOpen={showSendModal} onClose={() => setShowSendModal(false)} />
-                    <ReceiveModal isOpen={showReceiveModal} onClose={() => setShowReceiveModal(false)} />
-                    <SwapModal isOpen={showSwapModal} onClose={() => setShowSwapModal(false)} />
-                    <LiquidityModal isOpen={showLiquidityModal} onClose={() => setShowLiquidityModal(false)} />
-                    <BridgeModal isOpen={showBridgeModal} onClose={() => setShowBridgeModal(false)} />
-                    <InfoModal isOpen={showInfoModal} onClose={() => setShowInfoModal(false)} />
-                    <PasskeyGuideModal isOpen={showPasskeyGuideModal} onClose={() => setShowPasskeyGuideModal(false)} />
-                    <CubeGuideModal isOpen={showCubeGuideModal} onClose={() => setShowCubeGuideModal(false)} />
-                    <ThemeGuideModal isOpen={showThemeGuideModal} onClose={() => setShowThemeGuideModal(false)} />
-                    <ParticlesGuideModal isOpen={showParticlesGuideModal} onClose={() => setShowParticlesGuideModal(false)} />
-                </SorobanReactProvider>
+                <QueryClientProvider client={queryClient}>
+                    <SorobanReactProvider>
+                        {children}
+                        <AirdropModal isOpen={showAirdropModal} onClose={() => setShowAirdropModal(false)} />
+                        <StakingModal isOpen={showStakingModal} onClose={() => setShowStakingModal(false)} />
+                        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+                        <SendModal isOpen={showSendModal} onClose={() => setShowSendModal(false)} />
+                        <ReceiveModal isOpen={showReceiveModal} onClose={() => setShowReceiveModal(false)} />
+                        <SwapModal isOpen={showSwapModal} onClose={() => setShowSwapModal(false)} />
+                        <LiquidityModal isOpen={showLiquidityModal} onClose={() => setShowLiquidityModal(false)} />
+                        <BridgeModal isOpen={showBridgeModal} onClose={() => setShowBridgeModal(false)} />
+                        <InfoModal isOpen={showInfoModal} onClose={() => setShowInfoModal(false)} />
+                        <PasskeyGuideModal isOpen={showPasskeyGuideModal} onClose={() => setShowPasskeyGuideModal(false)} />
+                        <CubeGuideModal isOpen={showCubeGuideModal} onClose={() => setShowCubeGuideModal(false)} />
+                        <ThemeGuideModal isOpen={showThemeGuideModal} onClose={() => setShowThemeGuideModal(false)} />
+                        <ParticlesGuideModal isOpen={showParticlesGuideModal} onClose={() => setShowParticlesGuideModal(false)} />
+                    </SorobanReactProvider>
+                </QueryClientProvider>
+                <Toaster/>
             </ThemeProvider>
         </AppContext.Provider>
     )
