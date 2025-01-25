@@ -2,7 +2,7 @@ import { FC } from "react";
 
 import { Icon, IconProps } from "@chakra-ui/react";
 
-const MouseClickIcon: FC<IconProps> = ({ color, ...props }) => {
+const MouseClickIcon: FC<IconProps> = (props) => {
     return (
         <Icon {...props}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109.21 122.88" fill="white">
