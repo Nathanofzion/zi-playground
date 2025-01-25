@@ -1,4 +1,5 @@
 import { StrKey } from '@stellar/stellar-sdk';
+import axios from 'axios';
 import { PasskeyKit } from 'passkey-kit';
 
 const STELLAR_RPC_URL = process.env.NEXT_PUBLIC_STELLAR_RPC_URL;
@@ -39,6 +40,7 @@ const passkey = () => {
                 const contractBytes = StrKey.decodeContract(wallet.contractId);
                 connected = true;
                 publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
+                await axios.get(`https://friendbot.stellar.org?addr=${publicKey}`);
             }
             return publicKey;
         },
