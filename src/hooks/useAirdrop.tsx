@@ -58,7 +58,7 @@ const useAirdrop = () => {
             });
             refetch();
         } catch (err: any) {
-            console.error(err.code);
+            console.error(err);
             toaster.create({
                 title: "Error: You've already received this type of airdrop.",
                 type: 'error',
