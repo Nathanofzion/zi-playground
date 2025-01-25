@@ -37,9 +37,14 @@ const useAirdrop = () => {
     });
 
     const getAirdrop = async (action: Action) => {
+        if (!address) {
+            toaster.create({
+                title: 'Error: Please connect wallet to get airdrop.',
+                type: 'error',
+            });
+            return;
+        }
         try {
-            if (!address)
-                throw new Error('Please connect wallet.');
             await contractInvoke({
                 contractAddress,
                 method: 'distribute_tokens',
@@ -53,9 +58,9 @@ const useAirdrop = () => {
             });
             refetch();
         } catch (err: any) {
-            console.error(err.message);
+            console.error(err.code);
             toaster.create({
-                title: `Error: ${err.message}`,
+                title: "Error: You've already received this type of airdrop.",
                 type: 'error',
             });
         }
