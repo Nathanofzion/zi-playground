@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.2.5",
+    "@chakra-ui/react": "^3.3.1",
     "@emotion/react": "^11.14.0",
     "@react-three/drei": "^9.120.5",
     "@react-three/fiber": "^8.17.10",
@@ -23,6 +23,7 @@
     "@soroban-react/xbull": "^9.3.0",
     "@stellar/stellar-sdk": "^13.1.0",
     "@tanstack/react-query": "^5.64.2",
+    "axios": "^1.7.9",
     "next": "14.2.22",
     "next-themes": "^0.4.4",
     "passkey-kit": "^0.10.4",
