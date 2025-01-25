@@ -9,7 +9,7 @@ import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 
 const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
-    const { openCubeGuideModal, openParticlesGuideModal, openThemeGuideModal } = useContext(AppContext);
+    const { openPasskeyGuideModal, openCubeGuideModal, openParticlesGuideModal, openThemeGuideModal } = useContext(AppContext);
 
     return (
         <Modal onClose={onClose} {...props}>
@@ -21,6 +21,12 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
                 </Heading>
                 <Text textAlign='center'>
                     <Flex direction='column' gap={4}>
+                        <Button size='xl' onClick={() => {
+                            openPasskeyGuideModal?.();
+                            onClose?.();
+                        }}>
+                            Connect wallet
+                        </Button>
                         <Button size='xl' onClick={() => {
                             openCubeGuideModal?.();
                             onClose?.();
