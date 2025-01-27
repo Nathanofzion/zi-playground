@@ -1,7 +1,7 @@
 import { contractInvoke } from "@soroban-react/contracts";
 import { useSorobanReact } from "@soroban-react/core";
 import { scValToBigInt, xdr } from "@stellar/stellar-sdk";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { toaster } from "@/components/ui/toaster";
 import { accountToScVal } from "@/utils";
@@ -36,37 +36,37 @@ const useAirdrop = () => {
         refetchOnWindowFocus: false,
     });
 
-    const getAirdrop = async (action: Action) => {
-        if (!address) {
+    const { mutate, isPending } = useMutation({
+        mutationFn: async (action: Action) => {
+            if (!address)
+                throw new Error('Error: Please connect wallet to get airdrop.');
+            try {
+                await contractInvoke({
+                    contractAddress,
+                    method: 'distribute_tokens',
+                    args: [accountToScVal(address), xdr.ScVal.scvU32(action)],
+                    signAndSend: true,
+                    sorobanContext,
+                });
+                toaster.create({
+                    title: 'You have successfully received the airdrop.',
+                    type: 'success',
+                });
+                refetch();
+            } catch (err: any) {
+                console.error(err);
+                throw new Error(`Error: You've already received this type of airdrop.`);
+            }
+        },
+        onError: (err: any) => {
             toaster.create({
-                title: 'Error: Please connect wallet to get airdrop.',
+                title: err.message,
                 type: 'error',
             });
-            return;
         }
-        try {
-            await contractInvoke({
-                contractAddress,
-                method: 'distribute_tokens',
-                args: [accountToScVal(address), xdr.ScVal.scvU32(action)],
-                signAndSend: true,
-                sorobanContext,
-            });
-            toaster.create({
-                title: 'You have successfully received the airdrop.',
-                type: 'success',
-            });
-            refetch();
-        } catch (err: any) {
-            console.error(err);
-            toaster.create({
-                title: "Error: You've already received this type of airdrop.",
-                type: 'error',
-            });
-        }
-    }
+    })
 
-    return { balance: data || 0, refetch, getAirdrop };
+    return { balance: data || 0, refetch, getAirdrop: mutate, isLoading: isPending };
 }
 
 export default useAirdrop;
