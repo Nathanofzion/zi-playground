@@ -1,4 +1,4 @@
-import { ClientOnly, Text } from "@chakra-ui/react";
+import { ClientOnly } from "@chakra-ui/react";
 import { Button, ButtonProps } from "./ui/button";
 import { useColorModeValue } from "./ui/color-mode";
 
@@ -9,6 +9,8 @@ export default function ({ children, ...props }: ButtonProps) {
                 position='relative'
                 px={{ base: '8px', lg: '16px' }}
                 bg='linear-gradient(to bottom right, #a588e4, #b7fee0)'
+                fontSize={{ base: '14px', lg: '18px' }}
+                fontWeight='bold'
                 color={useColorModeValue('#00615F', 'white')}
                 border='none'
                 rounded='full'
@@ -28,9 +30,7 @@ export default function ({ children, ...props }: ButtonProps) {
                 }}
                 {...props}
             >
-                <Text fontSize={{ base: '14px', lg: '18px' }} fontWeight='bold'>
-                    {children}
-                </Text>
+                {children}
             </Button>
         </ClientOnly>
     )
