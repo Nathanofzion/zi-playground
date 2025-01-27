@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 
 import useAirdrop, { Action } from "@/hooks/useAirdrop";
 
@@ -16,7 +16,7 @@ interface Props extends ModalProps {
 }
 
 const GuideModal: FC<Props> = ({ title, description, children, action, showButton, ...props }) => {
-    const { getAirdrop } = useAirdrop();
+    const { getAirdrop, isLoading } = useAirdrop();
     return (
         <Modal {...props}>
             <ModalOverlay />
@@ -28,7 +28,8 @@ const GuideModal: FC<Props> = ({ title, description, children, action, showButto
                 </Flex>
                 {children}
                 {showButton && (
-                    <Button onClick={() => action && getAirdrop(action)}>
+                    <Button gap={1} onClick={() => action && getAirdrop(action)}>
+                        {isLoading && <Spinner size='sm' />}
                         Get airdrop
                     </Button>
                 )}
