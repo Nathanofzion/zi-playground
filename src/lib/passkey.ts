@@ -1,3 +1,4 @@
+import { Connector } from '@soroban-react/types';
 import { StrKey } from '@stellar/stellar-sdk';
 import axios from 'axios';
 import { PasskeyKit } from 'passkey-kit';
@@ -55,10 +56,9 @@ const passkey = () => {
 
             const res = await passkeyKit.sign(xdr);
 
-            if (res) return 'success';
-            else return 'error';
+            return res.toXDR();
         }
-    }
+    } as Connector;
 }
 
 export default passkey;
