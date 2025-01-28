@@ -1,14 +1,10 @@
-import passkey from '@/lib/passkey';
-import { mainnet, standalone, testnet } from '@soroban-react/chains';
 import { SorobanReactProvider } from '@soroban-react/core';
 import { freighter } from '@soroban-react/freighter';
 import { lobstr } from '@soroban-react/lobstr';
 import { ReactNode } from 'react';
 
-const chains = process.env.NODE_ENV === 'production' ? [testnet, mainnet] : [standalone, testnet, mainnet];
-
-const activeChainName = process.env.PUBLIC_STELLAR_NETWORK || 'testnet';
-const activeChain = chains.find((chain) => chain.id === activeChainName) || testnet;
+import { activeChain, chains } from '@/lib/chain';
+import passkey from '@/lib/passkey';
 
 const connectors = [passkey(), freighter(), lobstr()];
 
