@@ -1,21 +1,24 @@
-import { Connector } from '@soroban-react/types';
 import { StrKey } from '@stellar/stellar-sdk';
 import axios from 'axios';
 import { PasskeyKit } from 'passkey-kit';
 
-const STELLAR_RPC_URL = process.env.NEXT_PUBLIC_STELLAR_RPC_URL;
-const STELLAR_NETWORK_PASSPHRASE = process.env.NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE;
+import { activeChain } from './chain';
+
 const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID;
+
+export interface IPasskeyWallet {
+    keyId_base64: string;
+    publicKey: string;
+}
 
 const passkey = () => {
     const passkeyKit = new PasskeyKit({
-        rpcUrl: STELLAR_RPC_URL,
-        networkPassphrase: STELLAR_NETWORK_PASSPHRASE,
+        rpcUrl: activeChain.sorobanRpcUrl || '',
+        networkPassphrase: activeChain.networkPassphrase,
         factoryContractId: FACTORY_CONTRACT_ID
     });
 
-    let connected = false;
-    let publicKey: string | null = null;
+    let wallet: IPasskeyWallet | null = null;
 
     return {
         id: 'passkey',
@@ -27,23 +30,18 @@ const passkey = () => {
 
         isConnected: async () => true,
 
-        getNetworkDetails: async () => {
-            return {
-                network: 'TESTNET',
-                networkPassphrase: STELLAR_NETWORK_PASSPHRASE,
-                networkUrl: STELLAR_RPC_URL
-            };
-        },
+        getNetworkDetails: async () => activeChain,
 
         getPublicKey: async () => {
-            if (!connected || !publicKey) {
-                const wallet = await passkeyKit.createWallet("Zi Airdrop Playground", "");
-                const contractBytes = StrKey.decodeContract(wallet.contractId);
-                connected = true;
-                publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
+            if (!wallet) {
+                const { contractId, keyId_base64 } = await passkeyKit.createWallet("Zi Airdrop Playground", "");
+                const contractBytes = StrKey.decodeContract(contractId);
+                const publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
                 await axios.get(`https://friendbot.stellar.org?addr=${publicKey}`);
+                wallet = { keyId_base64, publicKey };
+                return publicKey;
             }
-            return publicKey;
+            return wallet.publicKey;
         },
 
         signTransaction: async (xdr: string, _opts?: {
@@ -51,14 +49,14 @@ const passkey = () => {
             networkPassphrase?: string;
             accountToSign?: string;
         }) => {
-            if (!connected)
+            if (!wallet)
                 throw new Error('Not connected');
 
-            const res = await passkeyKit.sign(xdr);
+            const res = await passkeyKit.sign(xdr, { keyId: wallet.keyId_base64 });
 
             return res.toXDR();
         }
-    } as Connector;
+    }
 }
 
 export default passkey;
