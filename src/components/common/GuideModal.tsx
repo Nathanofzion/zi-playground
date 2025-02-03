@@ -17,7 +17,7 @@ interface Props extends ModalProps {
 }
 
 const GuideModal: FC<Props> = ({ title, description, congratulation, children, action, showButton, ...props }) => {
-    const { getAirdrop, isLoading } = useAirdrop();
+    const { getAirdrop, isGettingAirdrop } = useAirdrop();
 
     const [isCompleted, setIsCompleted] = useState(false);
 
@@ -31,14 +31,17 @@ const GuideModal: FC<Props> = ({ title, description, congratulation, children, a
                     <Text fontSize='sm'>{description}</Text>
                 </Flex>
                 {children}
-                {showButton && (
-                    <Button gap={1} onClick={async () => {
-                        if (action) {
-                            await getAirdrop(action);
-                            setIsCompleted(true);
-                        }
-                    }}>
-                        {isLoading && <Spinner size='sm' />}
+                {(!isCompleted && showButton) && (
+                    <Button
+                        gap={1}
+                        disabled={isGettingAirdrop}
+                        onClick={async () => {
+                            if (action) {
+                                await getAirdrop(action);
+                                setIsCompleted(true);
+                            }
+                        }}>
+                        {isGettingAirdrop && <Spinner size='sm' />}
                         Get airdrop
                     </Button>
                 )}

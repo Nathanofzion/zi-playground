@@ -21,7 +21,7 @@ const useAirdrop = () => {
     const sorobanContext = useSorobanReact();
     const { address } = sorobanContext;
 
-    const { data, refetch } = useQuery({
+    const { data: balance, refetch: refetchBalance } = useQuery({
         queryKey: ['getAirdropBalance', address],
         queryFn: async () => {
             if (!address) return 0;
@@ -38,7 +38,24 @@ const useAirdrop = () => {
         refetchOnWindowFocus: false,
     });
 
-    const { mutateAsync, isPending } = useMutation({
+    const { data: status, error, refetch: refetchStatus } = useQuery({
+        queryKey: ['getAirdropStatus', address],
+        queryFn: async () => {
+            if (!address) return 0;
+            const response = await contractInvoke({
+                contractAddress,
+                method: 'get_status',
+                args: [accountToScVal(address)],
+                sorobanContext,
+            });
+            return Number(scValToBigInt(response as xdr.ScVal));
+        },
+        enabled: !!address,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+    });
+
+    const { mutateAsync: getAirdrop, isPending: isGettingAirdrop } = useMutation({
         mutationFn: async (action: Action) => {
             if (!address)
                 throw new Error('Please connect wallet to get airdrop.');
@@ -49,7 +66,8 @@ const useAirdrop = () => {
                 title: 'You have successfully received the airdrop.',
                 type: 'success',
             });
-            refetch();
+            refetchBalance();
+            refetchStatus();
         },
         onError: (_err: any) => {
             toaster.create({
@@ -57,9 +75,11 @@ const useAirdrop = () => {
                 type: 'error',
             });
         }
-    })
+    });
 
-    return { balance: data || 0, refetch, getAirdrop: mutateAsync, isLoading: isPending };
+    refetchStatus();
+
+    return { balance: balance || 0, refetchBalance, status: status || 0, refetchStatus, getAirdrop, isGettingAirdrop };
 }
 
 export default useAirdrop;
