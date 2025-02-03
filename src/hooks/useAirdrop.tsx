@@ -38,7 +38,7 @@ const useAirdrop = () => {
         refetchOnWindowFocus: false,
     });
 
-    const { data: status, error, refetch: refetchStatus } = useQuery({
+    const { data: status, refetch: refetchStatus } = useQuery({
         queryKey: ['getAirdropStatus', address],
         queryFn: async () => {
             if (!address) return 0;

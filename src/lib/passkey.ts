@@ -37,7 +37,8 @@ const passkey = () => {
                 const connectOrCreate = async () => {
                     try {
                         return await passkeyKit.connectWallet();
-                    } catch (_err: any) {
+                    } catch (err) {
+                        console.error(err);
                         const wallet = await passkeyKit.createWallet("Zi Airdrop Playground", "");
                         const contractBytes = StrKey.decodeContract(wallet.contractId);
                         const publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
