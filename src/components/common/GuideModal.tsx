@@ -31,10 +31,10 @@ const GuideModal: FC<Props> = ({ title, description, congratulation, children, a
                     <Text fontSize='sm'>{description}</Text>
                 </Flex>
                 {children}
-                {(showButton && !isCompleted) && (
-                    <Button gap={1} onClick={() => {
+                {showButton && (
+                    <Button gap={1} onClick={async () => {
                         if (action) {
-                            getAirdrop(action);
+                            await getAirdrop(action);
                             setIsCompleted(true);
                         }
                     }}>
@@ -42,7 +42,7 @@ const GuideModal: FC<Props> = ({ title, description, congratulation, children, a
                         Get airdrop
                     </Button>
                 )}
-                {(!isLoading && isCompleted) && congratulation}
+                {isCompleted && congratulation}
             </ModalContent>
         </Modal>
     )

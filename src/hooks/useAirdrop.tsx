@@ -38,7 +38,7 @@ const useAirdrop = () => {
         refetchOnWindowFocus: false,
     });
 
-    const { mutate, isPending } = useMutation({
+    const { mutateAsync, isPending } = useMutation({
         mutationFn: async (action: Action) => {
             if (!address)
                 throw new Error('Please connect wallet to get airdrop.');
@@ -59,7 +59,7 @@ const useAirdrop = () => {
         }
     })
 
-    return { balance: data || 0, refetch, getAirdrop: mutate, isLoading: isPending };
+    return { balance: data || 0, refetch, getAirdrop: mutateAsync, isLoading: isPending };
 }
 
 export default useAirdrop;
