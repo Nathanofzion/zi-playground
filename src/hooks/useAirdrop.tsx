@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import { contractInvoke } from "@soroban-react/contracts";
 import { useSorobanReact } from "@soroban-react/core";
 import { scValToBigInt, xdr } from "@stellar/stellar-sdk";
@@ -39,28 +41,19 @@ const useAirdrop = () => {
     const { mutate, isPending } = useMutation({
         mutationFn: async (action: Action) => {
             if (!address)
-                throw new Error('Error: Please connect wallet to get airdrop.');
-            try {
-                await contractInvoke({
-                    contractAddress,
-                    method: 'distribute_tokens',
-                    args: [accountToScVal(address), xdr.ScVal.scvU32(action)],
-                    signAndSend: true,
-                    sorobanContext,
-                });
-                toaster.create({
-                    title: 'You have successfully received the airdrop.',
-                    type: 'success',
-                });
-                refetch();
-            } catch (err: any) {
-                console.error(err);
-                throw new Error(`Error: You've already received this type of airdrop.`);
-            }
+                throw new Error('Please connect wallet to get airdrop.');
+            return await axios.post('/api/airdrop', { address, action })
+        },
+        onSuccess: () => {
+            toaster.create({
+                title: 'You have successfully received the airdrop.',
+                type: 'success',
+            });
+            refetch();
         },
         onError: (err: any) => {
             toaster.create({
-                title: err.message,
+                title: `Error: You've already received this type of airdrop.`,
                 type: 'error',
             });
         }
