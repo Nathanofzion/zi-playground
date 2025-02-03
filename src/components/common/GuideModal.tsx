@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, ReactNode, useState } from "react";
 
 import { Flex, Spinner, Text } from "@chakra-ui/react";
 
@@ -11,12 +11,16 @@ import { ModalProps } from "./Modal";
 interface Props extends ModalProps {
     title: string;
     description: string;
+    congratulation?: ReactNode;
     action?: Action;
     showButton?: boolean;
 }
 
-const GuideModal: FC<Props> = ({ title, description, children, action, showButton, ...props }) => {
+const GuideModal: FC<Props> = ({ title, description, congratulation, children, action, showButton, ...props }) => {
     const { getAirdrop, isLoading } = useAirdrop();
+
+    const [isCompleted, setIsCompleted] = useState(false);
+
     return (
         <Modal {...props}>
             <ModalOverlay />
@@ -27,12 +31,18 @@ const GuideModal: FC<Props> = ({ title, description, children, action, showButto
                     <Text fontSize='sm'>{description}</Text>
                 </Flex>
                 {children}
-                {showButton && (
-                    <Button gap={1} onClick={() => action && getAirdrop(action)}>
+                {(showButton && !isCompleted) && (
+                    <Button gap={1} onClick={() => {
+                        if (action) {
+                            getAirdrop(action);
+                            setIsCompleted(true);
+                        }
+                    }}>
                         {isLoading && <Spinner size='sm' />}
                         Get airdrop
                     </Button>
                 )}
+                {(!isLoading && isCompleted) && congratulation}
             </ModalContent>
         </Modal>
     )

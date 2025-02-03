@@ -1,6 +1,6 @@
 import { FC, useRef, useState } from "react";
 
-import { Flex } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 
 import { GuideModal } from "@/components/common";
 import { ModalProps } from "@/components/common/Modal";
@@ -15,6 +15,11 @@ const ParticlesGuideModal: FC<ModalProps> = (props) => {
         <GuideModal
             title="Click screen"
             description="Try to click screen to get your ZI airdrop"
+            congratulation={
+                <Text fontSize='sm'>
+                    Amazing you’ve created some particles now check your balance and move to Step 4). to get your last particle theme Airdrop
+                </Text>
+            }
             action={Action.CreateParticles}
             showButton={showButton}
             {...props}

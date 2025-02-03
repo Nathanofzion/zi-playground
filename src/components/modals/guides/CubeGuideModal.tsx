@@ -1,6 +1,6 @@
 import { FC, useRef, useState } from "react";
 
-import { Box } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 
 import { GuideModal } from "@/components/common";
 import { ModalProps } from "@/components/common/Modal";
@@ -15,6 +15,11 @@ const CubeGuideModal: FC<ModalProps> = (props) => {
         <GuideModal
             title="Spin cube"
             description="Try to spin the cube and get your ZI airdrop"
+            congratulation={
+                <Text fontSize='sm'>
+                    Great you’ve spun the cube, now check your balance and See your first Zi airdrop, and move to step 3). For your next Zi airdrop
+                </Text>
+            }
             action={Action.SpinCube}
             showButton={showButton}
             {...props}
