@@ -34,10 +34,21 @@ const passkey = () => {
 
         getPublicKey: async () => {
             if (!wallet) {
-                const { contractId, keyId_base64 } = await passkeyKit.createWallet("Zi Airdrop Playground", "");
+                const connectOrCreate = async () => {
+                    try {
+                        return await passkeyKit.connectWallet();
+                    } catch (_err: any) {
+                        const wallet = await passkeyKit.createWallet("Zi Airdrop Playground", "");
+                        const contractBytes = StrKey.decodeContract(wallet.contractId);
+                        const publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
+                        await axios.get(`https://friendbot.stellar.org?addr=${publicKey}`);
+                        return wallet;
+                    }
+                }
+
+                const { contractId, keyId_base64 } = await connectOrCreate();
                 const contractBytes = StrKey.decodeContract(contractId);
                 const publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
-                await axios.get(`https://friendbot.stellar.org?addr=${publicKey}`);
                 wallet = { keyId_base64, publicKey };
                 return publicKey;
             }
