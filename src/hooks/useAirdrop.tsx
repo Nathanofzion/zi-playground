@@ -51,7 +51,7 @@ const useAirdrop = () => {
             });
             refetch();
         },
-        onError: (err: any) => {
+        onError: (_err: any) => {
             toaster.create({
                 title: `Error: You've already received this type of airdrop.`,
                 type: 'error',

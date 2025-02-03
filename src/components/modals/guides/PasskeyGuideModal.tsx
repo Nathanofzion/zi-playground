@@ -15,7 +15,7 @@ const PasskeyGuideModal: FC<ModalProps> = ({ onClose, ...props }) => {
     const wallets = useWallets();
 
     const wallet = useMemo(() => wallets.find(wallet => wallet.id == 'passkey')!, [wallets]);
-    const connector = useMemo(() => connectors[wallets.findIndex(wallet => wallet.id == 'passkey')]!, [connectors]);
+    const connector = useMemo(() => connectors[wallets.findIndex(wallet => wallet.id == 'passkey')]!, [connectors, wallets]);
 
     const handleConnect = async (connector: Connector) => {
         await connect(connector);
