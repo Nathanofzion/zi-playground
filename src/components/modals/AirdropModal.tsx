@@ -15,8 +15,6 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
     const { address } = useSorobanReact();
     const { status } = useAirdrop();
 
-    console.log(status);
-
     const renderNextStep = () => {
         if (status == 0) {
             return (
@@ -66,7 +64,11 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
             )
         }
 
-        return <></>
+        return (
+            <>
+                You received all types of Zi Airdrop
+            </>
+        )
     }
 
     return (
