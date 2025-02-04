@@ -27,8 +27,11 @@ const CubeGuideModal: FC<ModalProps> = (props) => {
             <Box
                 aspectRatio={1}
                 onMouseMove={() => setShowButton(showButton || isDownRef.current)}
+                onTouchMove={() => setShowButton(showButton || isDownRef.current)}
                 onMouseDown={() => isDownRef.current = true}
+                onTouchStart={() => isDownRef.current = true}
                 onMouseUp={() => isDownRef.current = false}
+                onTouchEnd={() => isDownRef.current = true}
             >
                 <Viewer />
             </Box>
