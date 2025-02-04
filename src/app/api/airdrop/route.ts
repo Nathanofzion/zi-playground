@@ -6,7 +6,7 @@ import { Server } from '@stellar/stellar-sdk/rpc';
 import { activeChain } from '@/lib/chain';
 import { accountToScVal } from '@/utils';
 
-const airdropContractId = process.env.AIRDROP_CONTRACT_ID!;
+const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
 const airdropSourceSecret = process.env.AIRDROP_SOURCE_SECRET!;
 
 export async function POST(req: NextRequest) {
