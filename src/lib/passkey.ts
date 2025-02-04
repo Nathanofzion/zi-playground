@@ -1,10 +1,31 @@
-import { StrKey } from '@stellar/stellar-sdk';
 import axios from 'axios';
 import { PasskeyKit } from 'passkey-kit';
+
+import { StrKey } from '@stellar/stellar-sdk';
+import { Tx } from '@stellar/stellar-sdk/contract';
 
 import { activeChain } from './chain';
 
 const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID;
+
+async function send(tx: Tx) {
+    return fetch('/api/send', {
+        method: 'POST',
+        body: JSON.stringify({
+            xdr: tx.toXDR(),
+        }),
+    }).then(async (res) => {
+        if (res.ok) return res.json();
+        else throw await res.text();
+    });
+}
+
+async function getContractId(signer: string) {
+    return fetch(`/api/contract/${signer}`).then(async (res) => {
+        if (res.ok) return res.text();
+        else throw await res.text();
+    });
+}
 
 export interface IPasskeyWallet {
     keyId_base64: string;
@@ -36,13 +57,16 @@ const passkey = () => {
             if (!wallet) {
                 const connectOrCreate = async () => {
                     try {
-                        return await passkeyKit.connectWallet();
+                        return await passkeyKit.connectWallet({
+                            getContractId,
+                        });
                     } catch (err) {
                         console.error(err);
-                        const wallet = await passkeyKit.createWallet("Zi Airdrop Playground", "");
+                        const wallet = await passkeyKit.createWallet(process.env.NEXT_PUBLIC_PROJECT_NAME!, "");
                         const contractBytes = StrKey.decodeContract(wallet.contractId);
                         const publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
                         await axios.get(`https://friendbot.stellar.org?addr=${publicKey}`);
+                        await send(wallet.built);
                         return wallet;
                     }
                 }
