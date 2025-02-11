@@ -13,7 +13,7 @@ const ParticlesGuideModal: FC<ModalProps> = (props) => {
 
     return (
         <GuideModal
-            title="Click screen"
+            title="Create Some Particles"
             description="Create some Particles on the screen by Clicking Here."
             congratulation={
                 <Text fontSize='sm'>
