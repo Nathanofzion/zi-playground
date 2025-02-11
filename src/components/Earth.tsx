@@ -10,7 +10,7 @@ import {
     useGLTF
 } from "@react-three/drei";
 import { Canvas, GroupProps, useFrame } from "@react-three/fiber";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
@@ -22,6 +22,9 @@ function Earth({ startAnimation, ...props }: EarthProps) {
     const ref = useRef<THREE.Mesh>(null);
     const { nodes, materials } = useGLTF("/models/earth.glb");
     const [opacity, setOpacity] = useState<number>(0.9);
+
+    const earth = useMemo(() => nodes["Object_4"].clone() as any, [nodes]);
+    const material = useMemo(() => materials["Scene_-_Root"].clone(), [materials]);
 
     useFrame((state, delta) => {
         if (startAnimation && ref.current) {
@@ -45,8 +48,8 @@ function Earth({ startAnimation, ...props }: EarthProps) {
             <mesh
                 castShadow
                 ref={ref}
-                geometry={(nodes.Object_4 as any).geometry}
-                material={materials["Scene_-_Root"]}
+                geometry={earth.geometry}
+                material={material}
                 scale={1.128}
             />
         </group>
