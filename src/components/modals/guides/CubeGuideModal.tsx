@@ -13,11 +13,11 @@ const CubeGuideModal: FC<ModalProps> = (props) => {
 
     return (
         <GuideModal
-            title="Spin cube"
-            description="Try to spin the cube and get your ZI airdrop"
+            title="Spin block"
+            description="Try Spinning the Block to get your 1st Zi Airdrop"
             congratulation={
                 <Text fontSize='sm'>
-                    Great you’ve spun the cube, now check your balance and See your first Zi airdrop, and move to step 3). For your next Zi airdrop
+                    Great, you’ve spun the Block, now check your balance to see your 1st Zi Airdrop. Then move on to Step 3).
                 </Text>
             }
             action={Action.SpinCube}
@@ -33,7 +33,7 @@ const CubeGuideModal: FC<ModalProps> = (props) => {
                 onMouseUp={() => isDownRef.current = false}
                 onTouchEnd={() => isDownRef.current = true}
             >
-                <Viewer />
+                <Viewer startAnimation={showButton} />
             </Box>
         </GuideModal >
     )

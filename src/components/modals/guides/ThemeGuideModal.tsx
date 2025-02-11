@@ -16,14 +16,26 @@ const ThemeGuideModal: FC<ModalProps> = (props) => {
             description="Try to change theme and get your ZI airdrop"
             congratulation={
                 <Box>
-                    <Text fontSize='sm'>
-                        Superb welldone you now got the last particle theme airdrop, Now they you’ve done invite your friends and family earn 10 Zi for everyone that links your link & gets the airdrop.
+                    <Text fontSize='sm' fontWeight='bold'>
+                        Well done!!
+                    </Text>
+                    <Text mt={2} fontSize='sm'>
+                        You’ve now got the last Particle Theme Zi Airdrop.
+                    </Text>
+                    <Text mt={2} fontSize='sm'>
+                        Now invite your friends & family  by clicking the Rewards button & signing up.
                     </Text>
                     <Text fontSize='sm'>
-                        And for every 10 people that user your link you’ll get an extra 100 Zi.
+                        You will earn 10 Zi for everyone that clicks your link & receive the Zi Airdrop.
                     </Text>
                     <Text fontSize='sm'>
-                        And then if you want to earn even more Zi Stake it and get 100% ARP and create liquidity pools to earn 0.3% for everyone transaction within that pool Plus bonus.
+                        You will get another 100 Zi for every 10 members that join via your link.
+                    </Text>
+                    <Text mt={2} fontSize='sm' fontWeight='bold'>
+                        Coming Soon
+                    </Text>
+                    <Text fontSize='sm'>
+                        And then;  if you want to earn even more Zi. Stake it to get 100% ARP on selected Smart contracts. Create Liquidity pools to earn 0.3% for everyone transaction within that pool Plus bonus.
                     </Text>
                 </Box>
             }

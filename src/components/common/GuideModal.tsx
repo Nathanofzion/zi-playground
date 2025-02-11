@@ -24,7 +24,7 @@ const GuideModal: FC<Props> = ({ title, description, congratulation, children, a
     return (
         <Modal {...props}>
             <ModalOverlay />
-            <ModalContent w='320px' p={4} direction='column' gap={2}>
+            <ModalContent w='360px' p={4} direction='column' gap={2}>
                 <ModalCloseButton />
                 <Flex direction='column' gap={1}>
                     <Text fontSize='xl'>{title}</Text>

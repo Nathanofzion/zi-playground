@@ -14,7 +14,7 @@ const ParticlesGuideModal: FC<ModalProps> = (props) => {
     return (
         <GuideModal
             title="Click screen"
-            description="Try to click screen to get your ZI airdrop"
+            description="Create some Particles on the screen by Clicking Here."
             congratulation={
                 <Text fontSize='sm'>
                     Amazing you’ve created some particles now check your balance and move to Step 4). to get your last particle theme Airdrop

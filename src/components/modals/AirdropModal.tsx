@@ -19,14 +19,14 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
         if (status == 0) {
             return (
                 <Flex direction='column' gap={2}>
-                    <Text textAlign='left'>
-                        Step 2). Spin the Cube to get the first Airdrop
+                    <Text textAlign='left' fontWeight='bold'>
+                        Step 2). Spin the block to get the first Airdrop
                     </Text>
                     <Button size='xl' onClick={() => {
                         openCubeGuideModal?.();
                         onClose?.();
                     }}>
-                        Spin cube
+                        Spin block
                     </Button>
                 </Flex>
             )
@@ -35,8 +35,8 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
         if (status == 1) {
             return (
                 <Flex direction='column' gap={2}>
-                    <Text textAlign='left'>
-                        Step 3). Create So Particles by clicking the screen
+                    <Text textAlign='left' fontWeight='bold'>
+                        Step 3). Create some particles by clicking the screen
                     </Text>
                     <Button size='xl' onClick={() => {
                         openParticlesGuideModal?.();
@@ -51,8 +51,8 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
         if (status == 2) {
             return (
                 <Flex direction='column' gap={2}>
-                    <Text textAlign='left'>
-                        Step 4). Change the Teal Moon theme to get your last Zi AirDrop
+                    <Text textAlign='left' fontWeight='bold'>
+                        Step 4). Click the Teal Moon to switch themes and get your last particle theme Zi AirDrop
                     </Text>
                     <Button size='xl' onClick={() => {
                         openThemeGuideModal?.();
