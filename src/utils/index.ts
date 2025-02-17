@@ -23,7 +23,7 @@ export async function fetchAssetImage(asset: Asset) {
             const currency = parsedToml.CURRENCIES.find((currency: any) => currency.code == asset.code);
             return currency.image;
         }
-    } catch (error) {
+    } catch (_err) {
         console.error('Failed to fetch or parse TOML for:', asset.code);
     }
     return null;

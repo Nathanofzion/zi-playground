@@ -34,7 +34,7 @@ const BalanceModal: FC<ModalProps> = (props) => {
                     {assets.map((asset, index) => (
                         <Flex key={index} gap={2}>
                             <Flex flex='1 1 0' gap={2}>
-                                <Image flex='none' w={10} h={10} src={asset.icon} />
+                                <Image flex='none' w={10} h={10} alt={asset.code} src={asset.icon} />
                                 <Flex direction='column' justify='space-around'>
                                     <Text maxW='120px' fontSize='small' truncate>
                                         {asset.name}
