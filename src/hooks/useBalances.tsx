@@ -23,7 +23,7 @@ export async function tokenBalance(
             sorobanContext,
         });
 
-        const decimals = await tokenDecimals(tokenAddress, sorobanContext);
+        const decimals = tokenAddress == ziAirdropContractId ? 0 : await tokenDecimals(tokenAddress, sorobanContext);
 
         return Number(scValToBigInt(response as xdr.ScVal)) / Math.pow(10, decimals);
     } catch (err) {
