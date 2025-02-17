@@ -14,6 +14,9 @@ importers:
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
+      '@iarna/toml':
+        specifier: ^2.2.5
+        version: 2.2.5
       '@react-three/drei':
         specifier: ^9.120.5
         version: 9.120.5(@react-three/fiber@8.17.10(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0))(@types/react@18.3.18)(@types/three@0.172.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0)(use-sync-external-store@1.4.0(react@18.3.1))
@@ -44,6 +47,9 @@ importers:
       '@soroban-react/xbull':
         specifier: ^9.3.0
         version: 9.3.0(react@18.3.1)
+      '@stellar-asset-lists/sdk':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@stellar/stellar-sdk':
         specifier: ^13.1.0
         version: 13.1.0
@@ -252,6 +258,9 @@ packages:
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
+
+  '@iarna/toml@2.2.5':
+    resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
 
   '@internationalized/date@3.6.0':
     resolution: {integrity: sha512-+z6ti+CcJnRlLHok/emGEsWQhe7kfSmEW+/6qCzvKY67YPh7YOBfvc7+/+NXq+zJlbArg30tYpqLjNgcAYv2YQ==}
@@ -482,6 +491,10 @@ packages:
     resolution: {integrity: sha512-TDhpyeHlS0Zv7AgCO8t9ymH4QkREo3A9lpjVtFQmlO4VvnVm70oTT3U12uARwVpgJrVShaesKIsyhvO20v4K0A==}
     peerDependencies:
       react: '>=16.8'
+
+  '@stellar-asset-lists/sdk@1.0.1':
+    resolution: {integrity: sha512-UuPb3n8Ka0m+DfXgBWJRNe4EqrlBZTaSI3C05ZkjPpotcY9YEjLeYn69V1+qcM+8WV9DPVCTy+RgP6JsKzCCyQ==}
+    engines: {node: '>=18'}
 
   '@stellar/freighter-api@1.7.1':
     resolution: {integrity: sha512-XvPO+XgEbkeP0VhP0U1edOkds+rGS28+y8GRGbCVXeZ9ZslbWqRFQoETAdX8IXGuykk2ib/aPokiLc5ZaWYP7w==}
@@ -2758,6 +2771,8 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
+  '@iarna/toml@2.2.5': {}
+
   '@internationalized/date@3.6.0':
     dependencies:
       '@swc/helpers': 0.5.15
@@ -3016,6 +3031,8 @@ snapshots:
       react: 18.3.1
     transitivePeerDependencies:
       - debug
+
+  '@stellar-asset-lists/sdk@1.0.1': {}
 
   '@stellar/freighter-api@1.7.1': {}
 
