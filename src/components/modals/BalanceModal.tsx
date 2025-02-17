@@ -1,18 +1,16 @@
 import { FC } from "react";
 
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex, Image, Spinner, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
-import useGetNativeTokenBalance from "@/hooks/useGetNativeTokenBalance";
+import useAssets from "@/hooks/useAssets";
 
-import useAirdrop from "@/hooks/useAirdrop";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 
 const BalanceModal: FC<ModalProps> = (props) => {
     const { address } = useSorobanReact();
-    const { balance: nativeTokenBalance } = useGetNativeTokenBalance();
-    const { balance: airdropBalance } = useAirdrop();
+    const { assets } = useAssets();
 
     return (
         <Modal {...props}>
@@ -27,16 +25,36 @@ const BalanceModal: FC<ModalProps> = (props) => {
                         {address}
                     </Text>
                 </Flex>
-                <Flex direction='column' gap='4px'>
-                    <Text fontSize='18px'>
-                        Balance
-                    </Text>
-                    <Text fontSize='14px'>
-                        {nativeTokenBalance} XLM
-                    </Text>
-                    <Text fontSize='14px'>
-                        {airdropBalance} ZI
-                    </Text>
+                <Flex
+                    maxH='480px'
+                    direction='column'
+                    gap={2}
+                    overflowY='auto'
+                >
+                    {assets.map((asset, index) => (
+                        <Flex key={index} gap={2}>
+                            <Flex flex='1 1 0' gap={2}>
+                                <Image flex='none' w={10} h={10} src={asset.icon} />
+                                <Flex direction='column' justify='space-around'>
+                                    <Text maxW='120px' fontSize='small' truncate>
+                                        {asset.name}
+                                    </Text>
+                                    <Text fontSize='x-small'>
+                                        {asset.code} ({asset.domain})
+                                    </Text>
+                                </Flex>
+                            </Flex>
+                            <Flex pr={4} direction='column' justify='space-around'>
+                                {asset.balance != undefined ? (
+                                    <Text>
+                                        {asset.balance}
+                                    </Text>
+                                ) : (
+                                    <Spinner size='sm' />
+                                )}
+                            </Flex>
+                        </Flex>
+                    ))}
                 </Flex>
             </ModalContent>
         </Modal>
