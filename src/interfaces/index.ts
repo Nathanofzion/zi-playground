@@ -1,3 +1,5 @@
+import { Asset } from '@stellar-asset-lists/sdk';
+
 export * from './tokens';
 
 export interface IWallet {
@@ -7,3 +9,7 @@ export interface IWallet {
     iconUrl: string;
     isConnected: boolean;
 }
+
+export type AssetWithBalance = {
+    balance?: number,
+} & Asset;
