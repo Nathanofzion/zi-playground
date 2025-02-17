@@ -15,7 +15,14 @@ const BalanceModal: FC<ModalProps> = (props) => {
     return (
         <Modal {...props}>
             <ModalOverlay />
-            <ModalContent left={{ base: '50%', lg: '75%' }} p='48px' w='full' maxW={{ base: '360px', lg: '420px' }} direction='column' gap='12px'>
+            <ModalContent
+                left={{ base: '50%', lg: '75%' }}
+                p={{ base: 6, lg: 12 }}
+                w='full'
+                maxW={{ base: '320px', lg: '420px' }}
+                direction='column'
+                gap='12px'
+            >
                 <ModalCloseButton />
                 <Flex direction='column' gap='4px'>
                     <Text fontSize='18px'>
