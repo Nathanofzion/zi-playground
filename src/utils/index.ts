@@ -3,6 +3,13 @@ import { Asset } from '@stellar-asset-lists/sdk';
 
 export * from './convert';
 
+export function getErrorCode(message: string) {
+    const match = message.match(/Error\(Contract, #(\d+)\)/);
+    if (!match)
+        throw new Error('No error code');
+    return match[1];
+}
+
 export function truncateAddress(address: string): string {
     if (typeof address !== 'string' || address.length < 10) {
         throw new Error('Address must be a string with at least 10 characters.');
