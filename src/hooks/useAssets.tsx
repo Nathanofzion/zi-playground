@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useSorobanReact } from '@soroban-react/core';
 import { fetchAssetList } from '@stellar-asset-lists/sdk';
@@ -11,7 +11,7 @@ import { fetchAssetImage } from '@/utils';
 import { tokenBalance } from './useBalances';
 
 const network = process.env.PUBLIC_STELLAR_NETWORK || 'testnet'
-const ziAirdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
+const ziAirdropContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
 const assetListUrl = process.env.NEXT_PUBLIC_ASSET_LIST_URL!;
 
 interface BalanceTable {
@@ -25,10 +25,13 @@ const useAssets = () => {
   const [assets, setAssets] = useState<AssetWithBalance[]>();
   const [balance, setBalance] = useState<BalanceTable>({});
 
-  const assetsWithBalance = (assets ?? []).map(asset => ({
-    ...asset,
-    balance: balance[asset.code],
-  }));
+  const assetsWithBalance = useMemo(
+    () => (assets ?? []).map(asset => ({
+      ...asset,
+      balance: balance[asset.code],
+    })),
+    [assets, balance],
+  );
 
   const { data } = useQuery<AssetWithBalance[]>({
     queryKey: ['getAssets'],
@@ -73,24 +76,44 @@ const useAssets = () => {
     );
   }
 
-  useEffect(() => {
-    if (!data) return;
-    setAssets(data);
-    fetchAssetsImage();
-  }, [data]);
-
-  useEffect(() => {
-    if (!data || !address) return;
-    data.forEach(async asset => {
-      const balance = await tokenBalance(asset.contract, address, sorobanContext);
-      setBalance((prev) => {
-        prev[asset.code] = balance;
-        return prev;
-      });
+  const fetchAssetBalance = async (contract: string, code: string) => {
+    if (!address) return;
+    const balance = await tokenBalance(contract, address, sorobanContext);
+    setBalance((prev) => {
+      prev[code] = balance;
+      return prev;
     });
-  }, [data, address]);
+  }
 
-  return { assets: assetsWithBalance };
+  const fetchAssetsBalance = async () => {
+    if (!data || !address) return;
+    await Promise.all(
+      data.map(async asset => {
+        await fetchAssetBalance(asset.contract, asset.code);
+      })
+    );
+  }
+
+  useQuery({
+    queryKey: ['getAssetsImage'],
+    queryFn: () => {
+      setAssets(data);
+      return fetchAssetsImage();
+    },
+    enabled: !!data,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  useQuery({
+    queryKey: ['getAssetsBalance'],
+    queryFn: fetchAssetsBalance,
+    enabled: (!!data && !!address),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  return { assets: assetsWithBalance, fetchAssetBalance, fetchAssetsBalance };
 }
 
 export default useAssets;
