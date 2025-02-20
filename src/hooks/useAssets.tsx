@@ -5,9 +5,8 @@ import { Asset, fetchAssetList } from '@stellar-asset-lists/sdk';
 import { useQueries, useQuery } from '@tanstack/react-query';
 
 import { nativeTokens } from '@/constants';
+import { tokenBalance } from '@/services/contract';
 import { fetchAssetImage } from '@/utils';
-
-import { tokenBalance } from './useBalances';
 
 const network = process.env.PUBLIC_STELLAR_NETWORK || 'testnet'
 const ziAirdropContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
@@ -62,7 +61,7 @@ const useAssets = () => {
       queryKey: ['getAssetBalance', asset.contract],
       queryFn: () => {
         if (!data || !address) return;
-        return tokenBalance(asset.contract, address, sorobanContext);
+        return tokenBalance(sorobanContext, asset.contract, address);
       },
       enabled: !!address,
       refetchOnMount: false,

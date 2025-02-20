@@ -2,7 +2,7 @@ import axios from "axios";
 
 import { contractInvoke } from "@soroban-react/contracts";
 import { useSorobanReact } from "@soroban-react/core";
-import { scValToBigInt, xdr } from "@stellar/stellar-sdk";
+import { scValToNative } from "@stellar/stellar-sdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { toaster } from "@/components/ui/toaster";
@@ -32,7 +32,7 @@ const useAirdrop = () => {
                 args: [accountToScVal(address)],
                 sorobanContext,
             });
-            return Number(scValToBigInt(response as xdr.ScVal));
+            return scValToNative(response as any);
         },
         enabled: !!address,
         refetchOnMount: false,
