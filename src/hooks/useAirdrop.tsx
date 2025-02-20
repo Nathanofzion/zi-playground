@@ -3,12 +3,10 @@ import axios from "axios";
 import { contractInvoke } from "@soroban-react/contracts";
 import { useSorobanReact } from "@soroban-react/core";
 import { scValToBigInt, xdr } from "@stellar/stellar-sdk";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { toaster } from "@/components/ui/toaster";
 import { accountToScVal } from "@/utils";
-
-import useAssets from "./useAssets";
 
 const contractAddress = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID;
 const ziContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
@@ -22,7 +20,7 @@ export enum Action {
 const useAirdrop = () => {
     const sorobanContext = useSorobanReact();
     const { address } = sorobanContext;
-    const { fetchAssetBalance } = useAssets();
+    const queryClient = useQueryClient();
 
     const { data: status, refetch: refetchStatus } = useQuery({
         queryKey: ['getAirdropStatus', address],
@@ -52,7 +50,9 @@ const useAirdrop = () => {
                 title: 'You have successfully received the airdrop.',
                 type: 'success',
             });
-            fetchAssetBalance(ziContractId, "Zi");
+            queryClient.invalidateQueries({
+                queryKey: ['getAssetBalance', ziContractId],
+            });
             refetchStatus();
         },
         onError: (err: any) => {

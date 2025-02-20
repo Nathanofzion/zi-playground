@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { useSorobanReact } from '@soroban-react/core';
-import { fetchAssetList } from '@stellar-asset-lists/sdk';
-import { useQuery } from '@tanstack/react-query';
+import { Asset, fetchAssetList } from '@stellar-asset-lists/sdk';
+import { useQueries, useQuery } from '@tanstack/react-query';
 
 import { nativeTokens } from '@/constants';
-import { AssetWithBalance } from '@/interfaces';
 import { fetchAssetImage } from '@/utils';
 
 import { tokenBalance } from './useBalances';
@@ -14,26 +13,11 @@ const network = process.env.PUBLIC_STELLAR_NETWORK || 'testnet'
 const ziAirdropContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
 const assetListUrl = process.env.NEXT_PUBLIC_ASSET_LIST_URL!;
 
-interface BalanceTable {
-  [key: string]: number,
-}
-
 const useAssets = () => {
   const sorobanContext = useSorobanReact();
   const { address } = sorobanContext;
 
-  const [assets, setAssets] = useState<AssetWithBalance[]>();
-  const [balance, setBalance] = useState<BalanceTable>({});
-
-  const assetsWithBalance = useMemo(
-    () => (assets ?? []).map(asset => ({
-      ...asset,
-      balance: balance[asset.code],
-    })),
-    [assets, balance],
-  );
-
-  const { data } = useQuery<AssetWithBalance[]>({
+  const { data } = useQuery<Asset[]>({
     queryKey: ['getAssets'],
     queryFn: async () => {
       const nativeToken = nativeTokens.find((nativeToken) => nativeToken.network === network);
@@ -48,7 +32,7 @@ const useAssets = () => {
           domain: 'stellar.org',
           icon: 'https://static.lobstr.co/media/XLM-None.png',
           contract: nativeToken.address,
-        } as AssetWithBalance,
+        } as Asset,
         {
           name: 'ZIONCOIN',
           code: 'Zi',
@@ -56,7 +40,7 @@ const useAssets = () => {
           domain: 'zioncoin.org.uk',
           icon: 'https://zioncoin.org.uk/wp-content/uploads/2023/12/Zi_Zioncoin_Ticker.png',
           contract: ziAirdropContractId,
-        } as AssetWithBalance,
+        } as Asset,
         ...assets,
       ];
     },
@@ -64,56 +48,45 @@ const useAssets = () => {
     refetchOnWindowFocus: false,
   });
 
-  const fetchAssetsImage = async () => {
-    if (!data) return;
-    setAssets(
-      await Promise.all(
-        data.map(async asset => ({
+  const imageTable = useQueries({
+    queries: (data ?? []).map(asset => ({
+      queryKey: ['getAssetImage', asset.contract],
+      queryFn: () => fetchAssetImage(asset),
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    })),
+  });
+
+  const balanceTable = useQueries({
+    queries: (data ?? []).map(asset => ({
+      queryKey: ['getAssetBalance', asset.contract],
+      queryFn: () => {
+        if (!data || !address) return;
+        return tokenBalance(asset.contract, address, sorobanContext);
+      },
+      enabled: !!address,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    })),
+  });
+
+  const assets = useMemo(
+    () => {
+      return (data ?? []).map((asset, index) => {
+        if (imageTable[index].data) {
+          console.log();
+        }
+        return {
           ...asset,
-          icon: await fetchAssetImage(asset) ?? asset.icon,
-        }))
-      )
-    );
-  }
-
-  const fetchAssetBalance = async (contract: string, code: string) => {
-    if (!address) return;
-    const balance = await tokenBalance(contract, address, sorobanContext);
-    setBalance((prev) => {
-      prev[code] = balance;
-      return prev;
-    });
-  }
-
-  const fetchAssetsBalance = async () => {
-    if (!data || !address) return;
-    await Promise.all(
-      data.map(async asset => {
-        await fetchAssetBalance(asset.contract, asset.code);
-      })
-    );
-  }
-
-  useQuery({
-    queryKey: ['getAssetsImage'],
-    queryFn: () => {
-      setAssets(data);
-      return fetchAssetsImage();
+          icon: imageTable[index].data ?? asset.icon,
+          balance: balanceTable[index].data,
+        };
+      });
     },
-    enabled: !!data,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
+    [data, imageTable, balanceTable],
+  );
 
-  useQuery({
-    queryKey: ['getAssetsBalance'],
-    queryFn: fetchAssetsBalance,
-    enabled: (!!data && !!address),
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
-
-  return { assets: assetsWithBalance, fetchAssetBalance, fetchAssetsBalance };
+  return { assets };
 }
 
 export default useAssets;
