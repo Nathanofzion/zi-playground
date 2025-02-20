@@ -10,12 +10,11 @@ export function getErrorCode(message: string) {
     return match[1];
 }
 
-export function truncateAddress(address: string): string {
-    if (typeof address !== 'string' || address.length < 10) {
-        throw new Error('Address must be a string with at least 10 characters.');
-    }
+export function truncateAddress(address?: string | null): string {
+    if (!address)
+        return "";
 
-    const start = address.slice(0, 4);
+    const start = address.slice(0, 6);
     const end = address.slice(-4);
     return `${start}...${end}`;
 }
@@ -30,8 +29,9 @@ export async function fetchAssetImage(asset: Asset) {
             const currency = parsedToml.CURRENCIES.find((currency: any) => currency.code == asset.code);
             return currency.image;
         }
-    } catch (_) {
-        console.error('Failed to fetch or parse TOML for:', asset.code);
+    } catch (err: any) {
+        console.error(err.message);
     }
+
     return null;
 }
