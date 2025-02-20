@@ -1,14 +1,11 @@
 import axios from "axios";
 
-import { contractInvoke } from "@soroban-react/contracts";
 import { useSorobanReact } from "@soroban-react/core";
-import { scValToNative } from "@stellar/stellar-sdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { toaster } from "@/components/ui/toaster";
-import { accountToScVal } from "@/utils";
+import { getAirdropStatus } from "@/services/contract";
 
-const contractAddress = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID;
 const ziContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
 
 export enum Action {
@@ -26,13 +23,7 @@ const useAirdrop = () => {
         queryKey: ['getAirdropStatus', address],
         queryFn: async () => {
             if (!address) return 0;
-            const response = await contractInvoke({
-                contractAddress,
-                method: 'get_status',
-                args: [accountToScVal(address)],
-                sorobanContext,
-            });
-            return scValToNative(response as any);
+            return getAirdropStatus(sorobanContext, address);
         },
         enabled: !!address,
         refetchOnMount: false,

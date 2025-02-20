@@ -1,8 +1,9 @@
-import { accountToScVal } from "@/utils";
+import { accountToScVal, scValToNumber } from "@/utils";
 import { contractInvoke } from "@soroban-react/contracts";
 import { SorobanContextType } from "@soroban-react/core";
 import { Asset } from "@stellar-asset-lists/sdk";
-import { scValToNative } from "@stellar/stellar-sdk";
+
+const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
 
 export async function tokenBalance(
   sorobanContext: SorobanContextType,
@@ -23,7 +24,7 @@ export async function tokenBalance(
 
     const decimals = await tokenDecimals(sorobanContext, tokenAddress);
 
-    return scValToNative(response as any) / Math.pow(10, decimals);
+    return scValToNumber(response as any) / Math.pow(10, decimals);
   } catch (err) {
     console.error(err);
     return 0;
@@ -37,9 +38,24 @@ export async function tokenDecimals(sorobanContext: SorobanContextType, tokenAdd
     sorobanContext,
   });
 
-  return scValToNative(response as any);
+  return scValToNumber(response as any);
 }
 
-export const sendAsset = (sorobanContext: SorobanContextType, asset: Asset, recipient: string, amount: Number) => {
+export const getAirdropStatus = async (sorobanContext: SorobanContextType, address: string) => {
+  const response = await contractInvoke({
+    contractAddress: airdropContractId,
+    method: 'get_status',
+    args: [accountToScVal(address)],
+    sorobanContext,
+  });
+  return scValToNumber(response as any);
+}
+
+export const sendAsset = (
+  sorobanContext: SorobanContextType,
+  asset: Asset,
+  recipient: string,
+  amount: Number
+) => {
 
 }
