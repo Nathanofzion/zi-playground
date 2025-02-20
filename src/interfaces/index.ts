@@ -1,7 +1,3 @@
-import { Asset } from '@stellar-asset-lists/sdk';
-
-export * from './tokens';
-
 export interface IWallet {
     id: string;
     name: string;
