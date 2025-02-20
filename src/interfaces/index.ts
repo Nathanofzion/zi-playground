@@ -9,7 +9,3 @@ export interface IWallet {
     iconUrl: string;
     isConnected: boolean;
 }
-
-export type AssetWithBalance = {
-    balance?: number,
-} & Asset;
