@@ -31,6 +31,7 @@ const useAssets = () => {
           domain: 'stellar.org',
           icon: 'https://static.lobstr.co/media/XLM-None.png',
           contract: nativeToken.address,
+          decimals: 7,
         } as Asset,
         {
           name: 'ZIONCOIN',
@@ -39,6 +40,7 @@ const useAssets = () => {
           domain: 'zioncoin.org.uk',
           icon: 'https://zioncoin.org.uk/wp-content/uploads/2023/12/Zi_Zioncoin_Ticker.png',
           contract: ziAirdropContractId,
+          decimals: 7,
         } as Asset,
         ...assets,
       ];
@@ -59,9 +61,9 @@ const useAssets = () => {
   const balanceTable = useQueries({
     queries: (data ?? []).map(asset => ({
       queryKey: ['getAssetBalance', asset.contract],
-      queryFn: () => {
-        if (!data || !address) return;
-        return tokenBalance(sorobanContext, asset.contract, address);
+      queryFn: async () => {
+        const balance = await tokenBalance(sorobanContext, asset.contract);
+        return balance / Math.pow(10, asset.decimals);
       },
       enabled: !!address,
       refetchOnMount: false,
@@ -78,7 +80,7 @@ const useAssets = () => {
         return {
           ...asset,
           icon: imageTable[index].data ?? asset.icon,
-          balance: balanceTable[index].data,
+          balance: balanceTable[index].data ?? 0,
         };
       });
     },
