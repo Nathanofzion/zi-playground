@@ -4,11 +4,10 @@ import { useSorobanReact } from '@soroban-react/core';
 import { Asset, fetchAssetList } from '@stellar-asset-lists/sdk';
 import { useQueries, useQuery } from '@tanstack/react-query';
 
-import { nativeTokens } from '@/constants';
+import { nativeTokenAddress } from '@/lib/chain';
 import { tokenBalance } from '@/services/contract';
 import { fetchAssetImage } from '@/utils';
 
-const network = process.env.PUBLIC_STELLAR_NETWORK || 'testnet'
 const ziAirdropContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
 const assetListUrl = process.env.NEXT_PUBLIC_ASSET_LIST_URL!;
 
@@ -19,9 +18,6 @@ const useAssets = () => {
   const { data } = useQuery<Asset[]>({
     queryKey: ['getAssets'],
     queryFn: async () => {
-      const nativeToken = nativeTokens.find((nativeToken) => nativeToken.network === network);
-      if (!nativeToken)
-        throw new Error(`Native token not found for network ${network}`);
       const { assets } = await fetchAssetList(assetListUrl);
       return [
         {
@@ -30,7 +26,7 @@ const useAssets = () => {
           org: 'Stellar',
           domain: 'stellar.org',
           icon: 'https://static.lobstr.co/media/XLM-None.png',
-          contract: nativeToken.address,
+          contract: nativeTokenAddress,
           decimals: 7,
         } as Asset,
         {
