@@ -8,8 +8,7 @@ export async function GET(_: NextRequest, { params: { signer } }: { params: { si
             keyId: signer,
         });
         return NextResponse.json(String(contractId));
-    } catch (error: any) {
-        console.error(error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json(error, { status: 500 });
     }
 }

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const { address, action } = await req.json();
 
         if (!address) {
-            return NextResponse.json({ error: 'Recipient public key is required' }, { status: 400 });
+            return NextResponse.json({ message: 'Recipient public key is required' }, { status: 400 });
         }
 
         const sourceKeypair = Keypair.fromSecret(airdropSourceSecret);
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
                 throw new Error("You've already received this type of airdrop.");
             throw new Error('Unknown error occurred');
         }
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        return NextResponse.json(error, { status: 500 });
     }
 }
