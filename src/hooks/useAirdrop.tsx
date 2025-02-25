@@ -42,7 +42,7 @@ const useAirdrop = () => {
                 type: 'success',
             });
             queryClient.invalidateQueries({
-                queryKey: ['getAssetBalance', ziContractId],
+                queryKey: ['getAssetBalance', address, ziContractId],
             });
             refetchStatus();
         },

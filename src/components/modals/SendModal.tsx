@@ -15,6 +15,7 @@ import { toaster } from "../ui/toaster";
 
 const SendModal: FC<ModalProps> = (props) => {
   const sorobanContext = useSorobanReact();
+  const { address } = sorobanContext;
   const queryClient = useQueryClient();
   const { assets } = useAssets();
   const [asset, setAsset] = useState<Asset>();
@@ -29,7 +30,7 @@ const SendModal: FC<ModalProps> = (props) => {
       return sendAsset(sorobanContext, asset, recipient, Number(amount));
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['getAssetBalance', asset?.contract] });
+      queryClient.invalidateQueries({ queryKey: ['getAssetBalance', address, asset?.contract] });
       toaster.create({
         title: `You've sent asset successfully.`,
         type: 'success',
