@@ -2,17 +2,16 @@ import axios from 'axios';
 import { PasskeyKit } from 'passkey-kit';
 
 import { StrKey } from '@stellar/stellar-sdk';
-import { Tx } from '@stellar/stellar-sdk/contract';
 
 import { activeChain } from './chain';
 
-const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID;
+const factoryContractId = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID;
 
-async function send(tx: Tx) {
+async function send(xdr: string) {
     return fetch('/api/send', {
         method: 'POST',
         body: JSON.stringify({
-            xdr: tx.toXDR(),
+            xdr,
         }),
     }).then(async (res) => {
         if (res.ok) return res.json();
@@ -36,7 +35,7 @@ const passkey = () => {
     const passkeyKit = new PasskeyKit({
         rpcUrl: activeChain.sorobanRpcUrl || '',
         networkPassphrase: activeChain.networkPassphrase,
-        factoryContractId: FACTORY_CONTRACT_ID
+        factoryContractId,
     });
 
     let wallet: IPasskeyWallet | null = null;
@@ -64,9 +63,9 @@ const passkey = () => {
                         console.error(err);
                         const wallet = await passkeyKit.createWallet(process.env.NEXT_PUBLIC_PROJECT_NAME!, "");
                         const contractBytes = StrKey.decodeContract(wallet.contractId);
-                        const publicKey = StrKey.encodeEd25519PublicKey(contractBytes.slice(0, 32));
+                        const publicKey = StrKey.encodeEd25519PublicKey(contractBytes);
                         await axios.get(`https://friendbot.stellar.org?addr=${publicKey}`);
-                        await send(wallet.built);
+                        await send(wallet.built.toXDR());
                         return wallet;
                     }
                 }
@@ -88,9 +87,13 @@ const passkey = () => {
             if (!wallet)
                 throw new Error('Not connected');
 
-            const res = await passkeyKit.sign(xdr, { keyId: wallet.keyId_base64 });
+            try {
+                await send(xdr);
+            } catch (err: any) {
+                return JSON.parse(err).envelopeXdr;
+            }
 
-            return res.toXDR();
+            return '';
         }
     }
 }

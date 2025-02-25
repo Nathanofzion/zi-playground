@@ -4,7 +4,7 @@ import { lobstr } from '@soroban-react/lobstr';
 import { ReactNode } from 'react';
 
 import { activeChain, chains } from '@/lib/chain';
-import passkey from '@/lib/passkey';
+import passkey from '@/lib/passkeyClient';
 
 const connectors = [passkey(), freighter(), lobstr()];
 
