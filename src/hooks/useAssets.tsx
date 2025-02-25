@@ -60,10 +60,15 @@ const useAssets = () => {
 
   const balanceTable = useQueries({
     queries: (data ?? []).map(asset => ({
-      queryKey: ['getAssetBalance', asset.contract],
+      queryKey: ['getAssetBalance', address, asset.contract],
       queryFn: async () => {
-        const balance = await tokenBalance(sorobanContext, asset.contract);
-        return balance / Math.pow(10, asset.decimals);
+        try {
+          const balance = await tokenBalance(sorobanContext, asset.contract);
+          return balance / Math.pow(10, asset.decimals);
+        } catch (err) {
+          console.error(err);
+          return 0;
+        }
       },
       enabled: !!address,
       refetchOnMount: false,
@@ -74,9 +79,6 @@ const useAssets = () => {
   const assets = useMemo(
     () => {
       return (data ?? []).map((asset, index) => {
-        if (imageTable[index].data) {
-          console.log();
-        }
         return {
           ...asset,
           icon: imageTable[index].data ?? asset.icon,
