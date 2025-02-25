@@ -100,7 +100,7 @@ const passkey = () => {
 
       const response = await send(_xdr.toXDR());
 
-      throw new Error(response);
+      throw new Error(JSON.stringify(response));
     }
   }
 }

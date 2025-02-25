@@ -7,6 +7,18 @@ import { accountToScVal, scValToNumber } from "@/utils";
 
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
 
+const processTx = async (tx: Promise<any>) => {
+  try {
+    return await tx;
+  } catch (err: any) {
+    const response = JSON.parse(err.message);
+    if (response.status == "SUCCESS") {
+      return response;
+    }
+    throw new Error(err.message);
+  }
+}
+
 export async function tokenBalance(
   sorobanContext: SorobanContextType,
   tokenAddress: string,
@@ -60,18 +72,18 @@ export const sendAsset = async (
     throw new Error("Wallet is not connected yet.");
   }
 
-  const response = await contractInvoke({
-    contractAddress: asset.contract,
-    method: 'transfer',
-    args: [
-      accountToScVal(address),
-      accountToScVal(recipient),
-      nativeToScVal(amount * Math.pow(10, asset.decimals), { type: 'i128' })
-    ],
-    sorobanContext,
-    signAndSend: true,
-    reconnectAfterTx: false,
-  });
-
-  return response;
+  return await processTx(
+    contractInvoke({
+      contractAddress: asset.contract,
+      method: 'transfer',
+      args: [
+        accountToScVal(address),
+        accountToScVal(recipient),
+        nativeToScVal(amount * Math.pow(10, asset.decimals), { type: 'i128' })
+      ],
+      sorobanContext,
+      signAndSend: true,
+      reconnectAfterTx: false,
+    })
+  );
 }
