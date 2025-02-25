@@ -6,7 +6,7 @@ import { Server } from '@stellar/stellar-sdk/rpc';
 import { activeChain } from '@/lib/chain';
 import { accountToScVal, getErrorCode } from '@/utils';
 
-const airdropSourceSecret = process.env.AIRDROP_SOURCE_SECRET!;
+const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
 const ziContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
 
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: 'Recipient public key is required' }, { status: 400 });
         }
 
-        const sourceKeypair = Keypair.fromSecret(airdropSourceSecret);
+        const sourceKeypair = Keypair.fromSecret(funderSecretKey);
 
         const server = new Server(activeChain.sorobanRpcUrl!);
 
