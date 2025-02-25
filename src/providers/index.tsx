@@ -2,6 +2,7 @@
 import { createContext, FC, ReactNode, useState } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import AirdropModal from "@/components/modals/AirdropModal";
 import BridgeModal from "@/components/modals/BridgeModal";
@@ -96,6 +97,7 @@ const Provider: FC<Props> = ({ children }) => {
                         <ThemeGuideModal isOpen={showThemeGuideModal} onClose={() => setShowThemeGuideModal(false)} />
                         <ParticlesGuideModal isOpen={showParticlesGuideModal} onClose={() => setShowParticlesGuideModal(false)} />
                     </SorobanReactProvider>
+                    <ReactQueryDevtools initialIsOpen={false} />
                 </QueryClientProvider>
                 <Toaster />
             </ThemeProvider>
