@@ -33,7 +33,7 @@ const PasskeyGuideModal: FC<ModalProps> = ({ onClose, ...props }) => {
                 <Text fontSize='sm'>
                     Great you’ve Connected now move to Step 2).
                 </Text>
-            ) : (
+            ) : wallet && (
                 <WalletConnectButton wallet={wallet} onClick={() => handleConnect(connector)} />
             )}
         </GuideModal>
