@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 
-import { Flex, Heading, Image, Input, Spinner, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Image, Input, Spinner, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 import { Asset } from "@stellar-asset-lists/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +11,7 @@ import { sendAsset } from "@/services/contract";
 import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
+import QRCodeScanner from "../common/QRCodeScanner";
 import { toaster } from "../ui/toaster";
 
 const SendModal: FC<ModalProps> = (props) => {
@@ -21,6 +22,7 @@ const SendModal: FC<ModalProps> = (props) => {
   const [asset, setAsset] = useState<Asset>();
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
+  const [result, setResult] = useState<string>();
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => {
@@ -31,10 +33,7 @@ const SendModal: FC<ModalProps> = (props) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['getAssetBalance', address, asset?.contract] });
-      toaster.create({
-        title: `You've sent asset successfully.`,
-        type: 'success',
-      });
+      setResult("Transaction Confirmed ! ✅");
     },
     onError: (err: any) => {
       toaster.create({
@@ -57,20 +56,34 @@ const SendModal: FC<ModalProps> = (props) => {
         <Heading as="h2" textAlign="center" size="lg">
           SEND
         </Heading>
-        {asset ? (
+        {result ? (
+          <Text textAlign='center'>
+            {result}
+          </Text>
+        ) : asset ? (
           <Flex direction="column" gap={2}>
             <Flex direction="column" gap={1}>
               <Text pl={2}>
                 Recipient stellar address
               </Text>
-              <Input
-                p='1rem'
-                bg='rgba(255, 255, 255, 0.15)'
-                border='none'
-                rounded='full'
-                shadow='0 8px 32px 0 rgba(31, 38, 135, 0.37)'
-                onChange={(e) => setRecipient(e.target.value)}
-              />
+              <Flex direction='column' gap={2}>
+                <Flex gap={2}>
+                  <Input
+                    p='1rem'
+                    bg='rgba(255, 255, 255, 0.15)'
+                    border='none'
+                    rounded='full'
+                    shadow='0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                  />
+                  <QRCodeScanner onScanSuccess={(code) => setRecipient(code)} />
+                </Flex>
+                <Box
+                  id="qr-reader"
+                  w='full'
+                />
+              </Flex>
             </Flex>
             <Flex direction="column" gap={1}>
               <Text pl={2}>

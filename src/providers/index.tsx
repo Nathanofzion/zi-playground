@@ -86,7 +86,7 @@ const Provider: FC<Props> = ({ children }) => {
                         <AirdropModal isOpen={showAirdropModal} onClose={() => setShowAirdropModal(false)} />
                         <StakingModal isOpen={showStakingModal} onClose={() => setShowStakingModal(false)} />
                         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-                        {showSendModal && <SendModal isOpen={true} onClose={() => setShowSendModal(false)} />}
+                        <SendModal isOpen={showSendModal} onClose={() => setShowSendModal(false)} />
                         <ReceiveModal isOpen={showReceiveModal} onClose={() => setShowReceiveModal(false)} />
                         <SwapModal isOpen={showSwapModal} onClose={() => setShowSwapModal(false)} />
                         <LiquidityModal isOpen={showLiquidityModal} onClose={() => setShowLiquidityModal(false)} />
