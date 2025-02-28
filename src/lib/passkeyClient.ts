@@ -51,8 +51,6 @@ const passkey = () => {
     walletWasmHash: walletWasmHash,
   });
 
-  let wallet: IPasskeyWallet | null = null;
-
   return {
     id: 'passkey',
     name: "PasskeyID",
@@ -66,25 +64,21 @@ const passkey = () => {
     getNetworkDetails: async () => activeChain,
 
     getPublicKey: async () => {
-      if (!wallet) {
-        const connectOrCreate = async () => {
-          try {
-            return await passkeyKit.connectWallet({
-              getContractId,
-            });
-          } catch (err) {
-            const wallet = await passkeyKit.createWallet(projectName, "");
-            await send(wallet.signedTx.toXDR());
-            await fundContract(wallet.contractId);
-            return wallet;
-          }
+      const connectOrCreate = async () => {
+        try {
+          return await passkeyKit.connectWallet({
+            getContractId,
+          });
+        } catch (err) {
+          const wallet = await passkeyKit.createWallet(projectName, "");
+          await send(wallet.signedTx.toXDR());
+          await fundContract(wallet.contractId);
+          return wallet;
         }
-
-        const { contractId, keyIdBase64 } = await connectOrCreate();
-        wallet = { contractId, keyIdBase64 };
-        return contractId;
       }
-      return wallet.contractId;
+
+      const { contractId } = await connectOrCreate();
+      return contractId;
     },
 
     signTransaction: async (xdr: string, _opts?: {
@@ -92,9 +86,6 @@ const passkey = () => {
       networkPassphrase?: string;
       accountToSign?: string;
     }) => {
-      if (!wallet)
-        throw new Error('Not connected');
-
       const _xdr = await passkeyKit.sign(xdr);
 
       const response = await send(_xdr.toXDR());
