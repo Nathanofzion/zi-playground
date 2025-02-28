@@ -1,13 +1,14 @@
 import { PasskeyKit, SACClient } from 'passkey-kit';
 
-import { activeChain, nativeTokenAddress } from './chain';
+import nativeToken from '@/constants/nativeToken';
+import { activeChain } from './chain';
 
 const projectName = process.env.NEXT_PUBLIC_PROJECT_NAME!;
-const factoryContractId = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID;
+const walletWasmHash = process.env.NEXT_PUBLIC_WALLET_WASM_HASH!;
 
 export interface IPasskeyWallet {
-  keyId_base64: string;
-  publicKey: string;
+  contractId: string;
+  keyIdBase64: string;
 }
 
 async function send(xdr: string) {
@@ -41,13 +42,13 @@ export const sac = new SACClient({
   networkPassphrase: activeChain.networkPassphrase,
 });
 
-export const native = sac.getSACClient(nativeTokenAddress);
+export const native = sac.getSACClient(nativeToken.contract);
 
 const passkey = () => {
   const passkeyKit = new PasskeyKit({
     rpcUrl: activeChain.sorobanRpcUrl!,
     networkPassphrase: activeChain.networkPassphrase,
-    factoryContractId,
+    walletWasmHash: walletWasmHash,
   });
 
   let wallet: IPasskeyWallet | null = null;
@@ -73,19 +74,17 @@ const passkey = () => {
             });
           } catch (err) {
             const wallet = await passkeyKit.createWallet(projectName, "");
-            const publicKey = wallet.contractId;
-            await send(wallet.built.toXDR());
-            await fundContract(publicKey);
+            await send(wallet.signedTx.toXDR());
+            await fundContract(wallet.contractId);
             return wallet;
           }
         }
 
-        const { contractId, keyId_base64 } = await connectOrCreate();
-        const publicKey = contractId;
-        wallet = { keyId_base64, publicKey };
-        return publicKey;
+        const { contractId, keyIdBase64 } = await connectOrCreate();
+        wallet = { contractId, keyIdBase64 };
+        return contractId;
       }
-      return wallet.publicKey;
+      return wallet.contractId;
     },
 
     signTransaction: async (xdr: string, _opts?: {
