@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
                 response = await server.getTransaction(result.hash);
             }
 
-            return NextResponse.json({ success: true, result });
+            return NextResponse.json(result);
         } catch (err: any) {
             const errorCode = getErrorCode(err.message);
             if (errorCode == '1')
