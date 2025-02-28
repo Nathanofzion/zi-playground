@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { BASE_FEE, Contract, Keypair, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
 import { Server } from '@stellar/stellar-sdk/rpc';
 
+import zionToken from '@/constants/zionToken';
 import { activeChain } from '@/lib/chain';
 import { accountToScVal, getErrorCode } from '@/utils';
 
 const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
-const ziContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
 
 export async function POST(req: NextRequest) {
     try {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
             const tx = transaction.addOperation(
                 contract.call(
                     'distribute_tokens',
-                    accountToScVal(ziContractId),
+                    accountToScVal(zionToken.contract),
                     accountToScVal(sourceKeypair.publicKey()),
                     accountToScVal(address),
                     xdr.ScVal.scvU32(action)

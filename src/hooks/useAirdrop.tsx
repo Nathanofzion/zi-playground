@@ -4,9 +4,8 @@ import { useSorobanReact } from "@soroban-react/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { toaster } from "@/components/ui/toaster";
+import zionToken from "@/constants/zionToken";
 import { getAirdropStatus } from "@/services/contract";
-
-const ziContractId = process.env.NEXT_PUBLIC_ZI_CONTRACT_ID!;
 
 export enum Action {
     SpinCube = 1,
@@ -42,7 +41,7 @@ const useAirdrop = () => {
                 type: 'success',
             });
             queryClient.invalidateQueries({
-                queryKey: ['getAssetBalance', address, ziContractId],
+                queryKey: ['getAssetBalance', address, zionToken.contract],
             });
             refetchStatus();
         },

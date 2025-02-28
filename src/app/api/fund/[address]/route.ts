@@ -15,18 +15,18 @@ export async function GET(_: NextRequest, { params: { address } }: { params: { a
   const publicKey = fundKeypair.publicKey();
 
   try {
-    const tx = await native.transfer({
+    const { built, ...transfer } = await native.transfer({
       from: publicKey,
       to: address,
       amount: BigInt(25 * 1e7),
     });
 
-    await tx.signAuthEntries({
+    await transfer.signAuthEntries({
       address: publicKey,
       signAuthEntry: (entry: any) => fundSigner.signAuthEntry(entry),
     });
 
-    const response = await server.send(tx.toXDR());
+    const response = await server.send(built!.toXDR());
     return NextResponse.json(response);
   } catch (error) {
     console.error(error);

@@ -1,1 +1,1 @@
-export { default as nativeTokens } from './nativeTokens';
+export { default as nativeTokens } from './nativeToken';
