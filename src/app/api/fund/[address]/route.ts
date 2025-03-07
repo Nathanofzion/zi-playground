@@ -1,33 +1,70 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-import { Keypair } from '@stellar/stellar-sdk';
-import { basicNodeSigner } from '@stellar/stellar-sdk/contract';
+import {
+  BASE_FEE,
+  Contract,
+  Keypair,
+  nativeToScVal,
+  TransactionBuilder,
+} from "@stellar/stellar-sdk";
+import { Server } from "@stellar/stellar-sdk/rpc";
 
-import { activeChain } from '@/lib/chain';
-import { native } from '@/lib/passkeyClient';
-import { server } from '@/lib/passkeyServer';
+import nativeToken from "@/constants/nativeToken";
+import { activeChain } from "@/lib/chain";
+import { accountToScVal } from "@/utils";
 
 const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 
-export async function GET(_: NextRequest, { params: { address } }: { params: { address: string; } }) {
-  const fundKeypair = Keypair.fromSecret(funderSecretKey);
-  const fundSigner = basicNodeSigner(fundKeypair, activeChain.networkPassphrase);
-  const publicKey = fundKeypair.publicKey();
-
+export async function GET(
+  _: NextRequest,
+  { params: { address } }: { params: { address: string } }
+) {
   try {
-    const { built, ...transfer } = await native.transfer({
-      from: publicKey,
-      to: address,
-      amount: BigInt(25 * 1e7),
-    });
+    if (!address) {
+      return NextResponse.json(
+        { message: "Recipient public key is required" },
+        { status: 400 }
+      );
+    }
 
-    await transfer.signAuthEntries({
-      address: publicKey,
-      signAuthEntry: (entry: any) => fundSigner.signAuthEntry(entry),
-    });
+    const sourceKeypair = Keypair.fromSecret(funderSecretKey);
 
-    const response = await server.send(built!.toXDR());
-    return NextResponse.json(response);
+    const server = new Server(activeChain.sorobanRpcUrl!);
+
+    const contract = new Contract(nativeToken.contract);
+    const transaction = new TransactionBuilder(
+      await server.getAccount(sourceKeypair.publicKey()),
+      {
+        fee: BASE_FEE,
+        networkPassphrase: activeChain.networkPassphrase,
+      }
+    );
+
+    const tx = transaction
+      .addOperation(
+        contract.call(
+          "transfer",
+          accountToScVal(sourceKeypair.publicKey()),
+          accountToScVal(address),
+          nativeToScVal(10 * 1e7, { type: "i128" })
+        )
+      )
+      .setTimeout(30)
+      .build();
+
+    const preparedTx = await server.prepareTransaction(tx);
+
+    preparedTx.sign(sourceKeypair);
+
+    const result = await server.sendTransaction(preparedTx);
+
+    let response = await server.getTransaction(result.hash);
+    while (response.status === "NOT_FOUND") {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      response = await server.getTransaction(result.hash);
+    }
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error(error);
     return NextResponse.json(error, { status: 500 });
