@@ -28,7 +28,7 @@ const QRCodeScanner: FC<Props> = ({ onScanSuccess }) => {
       { facingMode: "environment" },
       { fps: 10, qrbox: { width: 320, height: 320 } },
       (code: string) => {
-        if (code.startsWith("G") && code.length === 56) {
+        if (["G", "C"].includes(code[0]) && code.length === 56) {
           onScanSuccess(code);
           scanner.stop()
             .then(() => setIsScanning(false))
