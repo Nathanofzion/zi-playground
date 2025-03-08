@@ -1,23 +1,20 @@
 import { FC, useContext } from "react";
 
 import { Flex, Heading } from "@chakra-ui/react";
-import { useSorobanReact } from "@soroban-react/core";
 
-import useAirdrop from "@/hooks/useAirdrop";
+import useAirdrop, { Action } from "@/hooks/useAirdrop";
 import { AppContext } from "@/providers";
-
 import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 
 const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const {
-    openParticlesGuideModal,
-    openAtomicAirdropModal,
+    openParticlesModal,
+    openAtomicModal,
     openSpaceInvadersModal,
-    openThemeGuideModal,
+    openThemeModal,
   } = useContext(AppContext);
-  const { address } = useSorobanReact();
   const { status } = useAirdrop();
 
   return (
@@ -39,10 +36,10 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              openParticlesGuideModal?.();
+              openParticlesModal?.();
               onClose?.();
             }}
-            disabled={status > 0}
+            disabled={status[Action.Partices].data}
           >
             Particles airdrop
           </Button>
@@ -50,10 +47,10 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              openAtomicAirdropModal?.();
+              openAtomicModal?.();
               onClose?.();
             }}
-            // disabled={status > 1}
+            disabled={status[Action.Atomic].data}
           >
             Atomic Airdrop
           </Button>
@@ -64,7 +61,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
               openSpaceInvadersModal?.();
               onClose?.();
             }}
-            disabled={status > 2}
+            disabled={status[Action.SpaceInvaders].data}
           >
             Space invaders
           </Button>
@@ -72,10 +69,10 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              openThemeGuideModal?.();
+              openThemeModal?.();
               onClose?.();
             }}
-            disabled={status > 3}
+            disabled={status[Action.Theme].data}
           >
             Night & Day
           </Button>

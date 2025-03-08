@@ -13,29 +13,32 @@ var defaults = {
 };
 
 interface Props extends ButtonProps {
-  action?: Action;
+  action: Action;
 }
 
-const GetAirdropButton: FC<Props> = ({ action }) => {
-  const { getAirdrop, isGettingAirdrop } = useAirdrop();
+const GetAirdropButton: FC<Props> = ({ action, disabled, ...props }) => {
+  const { isLoading, getAirdrop, status } = useAirdrop();
 
   return (
     <Button
       gap={1}
-      disabled={isGettingAirdrop}
+      disabled={status[action].data || isLoading}
       onClick={async () => {
         if (action) {
-          await getAirdrop(action);
-          confetti({
-            ...defaults,
-            particleCount: 240,
-            scalar: 1.2,
-            zIndex: 1030,
-          });
+          const result = await getAirdrop(action);
+          if (result) {
+            confetti({
+              ...defaults,
+              particleCount: 240,
+              scalar: 1.2,
+              zIndex: 1030,
+            });
+          }
         }
       }}
+      {...props}
     >
-      {isGettingAirdrop && <Spinner size="sm" />}
+      {isLoading && <Spinner size="sm" />}
       Get airdrop
     </Button>
   );

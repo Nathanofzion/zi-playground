@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from "react";
+import { FC, useContext, useRef, useState } from "react";
 
 import { Flex, Text } from "@chakra-ui/react";
 
@@ -7,11 +7,13 @@ import { GuideModal } from "@/components/common";
 import { ModalProps } from "@/components/common/Modal";
 import { MouseClickIcon } from "@/components/icons";
 import useAirdrop, { Action } from "@/hooks/useAirdrop";
+import { AppContext } from "@/providers";
 
-const ParticlesModal: FC<ModalProps> = (props) => {
+const ParticlesModal: FC<ModalProps> = ({ onClose, ...props }) => {
+  const { openAtomicModal } = useContext(AppContext);
+  const { status } = useAirdrop();
   const clickedRef = useRef(0);
   const [showButton, setShowButton] = useState(false);
-  const { status } = useAirdrop();
 
   return (
     <GuideModal
@@ -24,6 +26,7 @@ const ParticlesModal: FC<ModalProps> = (props) => {
       }
       action={Action.Partices}
       showButton={showButton}
+      onClose={onClose}
       {...props}
     >
       <Flex justify="center">
@@ -33,7 +36,14 @@ const ParticlesModal: FC<ModalProps> = (props) => {
           onClick={() => setShowButton(++clickedRef.current >= 3)}
         />
       </Flex>
-      {status > 0 && <Button>Move to step 2</Button>}
+      {status[Action.Partices].data && (
+        <Button onClick={() => {
+          openAtomicModal?.();
+          onClose?.();
+        }}>
+          Move to step 2
+        </Button>
+      )}
     </GuideModal>
   );
 };

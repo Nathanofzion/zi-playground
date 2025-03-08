@@ -12,7 +12,7 @@ interface Props extends ModalProps {
   title: string;
   description: string;
   congratulation?: ReactNode;
-  action?: Action;
+  action: Action;
   showButton?: boolean;
   showGradientBackground?: boolean;
   _modalContent?: FlexProps;
