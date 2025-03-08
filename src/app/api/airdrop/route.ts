@@ -11,7 +11,7 @@ import { Server } from "@stellar/stellar-sdk/rpc";
 
 import zionToken from "@/constants/zionToken";
 import { activeChain } from "@/lib/chain";
-import { accountToScVal, getErrorCode } from "@/utils";
+import { accountToScVal } from "@/utils";
 
 const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
@@ -67,7 +67,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error(error);
     return NextResponse.json(error, { status: 500 });
   }
 }

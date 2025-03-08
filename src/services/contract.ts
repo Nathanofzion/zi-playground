@@ -1,7 +1,7 @@
 import { contractInvoke } from "@soroban-react/contracts";
 import { SorobanContextType } from "@soroban-react/core";
 import { Asset } from "@stellar-asset-lists/sdk";
-import { nativeToScVal } from "@stellar/stellar-sdk";
+import { nativeToScVal, scValToNative, xdr } from "@stellar/stellar-sdk";
 
 import { accountToScVal, scValToNumber } from "@/utils";
 
@@ -17,11 +17,11 @@ const processTx = async (tx: Promise<any>) => {
     }
     throw new Error(err.message);
   }
-}
+};
 
 export async function tokenBalance(
   sorobanContext: SorobanContextType,
-  tokenAddress: string,
+  tokenAddress: string
 ) {
   const { address } = sorobanContext;
 
@@ -31,34 +31,41 @@ export async function tokenBalance(
 
   const response = await contractInvoke({
     contractAddress: tokenAddress,
-    method: 'balance',
+    method: "balance",
     args: [accountToScVal(address)],
     sorobanContext,
   });
 
-  return scValToNumber(response as any);
+  return scValToNumber(response);
 }
 
-export async function tokenDecimals(sorobanContext: SorobanContextType, tokenAddress: string) {
+export async function tokenDecimals(
+  sorobanContext: SorobanContextType,
+  tokenAddress: string
+) {
   const response = await contractInvoke({
     contractAddress: tokenAddress,
-    method: 'decimals',
+    method: "decimals",
     sorobanContext,
   });
 
-  return scValToNumber(response as any);
+  return scValToNumber(response);
 }
 
-export const getAirdropStatus = async (sorobanContext: SorobanContextType, address: string) => {
+export const getAirdropStatus = async (
+  sorobanContext: SorobanContextType,
+  address: string,
+  action: number
+) => {
   const response = await contractInvoke({
     contractAddress: airdropContractId,
-    method: 'get_status',
-    args: [accountToScVal(address)],
+    method: "is_performed_action",
+    args: [accountToScVal(address), xdr.ScVal.scvU32(action)],
     sorobanContext,
   });
 
-  return scValToNumber(response as any);
-}
+  return scValToNative(response as any);
+};
 
 export const sendAsset = async (
   sorobanContext: SorobanContextType,
@@ -75,15 +82,15 @@ export const sendAsset = async (
   return await processTx(
     contractInvoke({
       contractAddress: asset.contract,
-      method: 'transfer',
+      method: "transfer",
       args: [
         accountToScVal(address),
         accountToScVal(recipient),
-        nativeToScVal(amount * Math.pow(10, asset.decimals), { type: 'i128' })
+        nativeToScVal(amount * Math.pow(10, asset.decimals), { type: "i128" }),
       ],
       sorobanContext,
       signAndSend: true,
       reconnectAfterTx: false,
     })
   );
-}
+};

@@ -1,10 +1,10 @@
-import { TxResponse } from '@soroban-react/contracts';
-import { Address, scValToBigInt, xdr } from '@stellar/stellar-sdk';
+import { TxResponse } from "@soroban-react/contracts";
+import { nativeToScVal, scValToBigInt, xdr } from "@stellar/stellar-sdk";
 
 export function accountToScVal(account: string): xdr.ScVal {
-    return new Address(account).toScVal();
+  return nativeToScVal(account, { type: "address" });
 }
 
 export function scValToNumber(scVal: xdr.ScVal | TxResponse) {
-    return Number(scValToBigInt(scVal as any));
+  return Number(scValToBigInt(scVal as any));
 }
