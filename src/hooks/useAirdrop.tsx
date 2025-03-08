@@ -1,11 +1,12 @@
 import axios from "axios";
+import { useState } from "react";
 
 import { useSorobanReact } from "@soroban-react/core";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 
 import { toaster } from "@/components/ui/toaster";
+import zionToken from "@/constants/zionToken";
 import { getAirdropStatus } from "@/services/contract";
-import { useState } from "react";
 
 export enum Action {
   Unknown = 0,
@@ -42,6 +43,7 @@ const useAirdrop = () => {
       if (!address)
         throw new Error('Please connect wallet to get airdrop.');
       await axios.post('/api/airdrop', { address, action });
+      queryClient.invalidateQueries({ queryKey: ['getAssetBalance', address, zionToken.contract] });
       queryClient.invalidateQueries({ queryKey: ['getAirdropStatus', address, action] });
       toaster.create({
         title: 'You have successfully received the airdrop.',
