@@ -6,24 +6,17 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import AirdropModal from "@/components/modals/AirdropModal";
 import BridgeModal from "@/components/modals/BridgeModal";
-import {
-  CubeGuideModal,
-  ParticlesGuideModal,
-  PasskeyGuideModal,
-  ThemeGuideModal,
-} from "@/components/modals/guides";
+import { AtomicModal, ParticlesModal, SpaceInvadersModal, ThemeModal } from "@/components/modals/guides";
 import InfoModal from "@/components/modals/InfoModal";
 import LiquidityModal from "@/components/modals/LiquidityModal";
 import LoginModal from "@/components/modals/LoginModal";
+import PasskeyModal from "@/components/modals/PasskeyModal";
 import ReceiveModal from "@/components/modals/ReceiveModal";
 import SendModal from "@/components/modals/SendModal";
 import StakingModal from "@/components/modals/StakingModal";
 import SwapModal from "@/components/modals/SwapModal";
 import { Provider as ThemeProvider } from "@/components/ui/provider";
 import { Toaster } from "@/components/ui/toaster";
-
-import AtomicAirdropModal from "@/components/modals/guides/AtomicAirdropModal";
-import SpaceInvadersModal from "@/components/modals/guides/SpaceInvadersModal";
 import SorobanReactProvider from "./SorobanReactProvider";
 
 interface IApp {
@@ -38,12 +31,11 @@ interface IApp {
   openInfoModal?: () => void;
   openStakingModal?: () => void;
   openAirdropModal?: () => void;
-  openPasskeyGuideModal?: () => void;
-  openAtomicAirdropModal?: () => void;
+  openPasskeyModal?: () => void;
+  openParticlesModal?: () => void;
+  openAtomicModal?: () => void;
   openSpaceInvadersModal?: () => void;
-  openCubeGuideModal?: () => void;
-  openThemeGuideModal?: () => void;
-  openParticlesGuideModal?: () => void;
+  openThemeModal?: () => void;
 }
 
 export const AppContext = createContext<IApp>({});
@@ -65,12 +57,11 @@ const Provider: FC<Props> = ({ children }) => {
   const [showLiquidityModal, setShowLiquidityModal] = useState(false);
   const [showBridgeModal, setShowBridgeModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [showPasskeyGuideModal, setShowPasskeyGuideModal] = useState(false);
-  const [showAtomicAirdropModal, setShowAtomicAirdropModal] = useState(false);
+  const [showPasskeyModal, setShowPasskeyModal] = useState(false);
+  const [showParticlesModal, setShowParticlesModal] = useState(false);
+  const [showAtomicModal, setShowAtomicModal] = useState(false);
   const [showSpaceInvadersModal, setShowSpaceInvadersModal] = useState(false);
-  const [showCubeGuideModal, setShowCubeGuideModal] = useState(false);
-  const [showThemeGuideModal, setShowThemeGuideModal] = useState(false);
-  const [showParticlesGuideModal, setShowParticlesGuideModal] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
 
   return (
     <AppContext.Provider
@@ -86,12 +77,11 @@ const Provider: FC<Props> = ({ children }) => {
         openLiquidityModal: () => setShowLiquidityModal(true),
         openBridgeModal: () => setShowBridgeModal(true),
         openInfoModal: () => setShowInfoModal(true),
-        openPasskeyGuideModal: () => setShowPasskeyGuideModal(true),
-        openAtomicAirdropModal: () => setShowAtomicAirdropModal(true),
+        openPasskeyModal: () => setShowPasskeyModal(true),
+        openParticlesModal: () => setShowParticlesModal(true),
+        openAtomicModal: () => setShowAtomicModal(true),
         openSpaceInvadersModal: () => setShowSpaceInvadersModal(true),
-        openCubeGuideModal: () => setShowCubeGuideModal(true),
-        openThemeGuideModal: () => setShowThemeGuideModal(true),
-        openParticlesGuideModal: () => setShowParticlesGuideModal(true),
+        openThemeModal: () => setShowThemeModal(true),
       }}
     >
       <ThemeProvider>
@@ -134,29 +124,25 @@ const Provider: FC<Props> = ({ children }) => {
               isOpen={showInfoModal}
               onClose={() => setShowInfoModal(false)}
             />
-            <PasskeyGuideModal
-              isOpen={showPasskeyGuideModal}
-              onClose={() => setShowPasskeyGuideModal(false)}
+            <PasskeyModal
+              isOpen={showPasskeyModal}
+              onClose={() => setShowPasskeyModal(false)}
             />
-            <AtomicAirdropModal
-              isOpen={showAtomicAirdropModal}
-              onClose={() => setShowAtomicAirdropModal(false)}
+            <ParticlesModal
+              isOpen={showParticlesModal}
+              onClose={() => setShowParticlesModal(false)}
+            />
+            <AtomicModal
+              isOpen={showAtomicModal}
+              onClose={() => setShowAtomicModal(false)}
             />
             <SpaceInvadersModal
               isOpen={showSpaceInvadersModal}
               onClose={() => setShowSpaceInvadersModal(false)}
             />
-            <CubeGuideModal
-              isOpen={showCubeGuideModal}
-              onClose={() => setShowCubeGuideModal(false)}
-            />
-            <ThemeGuideModal
-              isOpen={showThemeGuideModal}
-              onClose={() => setShowThemeGuideModal(false)}
-            />
-            <ParticlesGuideModal
-              isOpen={showParticlesGuideModal}
-              onClose={() => setShowParticlesGuideModal(false)}
+            <ThemeModal
+              isOpen={showThemeModal}
+              onClose={() => setShowThemeModal(false)}
             />
           </SorobanReactProvider>
           <ReactQueryDevtools initialIsOpen={false} />

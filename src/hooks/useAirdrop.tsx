@@ -8,9 +8,11 @@ import zionToken from "@/constants/zionToken";
 import { getAirdropStatus } from "@/services/contract";
 
 export enum Action {
-    SpinCube = 1,
-    CreateParticles = 2,
-    ChangeTheme = 3
+    Unknown = 0,
+    Partices = 1,
+    Atomic = 2,
+    SpaceInvaders = 3,
+    Theme = 4,
 }
 
 const useAirdrop = () => {
