@@ -10,7 +10,7 @@ import useWallets from "@/hooks/useWallets";
 import { connect } from "@/lib/wallet";
 import { Text } from "@chakra-ui/react";
 
-const PasskeyGuideModal: FC<ModalProps> = ({ onClose, ...props }) => {
+const PasskeyModal: FC<ModalProps> = ({ onClose, ...props }) => {
     const { address, connectors, setActiveConnectorAndConnect } = useSorobanReact();
     const wallets = useWallets();
 
@@ -40,4 +40,4 @@ const PasskeyGuideModal: FC<ModalProps> = ({ onClose, ...props }) => {
     )
 }
 
-export default PasskeyGuideModal;
+export default PasskeyModal;

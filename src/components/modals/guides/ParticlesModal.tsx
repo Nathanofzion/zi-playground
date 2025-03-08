@@ -8,7 +8,7 @@ import { ModalProps } from "@/components/common/Modal";
 import { MouseClickIcon } from "@/components/icons";
 import useAirdrop, { Action } from "@/hooks/useAirdrop";
 
-const ParticlesGuideModal: FC<ModalProps> = (props) => {
+const ParticlesModal: FC<ModalProps> = (props) => {
   const clickedRef = useRef(0);
   const [showButton, setShowButton] = useState(false);
   const { status } = useAirdrop();
@@ -19,11 +19,10 @@ const ParticlesGuideModal: FC<ModalProps> = (props) => {
       description="Create some Particles on the screen by Clicking Here."
       congratulation={
         <Text fontSize="sm">
-          Amazing you’ve created some particles now check your balance and move
-          to Step 4). to get your last particle theme Airdrop
+          Amazing you’ve created some particles now check your balance and move to Step 4). to get your last particle theme Airdrop
         </Text>
       }
-      action={Action.CreateParticles}
+      action={Action.Partices}
       showButton={showButton}
       {...props}
     >
@@ -39,4 +38,4 @@ const ParticlesGuideModal: FC<ModalProps> = (props) => {
   );
 };
 
-export default ParticlesGuideModal;
+export default ParticlesModal;

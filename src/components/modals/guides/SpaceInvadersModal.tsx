@@ -11,7 +11,7 @@ const SpaceInvadersModal: FC<ModalProps> = (props) => {
     <GuideModal
       title="Change theme"
       description="Try to change theme and get your ZI airdrop"
-      action={Action.ChangeTheme}
+      action={Action.SpaceInvaders}
       showButton={showButton}
       _modalContent={{ width: "480px" }}
       {...props}

@@ -1,11 +1,10 @@
-import { FC, ReactNode, useState } from "react";
+import { FC, ReactNode } from "react";
 
 import { Flex, FlexProps, Text } from "@chakra-ui/react";
 
 import { Action } from "@/hooks/useAirdrop";
-
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from ".";
-import GetAirdropButton from "../modals/guides/GetAirdropButton";
+import GetAirdropButton from "./GetAirdropButton";
 import { GradientCanvas } from "./GradientCanvas";
 import { ModalProps } from "./Modal";
 
