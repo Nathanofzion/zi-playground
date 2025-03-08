@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, BoxProps } from "@chakra-ui/react";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 interface GradientBubble {
   x: number;
@@ -23,7 +23,6 @@ interface GradientCanvasProps extends BoxProps {
 }
 
 export function GradientCanvas({
-  className,
   bubbleCount = 5,
   minRadius = 40,
   maxRadius = 60,
@@ -43,7 +42,7 @@ export function GradientCanvas({
   const bubblesRef = useRef<GradientBubble[]>([]);
   const dimensionsRef = useRef({ width: 0, height: 0 });
 
-  const initializeBubbles = (width: number, height: number) => {
+  const initializeBubbles = useCallback((width: number, height: number) => {
     const bubbles: GradientBubble[] = [];
 
     for (let i = 0; i < bubbleCount; i++) {
@@ -62,7 +61,7 @@ export function GradientCanvas({
     }
 
     return bubbles;
-  };
+  }, [bubbleCount, colors, maxRadius, minRadius, opacityRange]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -81,7 +80,7 @@ export function GradientCanvas({
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [bubbleCount, minRadius, maxRadius, opacityRange, colors]);
+  }, [initializeBubbles]);
 
   useEffect(() => {
     if (!canvasRef.current) return;

@@ -4,7 +4,7 @@ import { ButtonProps, Spinner } from "@chakra-ui/react";
 import confetti from "canvas-confetti";
 import { FC } from "react";
 
-var defaults = {
+const defaults = {
   spread: 360,
   ticks: 50,
   gravity: 1,
@@ -16,7 +16,7 @@ interface Props extends ButtonProps {
   action: Action;
 }
 
-const GetAirdropButton: FC<Props> = ({ action, disabled, ...props }) => {
+const GetAirdropButton: FC<Props> = ({ action, ...props }) => {
   const { isLoading, getAirdrop, status } = useAirdrop();
 
   return (

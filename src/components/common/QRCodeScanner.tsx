@@ -15,10 +15,11 @@ const QRCodeScanner: FC<Props> = ({ onScanSuccess }) => {
     setScanner(html5QrCode);
 
     return () => {
-      if (scanner && isScanning) {
+      if (html5QrCode && isScanning) {
         scanner.stop().catch(console.error);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startScanning = () => {

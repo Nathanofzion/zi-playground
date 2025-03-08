@@ -4,11 +4,8 @@ import { useContext, useState } from "react";
 import { Box, Flex, Image } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
-import { passkeyKit } from "@/lib/passkeyClient";
 import { AppContext } from "@/providers";
 import { truncateAddress } from "@/utils";
-
-import { SignerStore } from "passkey-kit";
 import Button from "./Button";
 import BalanceModal from "./modals/BalanceModal";
 import ConnectWalletModal from "./modals/ConnectWalletModal";
@@ -20,7 +17,7 @@ const Header = () => {
   const { address, disconnect } = useSorobanReact();
   const {
     setStartAnimation,
-    openPasskeyGuideModal,
+    openPasskeyModal,
     openAirdropModal,
     openStakingModal,
     openLoginModal,
@@ -65,7 +62,7 @@ const Header = () => {
                 if (address) {
                   openAirdropModal?.();
                 } else {
-                  openPasskeyGuideModal?.();
+                  openPasskeyModal?.();
                   setStartAnimation?.(true);
                 }
               }}

@@ -21,7 +21,6 @@ interface Props extends ModalProps {
 const GuideModal: FC<Props> = ({
   title,
   description,
-  congratulation,
   children,
   action,
   showButton,

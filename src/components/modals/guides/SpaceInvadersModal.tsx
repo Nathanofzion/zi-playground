@@ -1,18 +1,16 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 
 import { GuideModal } from "@/components/common";
 import { ModalProps } from "@/components/common/Modal";
 import { Action } from "@/hooks/useAirdrop";
 
 const SpaceInvadersModal: FC<ModalProps> = (props) => {
-  const [showButton, setShowButton] = useState(false);
-
   return (
     <GuideModal
       title="Change theme"
       description="Try to change theme and get your ZI airdrop"
       action={Action.SpaceInvaders}
-      showButton={showButton}
+      showButton={false}
       _modalContent={{ width: "480px" }}
       {...props}
     >

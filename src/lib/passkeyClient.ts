@@ -23,10 +23,6 @@ async function getContractId(signer: string) {
   return data.contractId;
 }
 
-function getSigners(contractId: string) {
-  return axios.get(`/api/signer/${contractId}`);
-}
-
 function fundContract(address: string) {
   return axios.get(`/api/fund/${address}`);
 }
@@ -62,6 +58,7 @@ const passkey = () => ({
         return await passkeyKit.connectWallet({
           getContractId,
         });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         const wallet = await passkeyKit.createWallet(projectName, "");
         await send(wallet.signedTx.toXDR());
