@@ -21,8 +21,8 @@ const ReceiveModal: FC<ModalProps> = (props) => {
                     RECEIVE
                 </Heading>
                 <Flex direction="column" align="center" gap={4}>
-                    <Box p={1} bg="white">
-                        <QrCode.Root value={address} color="black">
+                    <Box p={2} bg="white">
+                        <QrCode.Root size="lg" color="black" value={address} encoding={{ ecc: "Q" }}>
                             <QrCode.Frame>
                                 <QrCode.Pattern />
                             </QrCode.Frame>
