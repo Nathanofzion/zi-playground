@@ -1,21 +1,31 @@
 import { FC } from "react";
 
-import { GuideModal } from "@/components/common";
-import { ModalProps } from "@/components/common/Modal";
-import { Action } from "@/hooks/useAirdrop";
+import { Flex, Text } from "@chakra-ui/react";
+
+import { ModalCloseButton, ModalContent, ModalOverlay } from "@/components/common";
+import Modal, { ModalProps } from "@/components/common/Modal";
 
 const SpaceInvadersModal: FC<ModalProps> = (props) => {
   return (
-    <GuideModal
-      title="Change theme"
-      description="Try to change theme and get your ZI airdrop"
-      action={Action.SpaceInvaders}
-      showButton={false}
-      _modalContent={{ width: "480px" }}
-      {...props}
-    >
-      <iframe src="https://spaceinvaders.viperfish.com.au/" height={360} />
-    </GuideModal>
+    <Modal {...props}>
+      <ModalOverlay />
+      <ModalContent
+        w="480px"
+      >
+        <ModalCloseButton />
+        <Flex w="full" p={4} direction="column" gap={2} overflow="hidden">
+          <Flex direction="column" gap={1}>
+            <Text fontSize="xl">
+              Space invaders
+            </Text>
+            <Text fontSize='sm'>
+              Comming soon
+            </Text>
+          </Flex>
+          <iframe src="https://spaceinvaders.viperfish.com.au/" height={360} />
+        </Flex>
+      </ModalContent>
+    </Modal>
   );
 };
 
