@@ -1,8 +1,7 @@
 import { FC, useContext } from "react";
 
-import { Flex, Heading } from "@chakra-ui/react";
+import { Flex, Heading, Text } from "@chakra-ui/react";
 
-import useAirdrop, { Action } from "@/hooks/useAirdrop";
 import { AppContext } from "@/providers";
 import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
@@ -15,7 +14,6 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
     openSpaceInvadersModal,
     openThemeModal,
   } = useContext(AppContext);
-  const { status } = useAirdrop();
 
   return (
     <Modal onClose={onClose} {...props}>
@@ -30,8 +28,11 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
       >
         <ModalCloseButton />
         <Heading as="h2" textAlign="center" size="lg">
-          AIRDROP
+          Airdrops & Themes
         </Heading>
+        <Text>
+          Please select your Airdrop or theme from the buttons below.
+        </Text>
         <Flex direction="column" gap={4}>
           <Button
             size="xl"
@@ -39,7 +40,6 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
               openParticlesModal?.();
               onClose?.();
             }}
-            disabled={status[Action.Partices].data}
           >
             Particles airdrop
           </Button>
@@ -50,7 +50,6 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
               openAtomicModal?.();
               onClose?.();
             }}
-            disabled={status[Action.Atomic].data}
           >
             Atomic Airdrop
           </Button>
@@ -61,7 +60,6 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
               openSpaceInvadersModal?.();
               onClose?.();
             }}
-            disabled={status[Action.SpaceInvaders].data}
           >
             Space invaders
           </Button>
@@ -72,7 +70,6 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
               openThemeModal?.();
               onClose?.();
             }}
-            disabled={status[Action.Theme].data}
           >
             Night & Day
           </Button>
