@@ -22,8 +22,6 @@ import SorobanReactProvider from "./SorobanReactProvider";
 interface IApp {
   theme: Theme,
   setTheme?: (theme: Theme) => void;
-  startAnimation?: boolean;
-  setStartAnimation?: (startAnimation: boolean) => void;
   openLoginModal?: () => void;
   openSendModal?: () => void;
   openReceiveModal?: () => void;
@@ -49,7 +47,6 @@ interface Props {
 
 const Provider: FC<Props> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(Theme.Particle)
-  const [startAnimation, setStartAnimation] = useState(false);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -67,8 +64,6 @@ const Provider: FC<Props> = ({ children }) => {
       value={{
         theme,
         setTheme,
-        startAnimation,
-        setStartAnimation,
         openAirdropModal: () => setShowAirdropModal(true),
         openStakingModal: () => setShowStakingModal(true),
         openLoginModal: () => setShowLoginModal(true),
