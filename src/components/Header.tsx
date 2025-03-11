@@ -16,7 +16,6 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 const Header = () => {
   const { address, disconnect } = useSorobanReact();
   const {
-    setStartAnimation,
     openAirdropModal,
     openStakingModal,
     openLoginModal,
@@ -109,10 +108,7 @@ const Header = () => {
             ) : (
               <Button
                 size="lg"
-                onClick={() => {
-                  setShowConnectWalletModal(true);
-                  setStartAnimation?.(true);
-                }}
+                onClick={() => setShowConnectWalletModal(true)}
               >
                 Connect
               </Button>
