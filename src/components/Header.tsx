@@ -17,7 +17,6 @@ const Header = () => {
   const { address, disconnect } = useSorobanReact();
   const {
     setStartAnimation,
-    openPasskeyModal,
     openAirdropModal,
     openStakingModal,
     openLoginModal,
@@ -57,16 +56,7 @@ const Header = () => {
             translateX={{ base: "-50%", lg: "unset" }}
             gap={{ base: "4px", lg: "16px" }}
           >
-            <Button
-              onClick={() => {
-                if (address) {
-                  openAirdropModal?.();
-                } else {
-                  openPasskeyModal?.();
-                  setStartAnimation?.(true);
-                }
-              }}
-            >
+            <Button onClick={openAirdropModal}>
               Airdrop
             </Button>
             <Button onClick={openStakingModal}>Staking</Button>
