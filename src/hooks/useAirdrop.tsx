@@ -10,10 +10,9 @@ import { getAirdropStatus } from "@/services/contract";
 
 export enum Action {
   Unknown = 0,
-  Partices = 1,
-  Atomic = 2,
-  SpaceInvaders = 3,
-  Theme = 4,
+  SpinCube = 1,
+  Partices = 2,
+  Theme = 3,
 }
 
 const useAirdrop = () => {
