@@ -4,7 +4,8 @@ import { FC } from "react";
 import { ButtonProps, Spinner } from "@chakra-ui/react";
 
 import Button from "@/components/Button";
-import useAirdrop, { Action } from "@/hooks/useAirdrop";
+import { Action } from "@/enums";
+import useAirdrop from "@/hooks/useAirdrop";
 
 const defaults = {
   spread: 360,
