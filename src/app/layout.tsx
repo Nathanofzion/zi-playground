@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 
 import { Flex } from "@chakra-ui/react";
 
-import BgParticles from "@/components/BgParticles";
+import Background from "@/components/common/Background";
 import Header from "@/components/Header";
 import Provider from "@/providers";
 
@@ -34,7 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Provider>
-          <BgParticles />
+          <Background />
           <Flex position='fixed' inset={0} direction='column' overflowY='auto'>
             <Header />
             {children}
