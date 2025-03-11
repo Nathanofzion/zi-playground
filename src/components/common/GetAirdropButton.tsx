@@ -1,8 +1,10 @@
-import Button from "@/components/Button";
-import useAirdrop, { Action } from "@/hooks/useAirdrop";
-import { ButtonProps, Spinner } from "@chakra-ui/react";
 import confetti from "canvas-confetti";
 import { FC } from "react";
+
+import { ButtonProps, Spinner } from "@chakra-ui/react";
+
+import Button from "@/components/Button";
+import useAirdrop, { Action } from "@/hooks/useAirdrop";
 
 const defaults = {
   spread: 360,
@@ -14,10 +16,11 @@ const defaults = {
 
 interface Props extends ButtonProps {
   action: Action;
+  onReceive?: () => void;
 }
 
-const GetAirdropButton: FC<Props> = ({ action, ...props }) => {
-  const { isLoading, getAirdrop, status } = useAirdrop();
+const GetAirdropButton: FC<Props> = ({ action, onReceive, ...props }) => {
+  const { isLoading, status, getAirdrop } = useAirdrop();
 
   return (
     <Button
@@ -26,6 +29,7 @@ const GetAirdropButton: FC<Props> = ({ action, ...props }) => {
       onClick={async () => {
         if (action) {
           const result = await getAirdrop(action);
+          onReceive?.();
           if (result) {
             confetti({
               ...defaults,
