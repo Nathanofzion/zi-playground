@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import AirdropModal from "@/components/modals/AirdropModal";
 import BridgeModal from "@/components/modals/BridgeModal";
-import { AtomicModal, ParticlesModal, SpaceInvadersModal, ThemeModal } from "@/components/modals/guides";
+import { ParticlesModal, SpaceInvadersModal } from "@/components/modals/guides";
 import InfoModal from "@/components/modals/InfoModal";
 import LiquidityModal from "@/components/modals/LiquidityModal";
 import LoginModal from "@/components/modals/LoginModal";
@@ -16,9 +16,12 @@ import StakingModal from "@/components/modals/StakingModal";
 import SwapModal from "@/components/modals/SwapModal";
 import { Provider as ThemeProvider } from "@/components/ui/provider";
 import { Toaster } from "@/components/ui/toaster";
+import { Theme } from "@/enums";
 import SorobanReactProvider from "./SorobanReactProvider";
 
 interface IApp {
+  theme: Theme,
+  setTheme?: (theme: Theme) => void;
   startAnimation?: boolean;
   setStartAnimation?: (startAnimation: boolean) => void;
   openLoginModal?: () => void;
@@ -31,12 +34,12 @@ interface IApp {
   openStakingModal?: () => void;
   openAirdropModal?: () => void;
   openParticlesModal?: () => void;
-  openAtomicModal?: () => void;
   openSpaceInvadersModal?: () => void;
-  openThemeModal?: () => void;
 }
 
-export const AppContext = createContext<IApp>({});
+export const AppContext = createContext<IApp>({
+  theme: Theme.Particle,
+});
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,7 @@ interface Props {
 }
 
 const Provider: FC<Props> = ({ children }) => {
+  const [theme, setTheme] = useState<Theme>(Theme.Particle)
   const [startAnimation, setStartAnimation] = useState(false);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
@@ -56,13 +60,13 @@ const Provider: FC<Props> = ({ children }) => {
   const [showBridgeModal, setShowBridgeModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showParticlesModal, setShowParticlesModal] = useState(false);
-  const [showAtomicModal, setShowAtomicModal] = useState(false);
   const [showSpaceInvadersModal, setShowSpaceInvadersModal] = useState(false);
-  const [showThemeModal, setShowThemeModal] = useState(false);
 
   return (
     <AppContext.Provider
       value={{
+        theme,
+        setTheme,
         startAnimation,
         setStartAnimation,
         openAirdropModal: () => setShowAirdropModal(true),
@@ -75,9 +79,7 @@ const Provider: FC<Props> = ({ children }) => {
         openBridgeModal: () => setShowBridgeModal(true),
         openInfoModal: () => setShowInfoModal(true),
         openParticlesModal: () => setShowParticlesModal(true),
-        openAtomicModal: () => setShowAtomicModal(true),
         openSpaceInvadersModal: () => setShowSpaceInvadersModal(true),
-        openThemeModal: () => setShowThemeModal(true),
       }}
     >
       <ThemeProvider>
@@ -128,17 +130,9 @@ const Provider: FC<Props> = ({ children }) => {
                 onClose={() => setShowParticlesModal(false)}
               />
             )}
-            <AtomicModal
-              isOpen={showAtomicModal}
-              onClose={() => setShowAtomicModal(false)}
-            />
             <SpaceInvadersModal
               isOpen={showSpaceInvadersModal}
               onClose={() => setShowSpaceInvadersModal(false)}
-            />
-            <ThemeModal
-              isOpen={showThemeModal}
-              onClose={() => setShowThemeModal(false)}
             />
           </SorobanReactProvider>
           <ReactQueryDevtools initialIsOpen={false} />

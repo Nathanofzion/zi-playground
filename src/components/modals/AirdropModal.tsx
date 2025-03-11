@@ -2,6 +2,7 @@ import { FC, useContext } from "react";
 
 import { Flex, Heading, Text } from "@chakra-ui/react";
 
+import { Theme } from "@/enums";
 import { AppContext } from "@/providers";
 import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
@@ -9,10 +10,9 @@ import { ModalProps } from "../common/Modal";
 
 const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const {
+    setTheme,
     openParticlesModal,
-    openAtomicModal,
     openSpaceInvadersModal,
-    openThemeModal,
   } = useContext(AppContext);
 
   return (
@@ -47,7 +47,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              openAtomicModal?.();
+              setTheme?.(Theme.Atomic);
               onClose?.();
             }}
           >
@@ -67,7 +67,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              openThemeModal?.();
+              setTheme?.(Theme.NightDay);
               onClose?.();
             }}
           >

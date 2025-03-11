@@ -10,8 +10,10 @@ import GetAirdropButton from "@/components/common/GetAirdropButton";
 import Modal, { ModalProps } from "@/components/common/Modal";
 import Viewer from "@/components/Earth";
 import { MouseClickIcon } from "@/components/icons";
+import { ColorModeButton } from "@/components/ui/color-mode";
 import { WalletConnectButton } from "@/components/wallet";
-import useAirdrop, { Action } from "@/hooks/useAirdrop";
+import { Action } from "@/enums";
+import useAirdrop from "@/hooks/useAirdrop";
 import useWallets from "@/hooks/useWallets";
 import { connect } from "@/lib/wallet";
 
@@ -36,13 +38,13 @@ const Step: FC<StepProps> = ({ step, onFinish }) => {
     setActiveConnectorAndConnect?.(connector);
   }
 
-  if (step == 0) {
+  if (step == 1) {
     return (
       <WalletConnectButton wallet={wallet} onClick={() => handleConnect(connector)} />
     )
   }
 
-  if (step == 1) {
+  if (step == 2) {
     return (
       <Box
         aspectRatio={1}
@@ -68,7 +70,7 @@ const Step: FC<StepProps> = ({ step, onFinish }) => {
     )
   }
 
-  if (step == 2) {
+  if (step == 3) {
     return (
       <Flex justify="center">
         <MouseClickIcon
@@ -83,36 +85,42 @@ const Step: FC<StepProps> = ({ step, onFinish }) => {
     )
   }
 
+  if (step == 4) {
+    return (
+      <Flex justify='center'>
+        <Box onClick={onFinish}>
+          <ColorModeButton guide />
+        </Box>
+      </Flex>
+    )
+  }
+
   return <></>
 }
 
 const airdrops = [
   {
+    action: Action.Unknown,
+  },
+  {
     title: 'Connect passkey',
-    description: (
-      <Text fontSize="sm">
-        Try to connect your passkey and get your ZI airdrop
-      </Text>
-    ),
+    description: 'Try to connect your passkey and get your ZI airdrop',
     action: Action.Unknown,
   },
   {
     title: 'Spin block',
-    description: (
-      <Text fontSize="sm">
-        Try Spinning the Block to get your 1st Zi Airdrop,
-      </Text>
-    ),
+    description: 'Try Spinning the Block to get your 1st Zi Airdrop',
     action: Action.SpinCube,
   },
   {
     title: 'Create Some Particles',
-    description: (
-      <Text fontSize="sm">
-        Create some Particles on the screen by Clicking Here.
-      </Text>
-    ),
+    description: 'Create some Particles on the screen by Clicking Here',
     action: Action.Partices,
+  },
+  {
+    title: 'Change theme',
+    description: 'Try to change theme and get your ZI airdrop',
+    action: Action.Theme,
   },
   {
     title: 'Congratulation',
@@ -148,12 +156,12 @@ const airdrops = [
 const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
   const { address } = useSorobanReact();
   const { status } = useAirdrop();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [showButton, setShowButton] = useState(false);
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
-    if (step == 0 && address) {
+    if (step == 1 && address) {
       setFinished(true);
     }
   }, [address, step]);
@@ -173,7 +181,9 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
         <Flex w="full" p={4} direction="column" gap={2} overflow="hidden">
           <Flex direction="column" gap={1}>
             <Text fontSize="xl">{airdrops[step].title}</Text>
-            {airdrops[step].description}
+            <Box fontSize='sm'>
+              {airdrops[step].description}
+            </Box>
           </Flex>
           <Step step={step} onFinish={() => setShowButton(true)} />
           {showButton && <GetAirdropButton action={airdrops[step].action} onReceive={() => setFinished(true)} />}
@@ -183,7 +193,7 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
               setFinished(false);
               setStep(step + 1);
             }}>
-              Move to step {step + 2}
+              Move to step {step + 1}
             </Button>
           )}
         </Flex>
