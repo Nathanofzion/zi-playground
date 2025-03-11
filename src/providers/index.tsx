@@ -100,10 +100,12 @@ const Provider: FC<Props> = ({ children }) => {
               isOpen={showLoginModal}
               onClose={() => setShowLoginModal(false)}
             />
-            <SendModal
-              isOpen={showSendModal}
-              onClose={() => setShowSendModal(false)}
-            />
+            {showSendModal && (
+              <SendModal
+                isOpen={true}
+                onClose={() => setShowSendModal(false)}
+              />
+            )}
             <ReceiveModal
               isOpen={showReceiveModal}
               onClose={() => setShowReceiveModal(false)}
