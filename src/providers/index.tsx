@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import AirdropModal from "@/components/modals/AirdropModal";
 import BridgeModal from "@/components/modals/BridgeModal";
-import { ParticlesModal, SpaceInvadersModal } from "@/components/modals/guides";
+import { AtomicModal, ParticlesModal, SpaceInvadersModal } from "@/components/modals/guides";
 import InfoModal from "@/components/modals/InfoModal";
 import LiquidityModal from "@/components/modals/LiquidityModal";
 import LoginModal from "@/components/modals/LoginModal";
@@ -32,6 +32,7 @@ interface IApp {
   openStakingModal?: () => void;
   openAirdropModal?: () => void;
   openParticlesModal?: () => void;
+  openAtomicModal?: () => void;
   openSpaceInvadersModal?: () => void;
 }
 
@@ -57,6 +58,7 @@ const Provider: FC<Props> = ({ children }) => {
   const [showBridgeModal, setShowBridgeModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showParticlesModal, setShowParticlesModal] = useState(false);
+  const [showAtomicModal, setShowAtomicModal] = useState(false);
   const [showSpaceInvadersModal, setShowSpaceInvadersModal] = useState(false);
 
   return (
@@ -77,6 +79,7 @@ const Provider: FC<Props> = ({ children }) => {
         openBridgeModal: () => setShowBridgeModal(true),
         openInfoModal: () => setShowInfoModal(true),
         openParticlesModal: () => setShowParticlesModal(true),
+        openAtomicModal: () => setShowAtomicModal(true),
         openSpaceInvadersModal: () => setShowSpaceInvadersModal(true),
       }}
     >
@@ -124,14 +127,22 @@ const Provider: FC<Props> = ({ children }) => {
             />
             {showParticlesModal && (
               <ParticlesModal
-                isOpen={showParticlesModal}
+                isOpen={true}
                 onClose={() => setShowParticlesModal(false)}
               />
             )}
-            <SpaceInvadersModal
-              isOpen={showSpaceInvadersModal}
-              onClose={() => setShowSpaceInvadersModal(false)}
-            />
+            {showAtomicModal && (
+              <AtomicModal
+                isOpen={true}
+                onClose={() => setShowAtomicModal(false)}
+              />
+            )}
+            {showSpaceInvadersModal && (
+              <SpaceInvadersModal
+                isOpen={true}
+                onClose={() => setShowSpaceInvadersModal(false)}
+              />
+            )}
           </SorobanReactProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

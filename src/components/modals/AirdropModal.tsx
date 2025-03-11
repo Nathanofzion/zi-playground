@@ -13,6 +13,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const {
     setTheme,
     openParticlesModal,
+    openAtomicModal,
     openSpaceInvadersModal,
   } = useContext(AppContext);
   const { status } = useAirdrop();
@@ -59,16 +60,18 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
             size="xl"
             onClick={() => {
               setTheme?.(Theme.Atomic);
+              openAtomicModal?.();
               onClose?.();
             }}
           >
-            Atomic Airdrop
+            Atomic airdrop
           </Button>
 
           <Button
             size="xl"
             onClick={() => {
               setTheme?.(Theme.SpaceInvaders);
+              openSpaceInvadersModal?.();
               onClose?.();
             }}
           >
