@@ -46,7 +46,7 @@ interface Props {
 }
 
 const Provider: FC<Props> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(Theme.Particle)
+  const [theme, setTheme] = useState<Theme>(localStorage.getItem('bg-theme') as Theme || Theme.Particle)
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -63,7 +63,10 @@ const Provider: FC<Props> = ({ children }) => {
     <AppContext.Provider
       value={{
         theme,
-        setTheme,
+        setTheme: (theme) => {
+          setTheme(theme);
+          localStorage.setItem('bg-theme', `${theme}`);
+        },
         openAirdropModal: () => setShowAirdropModal(true),
         openStakingModal: () => setShowStakingModal(true),
         openLoginModal: () => setShowLoginModal(true),

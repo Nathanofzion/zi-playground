@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
-import { Flex } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 
 import Background from "@/components/common/Background";
 import Header from "@/components/Header";
@@ -35,7 +35,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Provider>
           <Background />
-          <Flex position='fixed' inset={0} direction='column' overflowY='auto'>
+          <Flex h='100vh' direction='column'>
             <Header />
             {children}
           </Flex>

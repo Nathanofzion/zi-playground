@@ -1,5 +1,6 @@
 export enum Theme {
-  Particle,
-  Atomic,
-  NightDay,
+  Particle = "particle",
+  Atomic = "atomic",
+  SpaceInvaders = "space-invaders",
+  NightDay = "night-day",
 }

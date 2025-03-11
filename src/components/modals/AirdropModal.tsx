@@ -68,7 +68,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              openSpaceInvadersModal?.();
+              setTheme?.(Theme.SpaceInvaders);
               onClose?.();
             }}
           >
