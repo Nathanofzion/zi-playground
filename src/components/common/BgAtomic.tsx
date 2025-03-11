@@ -13,7 +13,7 @@ interface GradientBubble {
   opacity: number;
 }
 
-interface GradientCanvasProps extends BoxProps {
+interface BgAtomicProps extends BoxProps {
   bubbleCount?: number;
   minRadius?: number;
   maxRadius?: number;
@@ -22,7 +22,7 @@ interface GradientCanvasProps extends BoxProps {
   colors?: string[];
 }
 
-export function GradientCanvas({
+export function BgAtomic({
   bubbleCount = 5,
   minRadius = 40,
   maxRadius = 60,
@@ -36,7 +36,7 @@ export function GradientCanvas({
     "255, 100, 255",
   ],
   ...props
-}: GradientCanvasProps) {
+}: BgAtomicProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const bubblesRef = useRef<GradientBubble[]>([]);
@@ -147,7 +147,7 @@ export function GradientCanvas({
   }, [speed]);
 
   return (
-    <Box {...props}>
+    <Box w='100vw' h='100vh' {...props}>
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
     </Box>
   );
