@@ -1,8 +1,9 @@
-import { FC, useContext } from "react";
+import { FC, useContext, useMemo } from "react";
 
 import { Flex, Heading, Text } from "@chakra-ui/react";
 
-import { Theme } from "@/enums";
+import { Action, Theme } from "@/enums";
+import useAirdrop from "@/hooks/useAirdrop";
 import { AppContext } from "@/providers";
 import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
@@ -14,6 +15,13 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
     openParticlesModal,
     openSpaceInvadersModal,
   } = useContext(AppContext);
+  const { status } = useAirdrop();
+
+  const canReceiveAirdrop = useMemo(() => {
+    return !(status[Action.SpinCube].data
+      && status[Action.Partices].data
+      && status[Action.Theme].data);
+  }, [status]);
 
   return (
     <Modal onClose={onClose} {...props}>
@@ -37,7 +45,10 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              openParticlesModal?.();
+              setTheme?.(Theme.Particle);
+              if (canReceiveAirdrop) {
+                openParticlesModal?.();
+              }
               onClose?.();
             }}
           >

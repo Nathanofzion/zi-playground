@@ -1,23 +1,27 @@
 "use client";
 import { useContext } from "react";
 
+import { Box } from "@chakra-ui/react";
+
 import { Theme } from "@/enums";
 import { AppContext } from "@/providers";
-import { BgAtomic } from "./BgAtomic";
+import { useColorModeValue } from "../ui/color-mode";
+import BgAtomic from "./BgAtomic";
 import BgParticles from "./BgParticles";
 
 const Background = () => {
   const { theme } = useContext(AppContext);
 
-  if (theme == Theme.Atomic) {
-    return <BgAtomic />
-  }
-
-  if (theme == Theme.Particle) {
-    return <BgParticles />
-  }
-
-  return <></>
+  return (
+    <Box w='100vw' h='100vh' bg={useColorModeValue("#fff", "#000")}>
+      {theme == Theme.Atomic && (
+        <BgAtomic />
+      )}
+      {theme == Theme.Particle && (
+        <BgParticles />
+      )}
+    </Box>
+  )
 }
 
 export default Background;

@@ -20,7 +20,7 @@ const BgParticles = () => {
       options={{
         background: {
           color: {
-            value: useColorModeValue("#ffffff", "#0F1016"),
+            value: useColorModeValue("#fff", "#0F1016"),
           },
         },
         fpsLimit: 120,
@@ -48,7 +48,7 @@ const BgParticles = () => {
         },
         particles: {
           color: {
-            value: useColorModeValue("#ffffff", "#000000"),
+            value: useColorModeValue("#fff", "#000"),
           },
           links: {
             color: useColorModeValue("#000", "#fff"),
