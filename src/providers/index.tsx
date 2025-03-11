@@ -10,7 +10,6 @@ import { AtomicModal, ParticlesModal, SpaceInvadersModal, ThemeModal } from "@/c
 import InfoModal from "@/components/modals/InfoModal";
 import LiquidityModal from "@/components/modals/LiquidityModal";
 import LoginModal from "@/components/modals/LoginModal";
-import PasskeyModal from "@/components/modals/PasskeyModal";
 import ReceiveModal from "@/components/modals/ReceiveModal";
 import SendModal from "@/components/modals/SendModal";
 import StakingModal from "@/components/modals/StakingModal";
@@ -31,7 +30,6 @@ interface IApp {
   openInfoModal?: () => void;
   openStakingModal?: () => void;
   openAirdropModal?: () => void;
-  openPasskeyModal?: () => void;
   openParticlesModal?: () => void;
   openAtomicModal?: () => void;
   openSpaceInvadersModal?: () => void;
@@ -57,7 +55,6 @@ const Provider: FC<Props> = ({ children }) => {
   const [showLiquidityModal, setShowLiquidityModal] = useState(false);
   const [showBridgeModal, setShowBridgeModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [showPasskeyModal, setShowPasskeyModal] = useState(false);
   const [showParticlesModal, setShowParticlesModal] = useState(false);
   const [showAtomicModal, setShowAtomicModal] = useState(false);
   const [showSpaceInvadersModal, setShowSpaceInvadersModal] = useState(false);
@@ -77,7 +74,6 @@ const Provider: FC<Props> = ({ children }) => {
         openLiquidityModal: () => setShowLiquidityModal(true),
         openBridgeModal: () => setShowBridgeModal(true),
         openInfoModal: () => setShowInfoModal(true),
-        openPasskeyModal: () => setShowPasskeyModal(true),
         openParticlesModal: () => setShowParticlesModal(true),
         openAtomicModal: () => setShowAtomicModal(true),
         openSpaceInvadersModal: () => setShowSpaceInvadersModal(true),
@@ -126,14 +122,12 @@ const Provider: FC<Props> = ({ children }) => {
               isOpen={showInfoModal}
               onClose={() => setShowInfoModal(false)}
             />
-            <PasskeyModal
-              isOpen={showPasskeyModal}
-              onClose={() => setShowPasskeyModal(false)}
-            />
-            <ParticlesModal
-              isOpen={showParticlesModal}
-              onClose={() => setShowParticlesModal(false)}
-            />
+            {showParticlesModal && (
+              <ParticlesModal
+                isOpen={showParticlesModal}
+                onClose={() => setShowParticlesModal(false)}
+              />
+            )}
             <AtomicModal
               isOpen={showAtomicModal}
               onClose={() => setShowAtomicModal(false)}
