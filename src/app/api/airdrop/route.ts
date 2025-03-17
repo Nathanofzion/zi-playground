@@ -20,13 +20,6 @@ export async function POST(req: NextRequest) {
   try {
     const { address, action } = await req.json();
 
-    if (!address) {
-      return NextResponse.json(
-        { message: "Recipient public key is required" },
-        { status: 400 }
-      );
-    }
-
     const sourceKeypair = Keypair.fromSecret(funderSecretKey);
 
     const server = new Server(activeChain.sorobanRpcUrl!);
@@ -54,7 +47,6 @@ export async function POST(req: NextRequest) {
       .build();
 
     const preparedTx = await server.prepareTransaction(tx);
-
     preparedTx.sign(sourceKeypair);
 
     const result = await server.sendTransaction(preparedTx);
