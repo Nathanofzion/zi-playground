@@ -27,6 +27,10 @@ function fundContract(address: string) {
   return axios.get(`/api/fund/${address}`);
 }
 
+function getSigner(address: string) {
+  return axios.get(`/api/signer/${address}`);
+}
+
 export const sac = new SACClient({
   rpcUrl: activeChain.sorobanRpcUrl!,
   networkPassphrase: activeChain.networkPassphrase,
@@ -67,7 +71,9 @@ const passkey = () => ({
       }
     };
 
+    
     const { contractId } = await connectOrCreate();
+    await getSigner(contractId);
     return contractId;
   },
 
