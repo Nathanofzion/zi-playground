@@ -10,7 +10,6 @@ export async function GET(
     const signers = await server.getSigners(contract_id);
     return NextResponse.json(signers);
   } catch (error) {
-    console.error(error);
     return NextResponse.json(error, { status: 500 });
   }
 }
