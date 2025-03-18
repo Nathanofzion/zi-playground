@@ -1,9 +1,12 @@
 "use client";
+import { SignerStore } from "passkey-kit";
 import { useContext, useState } from "react";
 
 import { Box, Flex, Image } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
+import { Keypair } from "@stellar/stellar-sdk";
 
+import { getSigners, passkeyKit, send } from "@/lib/passkeyClient";
 import { AppContext } from "@/providers";
 import { truncateAddress } from "@/utils";
 import Button from "./Button";
@@ -25,11 +28,12 @@ const Header = () => {
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
 
   const handleAddEd25519Signer = async () => {
-    // const pubkey = prompt('Enter public key');
-    // const at = await passkeyKit.addEd25519(pubkey!, undefined, SignerStore.Temporary);
-
-    // await account.sign(at, { keyId: adminSigner });
-    // const res = await server.send(at.built!);
+    const pair = Keypair.random();
+    const publicKey = pair.publicKey();
+    const at = await passkeyKit.addEd25519(publicKey!, undefined, SignerStore.Temporary);
+    await passkeyKit.sign(at);
+    await send(at.built!.toXDR());
+    await getSigners(address!);
   }
 
   return (
