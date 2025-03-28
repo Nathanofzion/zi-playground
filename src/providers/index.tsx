@@ -1,4 +1,5 @@
 "use client";
+import { Signer } from "passkey-kit";
 import { createContext, FC, ReactNode, useState } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -20,8 +21,10 @@ import { Theme } from "@/enums";
 import SorobanReactProvider from "./SorobanReactProvider";
 
 interface IApp {
-  theme: Theme,
+  theme: Theme;
   setTheme?: (theme: Theme) => void;
+  signers: Signer[];
+  setSigners?: (signers: Signer[]) => void;
   openLoginModal?: () => void;
   openSendModal?: () => void;
   openReceiveModal?: () => void;
@@ -38,6 +41,7 @@ interface IApp {
 
 export const AppContext = createContext<IApp>({
   theme: Theme.Particle,
+  signers: [],
 });
 
 const queryClient = new QueryClient();
@@ -47,6 +51,7 @@ interface Props {
 }
 
 const Provider: FC<Props> = ({ children }) => {
+  const [signers, setSigners] = useState<Signer[]>([]);
   const [theme, setTheme] = useState<Theme>(Theme.Particle)
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
@@ -66,6 +71,8 @@ const Provider: FC<Props> = ({ children }) => {
       value={{
         theme,
         setTheme,
+        signers,
+        setSigners,
         openAirdropModal: () => setShowAirdropModal(true),
         openStakingModal: () => setShowStakingModal(true),
         openLoginModal: () => setShowLoginModal(true),

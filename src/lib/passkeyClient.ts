@@ -70,7 +70,6 @@ const passkey = () => {
       };
 
       const { contractId } = await connectOrCreate();
-      await getSigners(contractId);
       return contractId;
     },
 
