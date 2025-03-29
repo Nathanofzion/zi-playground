@@ -8,7 +8,9 @@ export async function GET(
 ) {
   try {
     const signers = await server.getSigners(contract_id);
-    return NextResponse.json(signers);
+    const response = NextResponse.json(signers);
+    response.headers.set('Cache-Control', 'no-store');
+    return response;
   } catch (error) {
     return NextResponse.json(error, { status: 500 });
   }

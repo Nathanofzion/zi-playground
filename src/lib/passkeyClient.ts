@@ -33,11 +33,7 @@ function fundContract(address: string) {
 }
 
 export async function getSigners(contractId: string) {
-  const { data } = await axios.get(`/api/signer/${contractId}`, {
-    headers: {
-      "Cache-Control": "no-cache",
-    },
-  });
+  const { data } = await axios.get(`/api/signer/${contractId}`);
   return data;
 }
 
