@@ -1,15 +1,13 @@
 "use client";
-import { Signer, SignerStore } from "passkey-kit";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 
-import { Box, Flex, Image, MenuSeparator } from "@chakra-ui/react";
+import { Box, Flex, Image } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
-import { Keypair } from "@stellar/stellar-sdk";
 
-import { getSigners, passkeyKit, send } from "@/lib/passkeyClient";
 import { AppContext } from "@/providers";
 import { truncateAddress } from "@/utils";
 import Button from "./Button";
+import AddSignerModal from "./modals/AddSignerModal";
 import BalanceModal from "./modals/BalanceModal";
 import ConnectWalletModal from "./modals/ConnectWalletModal";
 import ServicesModal from "./modals/ServicesModal";
@@ -19,8 +17,6 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 const Header = () => {
   const { address, disconnect } = useSorobanReact();
   const {
-    signers,
-    setSigners,
     openAirdropModal,
     openStakingModal,
     openLoginModal,
@@ -28,36 +24,7 @@ const Header = () => {
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
-  // const [showAddSignerModal, setShowAddSignerModal] = useState(false);
-
-  const loadSigners = useCallback(async () => {
-    if (address && address[0] == 'C') {
-      const signers = await getSigners(address);
-      setSigners?.(signers);
-    } else {
-      setSigners?.([]);
-    }
-  }, [address, setSigners]);
-
-  useEffect(() => {
-    loadSigners();
-  }, [loadSigners]);
-
-  const handleAddSigner = async () => {
-    const keypair = Keypair.random();
-    const publicKey = keypair.publicKey();
-    const at = await passkeyKit.addEd25519(publicKey, undefined, SignerStore.Temporary);
-    await passkeyKit.sign(at);
-    await send(at.built!.toXDR());
-    loadSigners();
-  }
-
-  const ed25519Signers = useMemo(
-    () => signers
-      .filter(signer => signer.kind == 'Ed25519')
-      .reduce((prev, signer) => prev.some(s => s.key == signer.key) ? prev : [...prev, signer], [] as Signer[]),
-    [signers]
-  );
+  const [showAddSignerModal, setShowAddSignerModal] = useState(false);
 
   return (
     <>
@@ -115,20 +82,10 @@ const Header = () => {
                     border="2px solid transparent"
                     rounded="xl"
                   >
-                    {ed25519Signers.map((signer, index) => (
-                      <MenuItem
-                        p="8px 16px"
-                        key={index}
-                        value={signer.key}
-                      >
-                        {truncateAddress(signer.key)}
-                      </MenuItem>
-                    ))}
-                    <MenuSeparator />
                     <MenuItem
                       p="8px 16px"
                       value="add_ed25519_signer"
-                      onClick={handleAddSigner}
+                      onClick={() => setShowAddSignerModal(true)}
                     >
                       Add Ed25519
                     </MenuItem>
@@ -166,10 +123,10 @@ const Header = () => {
         isOpen={showConnectWalletModal}
         onClose={() => setShowConnectWalletModal(false)}
       />
-      {/* <AddSignerModal
+      <AddSignerModal
         isOpen={showAddSignerModal}
         onClose={() => setShowAddSignerModal(false)}
-      /> */}
+      />
     </>
   );
 };

@@ -20,7 +20,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Theme } from "@/enums";
 import SorobanReactProvider from "./SorobanReactProvider";
 
-interface IApp {
+export interface IApp {
   theme: Theme;
   setTheme?: (theme: Theme) => void;
   signers: Signer[];

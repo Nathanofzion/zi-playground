@@ -40,6 +40,10 @@ const AddSignerModal: FC<ModalProps> = (props) => {
     await passkeyKit.sign(at);
     await send(at.built!.toXDR());
     await getSigners(address!);
+    toaster.create({
+      title: 'Ed25519 signer has been successfully added',
+      type: 'success',
+    });
   }
 
   return (
