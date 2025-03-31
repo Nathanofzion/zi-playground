@@ -49,7 +49,7 @@ const Header = () => {
     const at = await passkeyKit.addEd25519(publicKey, undefined, SignerStore.Temporary);
     await passkeyKit.sign(at);
     await send(at.built!.toXDR());
-    await getSigners(address!);
+    loadSigners();
   }
 
   const ed25519Signers = useMemo(
