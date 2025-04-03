@@ -21,13 +21,10 @@ import { connect } from "@/lib/wallet";
 const config = {
   zIndex: 1030,
   particleCount: 240,
-  spread: 180,
+  spread: 360,
   gravity: 4,
   decay: 0.94,
-  startVelocity: 80,
-  origin: {
-    y: 1.2
-  },
+  startVelocity: 30,
 };
 
 interface StepProps {
@@ -135,37 +132,13 @@ const airdrops = [
   },
   {
     title: 'Change theme',
-    description: 'Try to change theme and get your ZI airdrop',
+    description: 'Now change the theme by clicking the Teal Moon & get the last Zi particle Airdrop',
     congratulation: 'Superb 😎 🎉 you should now be the proud owner of 5 Zi.',
     action: Action.Theme,
   },
   {
-    title: 'Congratulation',
-    description: (
-      <>
-        <Text fontSize='sm' fontWeight='bold'>
-          Well done!!
-        </Text>
-        <Text fontSize='sm'>
-          You’ve now got the last Particle Theme Zi Airdrop.
-        </Text>
-        <Text mt={2} fontSize='sm'>
-          Now invite your friends & family  by clicking the Rewards button & signing up.
-        </Text>
-        <Text fontSize='sm'>
-          You will earn 10 Zi for everyone that clicks your link & receive the Zi Airdrop.
-        </Text>
-        <Text fontSize='sm'>
-          You will get another 100 Zi for every 10 members that join via your link.
-        </Text>
-        <Text mt={2} fontSize='sm' fontWeight='bold'>
-          Coming Soon
-        </Text>
-        <Text fontSize='sm'>
-          And then;  if you want to earn even more Zi. Stake it to get 100% ARP on selected Smart contracts. Create Liquidity pools to earn 0.3% for everyone transaction within that pool Plus bonus.
-        </Text>
-      </>
-    ),
+    title: 'Congratulation 🎉🎉',
+    description: `Well done!!\nYou've now got the last Particle Theme Zi Airdrop.\n\n✅ Rewards\nNow invite friends & family by clicking the Rewards button & signing up.\n\nYou will earn 10 Zi for everyone that clicks your link & receive the Zi Airdrop.\nYou will get another 100 Zi for every 10 members that join via your link.\n\n✅ Liquidity Pools\nEasily create liquidity pools, check info for help &  earn 0.3% every transaction. \n\nComing Soon\n\n✅ Stake \nIt to get 100% ARP on selected Smart contracts. Create Liquidity pools to earn 0.3% for everyone transaction within that pool Plus bonus.\n`,
     action: Action.Unknown,
   },
 ];
@@ -176,12 +149,6 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
   const [step, setStep] = useState(1);
   const [showButton, setShowButton] = useState(false);
   const [finished, setFinished] = useState(false);
-
-  useEffect(() => {
-    if (step == 5) {
-      confetti(config);
-    }
-  }, [step]);
 
   useEffect(() => {
     if (step == 1 && address) {
@@ -204,12 +171,16 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
         <Flex w="full" p={4} direction="column" gap={2} overflow="hidden">
           <Flex direction="column" gap={1}>
             <Text fontSize="xl">{airdrops[step].title}</Text>
-            <Box fontSize='sm'>
+            <Text whiteSpace='pre-wrap'>
               {airdrops[step].description}
-            </Box>
+            </Text>
           </Flex>
           <Step step={step} onFinish={() => setShowButton(true)} />
-          {showButton && <GetAirdropButton action={airdrops[step].action} onReceive={() => setFinished(true)} />}
+          {showButton && <GetAirdropButton action={airdrops[step].action} onReceive={() => {
+            confetti(config);
+            setFinished(true);
+          }}
+          />}
           {finished && (
             <>
               {airdrops[step].congratulation && (
