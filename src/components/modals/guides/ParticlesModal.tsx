@@ -1,3 +1,4 @@
+import confetti from "canvas-confetti";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { Box, Flex, Text } from "@chakra-ui/react";
@@ -16,6 +17,18 @@ import { Action } from "@/enums";
 import useAirdrop from "@/hooks/useAirdrop";
 import useWallets from "@/hooks/useWallets";
 import { connect } from "@/lib/wallet";
+
+const config = {
+  zIndex: 1030,
+  particleCount: 240,
+  spread: 180,
+  gravity: 4,
+  decay: 0.94,
+  startVelocity: 80,
+  origin: {
+    y: 1.2
+  },
+};
 
 interface StepProps {
   step: number;
@@ -105,21 +118,25 @@ const airdrops = [
   {
     title: 'Connect passkey',
     description: 'Try to connect your passkey and get your ZI airdrop',
+    congratulation: `Great well done 🥳 we've now got a Defi Crypto wallet !! With institutional grade encryption that gives you the power of a Swiss bank.\nYou can Earn, Swap, Stake and share to earn more !!`,
     action: Action.Unknown,
   },
   {
     title: 'Spin block',
     description: 'Try Spinning the Block to get your 1st Zi Airdrop',
+    congratulation: `Wooow 🤗 Amazing!!  🎊 you've now received your 1st Zi airdrop.\nKeep going !!`,
     action: Action.SpinCube,
   },
   {
     title: 'Create Some Particles',
     description: 'Create some Particles on the screen by Clicking Here',
+    congratulation: 'Fantastic work!! 🎉🎉 now get your final Zi particle airdrop.',
     action: Action.Partices,
   },
   {
     title: 'Change theme',
     description: 'Try to change theme and get your ZI airdrop',
+    congratulation: 'Superb 😎 🎉 you should now be the proud owner of 5 Zi.',
     action: Action.Theme,
   },
   {
@@ -161,6 +178,12 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
+    if (step == 5) {
+      confetti(config);
+    }
+  }, [step]);
+
+  useEffect(() => {
     if (step == 1 && address) {
       setFinished(true);
     }
@@ -188,13 +211,20 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
           <Step step={step} onFinish={() => setShowButton(true)} />
           {showButton && <GetAirdropButton action={airdrops[step].action} onReceive={() => setFinished(true)} />}
           {finished && (
-            <Button onClick={() => {
-              setShowButton(false);
-              setFinished(false);
-              setStep(step + 1);
-            }}>
-              Move to step {step + 1}
-            </Button>
+            <>
+              {airdrops[step].congratulation && (
+                <Text whiteSpace='pre-wrap'>
+                  {airdrops[step].congratulation}
+                </Text>
+              )}
+              <Button onClick={() => {
+                setShowButton(false);
+                setFinished(false);
+                setStep(step + 1);
+              }}>
+                Move to step {step + 1}
+              </Button>
+            </>
           )}
         </Flex>
       </ModalContent>
