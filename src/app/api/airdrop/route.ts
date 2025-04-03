@@ -9,7 +9,6 @@ import {
 } from "@stellar/stellar-sdk";
 import { Server } from "@stellar/stellar-sdk/rpc";
 
-import zionToken from "@/constants/zionToken";
 import { activeChain } from "@/lib/chain";
 import { accountToScVal } from "@/utils";
 
@@ -39,7 +38,6 @@ export async function POST(req: NextRequest) {
           "distribute_tokens",
           accountToScVal(sourceKeypair.publicKey()),
           accountToScVal(address),
-          accountToScVal(zionToken.contract),
           xdr.ScVal.scvU32(action)
         )
       )
@@ -59,6 +57,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
+    console.error(error);
     return NextResponse.json(error, { status: 500 });
   }
 }
