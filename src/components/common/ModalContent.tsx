@@ -11,9 +11,10 @@ const ModalContent: FC<FlexProps> = (props) => {
       position='fixed'
       zIndex={1020}
       transform='auto'
-      left='50%' top='50%'
+      left='50%' top='calc(50% + 25px)'
       translateX='-50%' translateY='-50%'
       display={isOpen ? 'flex' : 'none'}
+      maxH='calc(100vh - 180px)'
       bg={useColorModeValue(
         'linear-gradient(#F8F8F880, #F8F8F880) padding-box, linear-gradient(to bottom right, #a588e480, #b7fee080) border-box;',
         'linear-gradient(#13141E80, #13141E80) padding-box, linear-gradient(to bottom right, #a588e480, #b7fee080) border-box;',
@@ -22,6 +23,7 @@ const ModalContent: FC<FlexProps> = (props) => {
       shadow='0px 4px 10px 0px rgba(136, 102, 221, 0.1);'
       border='2px solid transparent'
       rounded='16px'
+      overflowY='auto'
       {...props}
     />
   )
