@@ -153,6 +153,7 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
   useEffect(() => {
     if (step == 1 && address) {
       setFinished(true);
+      confetti(config);
     }
   }, [address, step]);
 
