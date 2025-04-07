@@ -1,8 +1,9 @@
-import { FC, useContext } from "react";
+import { FC, useContext, useMemo } from "react";
 
-import { Flex, Heading } from "@chakra-ui/react";
+import { Flex, Heading, Text } from "@chakra-ui/react";
 
-import useAirdrop, { Action } from "@/hooks/useAirdrop";
+import { Action, Theme } from "@/enums";
+import useAirdrop from "@/hooks/useAirdrop";
 import { AppContext } from "@/providers";
 import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
@@ -10,12 +11,18 @@ import { ModalProps } from "../common/Modal";
 
 const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const {
+    setTheme,
     openParticlesModal,
     openAtomicModal,
     openSpaceInvadersModal,
-    openThemeModal,
   } = useContext(AppContext);
   const { status } = useAirdrop();
+
+  const canReceiveAirdrop = useMemo(() => {
+    return !(status[Action.SpinCube].data
+      && status[Action.Partices].data
+      && status[Action.Theme].data);
+  }, [status]);
 
   return (
     <Modal onClose={onClose} {...props}>
@@ -30,16 +37,21 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
       >
         <ModalCloseButton />
         <Heading as="h2" textAlign="center" size="lg">
-          AIRDROP
+          Airdrops & Themes
         </Heading>
+        <Text>
+          Please select your Airdrop or theme from the buttons below.
+        </Text>
         <Flex direction="column" gap={4}>
           <Button
             size="xl"
             onClick={() => {
-              openParticlesModal?.();
+              setTheme?.(Theme.Particle);
+              if (canReceiveAirdrop) {
+                openParticlesModal?.();
+              }
               onClose?.();
             }}
-            disabled={status[Action.Partices].data}
           >
             Particles airdrop
           </Button>
@@ -47,21 +59,21 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
+              setTheme?.(Theme.Atomic);
               openAtomicModal?.();
               onClose?.();
             }}
-            disabled={status[Action.Atomic].data}
           >
-            Atomic Airdrop
+            Atomic airdrop
           </Button>
 
           <Button
             size="xl"
             onClick={() => {
+              setTheme?.(Theme.SpaceInvaders);
               openSpaceInvadersModal?.();
               onClose?.();
             }}
-            disabled={status[Action.SpaceInvaders].data}
           >
             Space invaders
           </Button>
@@ -69,10 +81,9 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              openThemeModal?.();
+              setTheme?.(Theme.NightDay);
               onClose?.();
             }}
-            disabled={status[Action.Theme].data}
           >
             Night & Day
           </Button>

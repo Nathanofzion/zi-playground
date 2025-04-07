@@ -1,18 +1,23 @@
-import { PasskeyKit, SACClient } from "passkey-kit";
-
-import nativeToken from "@/constants/nativeToken";
 import axios from "axios";
+import { PasskeyKit } from "passkey-kit";
+
 import { activeChain } from "./chain";
 
 const projectName = process.env.NEXT_PUBLIC_PROJECT_NAME!;
 const walletWasmHash = process.env.NEXT_PUBLIC_WALLET_WASM_HASH!;
+
+export const passkeyKit = new PasskeyKit({
+  rpcUrl: activeChain.sorobanRpcUrl!,
+  networkPassphrase: activeChain.networkPassphrase,
+  walletWasmHash: walletWasmHash,
+});
 
 export interface IPasskeyWallet {
   contractId: string;
   keyIdBase64: string;
 }
 
-function send(xdr: string) {
+export function send(xdr: string) {
   return axios.post("/api/send", { xdr });
 }
 
@@ -27,64 +32,58 @@ function fundContract(address: string) {
   return axios.get(`/api/fund/${address}`);
 }
 
-export const sac = new SACClient({
-  rpcUrl: activeChain.sorobanRpcUrl!,
-  networkPassphrase: activeChain.networkPassphrase,
-});
+export async function getSigners(contractId: string) {
+  const { data } = await axios.get(`/api/signer/${contractId}`);
+  return data;
+}
 
-export const native = sac.getSACClient(nativeToken.contract);
+const passkey = () => {
+  return {
+    id: "passkey",
+    name: "PasskeyID",
+    shortName: "Passkey",
+    iconUrl: "/images/passkey.png",
+    iconBackground: "",
+    installed: true,
 
-export const passkeyKit = new PasskeyKit({
-  rpcUrl: activeChain.sorobanRpcUrl!,
-  networkPassphrase: activeChain.networkPassphrase,
-  walletWasmHash: walletWasmHash,
-});
+    isConnected: async () => true,
 
-const passkey = () => ({
-  id: "passkey",
-  name: "PasskeyID",
-  shortName: "Passkey",
-  iconUrl: "/images/passkey.png",
-  iconBackground: "",
-  installed: true,
+    getNetworkDetails: async () => activeChain,
 
-  isConnected: async () => true,
+    getPublicKey: async () => {
+      const connectOrCreate = async () => {
+        try {
+          return await passkeyKit.connectWallet({
+            getContractId,
+          });
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err) {
+          const wallet = await passkeyKit.createWallet(projectName, "");
+          await send(wallet.signedTx.toXDR());
+          await fundContract(wallet.contractId);
+          return wallet;
+        }
+      };
 
-  getNetworkDetails: async () => activeChain,
+      const { contractId } = await connectOrCreate();
+      return contractId;
+    },
 
-  getPublicKey: async () => {
-    const connectOrCreate = async () => {
-      try {
-        return await passkeyKit.connectWallet({
-          getContractId,
-        });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
-        const wallet = await passkeyKit.createWallet(projectName, "");
-        await send(wallet.signedTx.toXDR());
-        await fundContract(wallet.contractId);
-        return wallet;
+    signTransaction: async (
+      xdr: string,
+      _opts?: {
+        network?: string;
+        networkPassphrase?: string;
+        accountToSign?: string;
       }
-    };
+    ) => {
+      const _xdr = await passkeyKit.sign(xdr);
 
-    const { contractId } = await connectOrCreate();
-    return contractId;
-  },
+      const response = await send(_xdr.toXDR());
 
-  signTransaction: async (
-    xdr: string,
-    _opts?: {
-      network?: string;
-      networkPassphrase?: string;
-      accountToSign?: string;
-    }
-  ) => {
-    const _xdr = await passkeyKit.sign(xdr);
-
-    const response = await send(_xdr.toXDR());
-
-    throw new Error(JSON.stringify(response));
-  },
-});
+      throw new Error(JSON.stringify(response));
+    },
+  };
+};
 
 export default passkey;

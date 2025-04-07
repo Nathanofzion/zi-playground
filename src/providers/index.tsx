@@ -1,4 +1,5 @@
 "use client";
+import { Signer } from "passkey-kit";
 import { createContext, FC, ReactNode, useState } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -6,22 +7,24 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import AirdropModal from "@/components/modals/AirdropModal";
 import BridgeModal from "@/components/modals/BridgeModal";
-import { AtomicModal, ParticlesModal, SpaceInvadersModal, ThemeModal } from "@/components/modals/guides";
+import { AtomicModal, ParticlesModal, SpaceInvadersModal } from "@/components/modals/guides";
 import InfoModal from "@/components/modals/InfoModal";
 import LiquidityModal from "@/components/modals/LiquidityModal";
 import LoginModal from "@/components/modals/LoginModal";
-import PasskeyModal from "@/components/modals/PasskeyModal";
 import ReceiveModal from "@/components/modals/ReceiveModal";
 import SendModal from "@/components/modals/SendModal";
 import StakingModal from "@/components/modals/StakingModal";
 import SwapModal from "@/components/modals/SwapModal";
 import { Provider as ThemeProvider } from "@/components/ui/provider";
 import { Toaster } from "@/components/ui/toaster";
+import { Theme } from "@/enums";
 import SorobanReactProvider from "./SorobanReactProvider";
 
-interface IApp {
-  startAnimation?: boolean;
-  setStartAnimation?: (startAnimation: boolean) => void;
+export interface IApp {
+  theme: Theme;
+  setTheme?: (theme: Theme) => void;
+  signers: Signer[];
+  setSigners?: (signers: Signer[]) => void;
   openLoginModal?: () => void;
   openSendModal?: () => void;
   openReceiveModal?: () => void;
@@ -31,14 +34,15 @@ interface IApp {
   openInfoModal?: () => void;
   openStakingModal?: () => void;
   openAirdropModal?: () => void;
-  openPasskeyModal?: () => void;
   openParticlesModal?: () => void;
   openAtomicModal?: () => void;
   openSpaceInvadersModal?: () => void;
-  openThemeModal?: () => void;
 }
 
-export const AppContext = createContext<IApp>({});
+export const AppContext = createContext<IApp>({
+  theme: Theme.Particle,
+  signers: [],
+});
 
 const queryClient = new QueryClient();
 
@@ -47,7 +51,8 @@ interface Props {
 }
 
 const Provider: FC<Props> = ({ children }) => {
-  const [startAnimation, setStartAnimation] = useState(false);
+  const [signers, setSigners] = useState<Signer[]>([]);
+  const [theme, setTheme] = useState<Theme>(Theme.Particle)
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -57,17 +62,17 @@ const Provider: FC<Props> = ({ children }) => {
   const [showLiquidityModal, setShowLiquidityModal] = useState(false);
   const [showBridgeModal, setShowBridgeModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [showPasskeyModal, setShowPasskeyModal] = useState(false);
   const [showParticlesModal, setShowParticlesModal] = useState(false);
   const [showAtomicModal, setShowAtomicModal] = useState(false);
   const [showSpaceInvadersModal, setShowSpaceInvadersModal] = useState(false);
-  const [showThemeModal, setShowThemeModal] = useState(false);
 
   return (
     <AppContext.Provider
       value={{
-        startAnimation,
-        setStartAnimation,
+        theme,
+        setTheme,
+        signers,
+        setSigners,
         openAirdropModal: () => setShowAirdropModal(true),
         openStakingModal: () => setShowStakingModal(true),
         openLoginModal: () => setShowLoginModal(true),
@@ -77,11 +82,9 @@ const Provider: FC<Props> = ({ children }) => {
         openLiquidityModal: () => setShowLiquidityModal(true),
         openBridgeModal: () => setShowBridgeModal(true),
         openInfoModal: () => setShowInfoModal(true),
-        openPasskeyModal: () => setShowPasskeyModal(true),
         openParticlesModal: () => setShowParticlesModal(true),
         openAtomicModal: () => setShowAtomicModal(true),
         openSpaceInvadersModal: () => setShowSpaceInvadersModal(true),
-        openThemeModal: () => setShowThemeModal(true),
       }}
     >
       <ThemeProvider>
@@ -100,10 +103,12 @@ const Provider: FC<Props> = ({ children }) => {
               isOpen={showLoginModal}
               onClose={() => setShowLoginModal(false)}
             />
-            <SendModal
-              isOpen={showSendModal}
-              onClose={() => setShowSendModal(false)}
-            />
+            {showSendModal && (
+              <SendModal
+                isOpen={true}
+                onClose={() => setShowSendModal(false)}
+              />
+            )}
             <ReceiveModal
               isOpen={showReceiveModal}
               onClose={() => setShowReceiveModal(false)}
@@ -124,26 +129,24 @@ const Provider: FC<Props> = ({ children }) => {
               isOpen={showInfoModal}
               onClose={() => setShowInfoModal(false)}
             />
-            <PasskeyModal
-              isOpen={showPasskeyModal}
-              onClose={() => setShowPasskeyModal(false)}
-            />
-            <ParticlesModal
-              isOpen={showParticlesModal}
-              onClose={() => setShowParticlesModal(false)}
-            />
-            <AtomicModal
-              isOpen={showAtomicModal}
-              onClose={() => setShowAtomicModal(false)}
-            />
-            <SpaceInvadersModal
-              isOpen={showSpaceInvadersModal}
-              onClose={() => setShowSpaceInvadersModal(false)}
-            />
-            <ThemeModal
-              isOpen={showThemeModal}
-              onClose={() => setShowThemeModal(false)}
-            />
+            {showParticlesModal && (
+              <ParticlesModal
+                isOpen={true}
+                onClose={() => setShowParticlesModal(false)}
+              />
+            )}
+            {showAtomicModal && (
+              <AtomicModal
+                isOpen={true}
+                onClose={() => setShowAtomicModal(false)}
+              />
+            )}
+            {showSpaceInvadersModal && (
+              <SpaceInvadersModal
+                isOpen={true}
+                onClose={() => setShowSpaceInvadersModal(false)}
+              />
+            )}
           </SorobanReactProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

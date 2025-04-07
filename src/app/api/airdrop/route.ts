@@ -9,7 +9,6 @@ import {
 } from "@stellar/stellar-sdk";
 import { Server } from "@stellar/stellar-sdk/rpc";
 
-import zionToken from "@/constants/zionToken";
 import { activeChain } from "@/lib/chain";
 import { accountToScVal } from "@/utils";
 
@@ -19,13 +18,6 @@ const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
 export async function POST(req: NextRequest) {
   try {
     const { address, action } = await req.json();
-
-    if (!address) {
-      return NextResponse.json(
-        { message: "Recipient public key is required" },
-        { status: 400 }
-      );
-    }
 
     const sourceKeypair = Keypair.fromSecret(funderSecretKey);
 
@@ -46,7 +38,6 @@ export async function POST(req: NextRequest) {
           "distribute_tokens",
           accountToScVal(sourceKeypair.publicKey()),
           accountToScVal(address),
-          accountToScVal(zionToken.contract),
           xdr.ScVal.scvU32(action)
         )
       )
@@ -54,7 +45,6 @@ export async function POST(req: NextRequest) {
       .build();
 
     const preparedTx = await server.prepareTransaction(tx);
-
     preparedTx.sign(sourceKeypair);
 
     const result = await server.sendTransaction(preparedTx);
@@ -67,6 +57,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
+    console.error(error);
     return NextResponse.json(error, { status: 500 });
   }
 }

@@ -12,6 +12,7 @@ import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 import QRCodeScanner from "../common/QRCodeScanner";
+import SignerSelect from "../common/SignerSelect";
 import { toaster } from "../ui/toaster";
 
 const SendModal: FC<ModalProps> = (props) => {
@@ -98,7 +99,8 @@ const SendModal: FC<ModalProps> = (props) => {
                 onChange={(e) => setAmount(e.target.value)}
               />
             </Flex>
-            <Flex justify="right">
+            <Flex justify="right" gap={2}>
+              <SignerSelect />
               <Button onClick={handleSend}>
                 {isPending && <Spinner size="sm" />}
                 Send

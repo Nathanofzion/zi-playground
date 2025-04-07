@@ -1,7 +1,5 @@
 "use client";
-
-import { Box, BoxProps } from "@chakra-ui/react";
-import { useCallback, useEffect, useRef } from "react";
+import { FC, useCallback, useEffect, useRef } from "react";
 
 interface GradientBubble {
   x: number;
@@ -13,7 +11,7 @@ interface GradientBubble {
   opacity: number;
 }
 
-interface GradientCanvasProps extends BoxProps {
+interface Props {
   bubbleCount?: number;
   minRadius?: number;
   maxRadius?: number;
@@ -22,8 +20,8 @@ interface GradientCanvasProps extends BoxProps {
   colors?: string[];
 }
 
-export function GradientCanvas({
-  bubbleCount = 5,
+const BgAtomic: FC<Props> = ({
+  bubbleCount = 10,
   minRadius = 40,
   maxRadius = 60,
   opacityRange = [0.3, 0.7],
@@ -35,8 +33,7 @@ export function GradientCanvas({
     "255, 255, 100",
     "255, 100, 255",
   ],
-  ...props
-}: GradientCanvasProps) {
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const bubblesRef = useRef<GradientBubble[]>([]);
@@ -147,8 +144,8 @@ export function GradientCanvas({
   }, [speed]);
 
   return (
-    <Box {...props}>
-      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
-    </Box>
-  );
+    <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
+  )
 }
+
+export default BgAtomic;

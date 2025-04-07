@@ -3,7 +3,7 @@ import { activeChainName } from "@/lib/chain";
 const zionTokens = [
   {
     "network": "testnet",
-    "address": "CDQYFDK5NNBHMOMKKTV26J3XVKEP2O4MIEFDYOBI5XTXFOF2TPRDT6WP",
+    "address": "CCB5ZZYCX45YJ4NSVMYAQTSJ7OYBDL7XCJE2ZSIANWUHWCJTIRZZFA6I",
   },
   {
     "network": "mainnet",

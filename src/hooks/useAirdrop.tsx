@@ -6,15 +6,8 @@ import { useQueries, useQueryClient } from "@tanstack/react-query";
 
 import { toaster } from "@/components/ui/toaster";
 import zionToken from "@/constants/zionToken";
+import { Action } from "@/enums";
 import { getAirdropStatus } from "@/services/contract";
-
-export enum Action {
-  Unknown = 0,
-  Partices = 1,
-  Atomic = 2,
-  SpaceInvaders = 3,
-  Theme = 4,
-}
 
 const useAirdrop = () => {
   const sorobanContext = useSorobanReact();

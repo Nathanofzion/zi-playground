@@ -7,6 +7,7 @@ import { useSorobanReact } from "@soroban-react/core";
 import { AppContext } from "@/providers";
 import { truncateAddress } from "@/utils";
 import Button from "./Button";
+import AddSignerModal from "./modals/AddSignerModal";
 import BalanceModal from "./modals/BalanceModal";
 import ConnectWalletModal from "./modals/ConnectWalletModal";
 import ServicesModal from "./modals/ServicesModal";
@@ -16,8 +17,6 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 const Header = () => {
   const { address, disconnect } = useSorobanReact();
   const {
-    setStartAnimation,
-    openPasskeyModal,
     openAirdropModal,
     openStakingModal,
     openLoginModal,
@@ -25,14 +24,7 @@ const Header = () => {
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
-
-  const handleAddEd25519Signer = async () => {
-    // const pubkey = prompt('Enter public key');
-    // const at = await passkeyKit.addEd25519(pubkey!, undefined, SignerStore.Temporary);
-
-    // await account.sign(at, { keyId: adminSigner });
-    // const res = await server.send(at.built!);
-  }
+  const [showAddSignerModal, setShowAddSignerModal] = useState(false);
 
   return (
     <>
@@ -57,16 +49,7 @@ const Header = () => {
             translateX={{ base: "-50%", lg: "unset" }}
             gap={{ base: "4px", lg: "16px" }}
           >
-            <Button
-              onClick={() => {
-                if (address) {
-                  openAirdropModal?.();
-                } else {
-                  openPasskeyModal?.();
-                  setStartAnimation?.(true);
-                }
-              }}
-            >
+            <Button onClick={openAirdropModal}>
               Airdrop
             </Button>
             <Button onClick={openStakingModal}>Staking</Button>
@@ -102,7 +85,7 @@ const Header = () => {
                     <MenuItem
                       p="8px 16px"
                       value="add_ed25519_signer"
-                      onClick={handleAddEd25519Signer}
+                      onClick={() => setShowAddSignerModal(true)}
                     >
                       Add Ed25519
                     </MenuItem>
@@ -119,10 +102,7 @@ const Header = () => {
             ) : (
               <Button
                 size="lg"
-                onClick={() => {
-                  setShowConnectWalletModal(true);
-                  setStartAnimation?.(true);
-                }}
+                onClick={() => setShowConnectWalletModal(true)}
               >
                 Connect
               </Button>
@@ -142,6 +122,10 @@ const Header = () => {
       <ConnectWalletModal
         isOpen={showConnectWalletModal}
         onClose={() => setShowConnectWalletModal(false)}
+      />
+      <AddSignerModal
+        isOpen={showAddSignerModal}
+        onClose={() => setShowAddSignerModal(false)}
       />
     </>
   );

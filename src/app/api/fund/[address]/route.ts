@@ -20,13 +20,6 @@ export async function GET(
   { params: { address } }: { params: { address: string } }
 ) {
   try {
-    if (!address) {
-      return NextResponse.json(
-        { message: "Recipient public key is required" },
-        { status: 400 }
-      );
-    }
-
     const sourceKeypair = Keypair.fromSecret(funderSecretKey);
 
     const server = new Server(activeChain.sorobanRpcUrl!);
@@ -53,7 +46,6 @@ export async function GET(
       .build();
 
     const preparedTx = await server.prepareTransaction(tx);
-
     preparedTx.sign(sourceKeypair);
 
     const result = await server.sendTransaction(preparedTx);
@@ -66,7 +58,6 @@ export async function GET(
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error(error);
     return NextResponse.json(error, { status: 500 });
   }
 }
