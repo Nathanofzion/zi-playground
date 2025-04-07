@@ -169,7 +169,7 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
         w="360px"
       >
         <ModalCloseButton />
-        <Flex w="full" p={4} direction="column" gap={2}>
+        <Flex w="full" p={4} direction="column" gap={2} overflowY="auto">
           <Flex direction="column" gap={1}>
             <Text fontSize="xl">{airdrops[step].title}</Text>
             <Text whiteSpace='pre-wrap'>
