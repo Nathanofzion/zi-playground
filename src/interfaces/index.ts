@@ -1,7 +1,8 @@
 export interface IWallet {
-    id: string;
-    name: string;
-    sname?: string;
-    iconUrl: string;
-    isConnected: boolean;
+  id: string;
+  name: string;
+  sname?: string;
+  iconUrl: string;
+  isConnected: boolean;
+  connect: () => Promise<void>;
 }
