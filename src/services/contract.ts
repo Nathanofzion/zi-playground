@@ -12,10 +12,7 @@ const processTx = async (tx: Promise<any>) => {
     return await tx;
   } catch (err: any) {
     const response = JSON.parse(err.message);
-    if (response.status == "SUCCESS") {
-      return response;
-    }
-    throw new Error(err.message);
+    return response;
   }
 };
 
@@ -79,7 +76,7 @@ export const sendAsset = async (
     throw new Error("Wallet is not connected yet.");
   }
 
-  return await processTx(
+  return processTx(
     contractInvoke({
       contractAddress: asset.contract,
       method: "transfer",
