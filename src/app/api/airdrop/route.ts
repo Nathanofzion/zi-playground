@@ -1,29 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { Keypair, xdr } from "@stellar/stellar-sdk";
+import { xdr } from "@stellar/stellar-sdk";
 
 import { contractInvoke } from "@/lib/contract";
 import { accountToScVal } from "@/utils";
 
-const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
+const funderPublicKey = process.env.FUNDER_PUBLIC_KEY!;
+const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 
 export async function POST(req: NextRequest) {
   try {
     const { address, action } = await req.json();
 
-    const sourceKeypair = Keypair.fromSecret(funderSecretKey);
-
-    const result = await contractInvoke(
-      airdropContractId,
-      sourceKeypair,
-      "distribute_tokens",
-      [
-        accountToScVal(sourceKeypair.publicKey()),
+    const result = await contractInvoke({
+      contractAddress: airdropContractId,
+      secretKey: funderSecretKey,
+      method: "distribute_tokens",
+      args: [
+        accountToScVal(funderPublicKey),
         accountToScVal(address),
         xdr.ScVal.scvU32(action),
-      ]
-    );
+      ],
+    });
 
     return NextResponse.json(result);
   } catch (error) {
