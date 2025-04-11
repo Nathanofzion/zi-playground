@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { xdr } from "@stellar/stellar-sdk";
 
-import { contractInvoke } from "@/lib/contract";
+import { contractInvoke } from "@/lib/contract-be";
 import { accountToScVal } from "@/utils";
 
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
