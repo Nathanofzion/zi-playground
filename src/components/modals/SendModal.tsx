@@ -21,6 +21,7 @@ const SendModal: FC<ModalProps> = (props) => {
   const { assets } = useAssets();
   const [asset, setAsset] = useState<Asset>();
   const [recipient, setRecipient] = useState("");
+  const [memo, setMemo] = useState("");
   const [amount, setAmount] = useState("");
   const [result, setResult] = useState<string>();
 
@@ -29,7 +30,7 @@ const SendModal: FC<ModalProps> = (props) => {
       if (!asset) {
         throw new Error('Please select asset to send.');
       }
-      return sendAsset(sorobanContext, asset, recipient, Number(amount));
+      return sendAsset(sorobanContext, asset, recipient, memo, Number(amount));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['getAssetBalance', address, asset?.contract] });
@@ -84,6 +85,19 @@ const SendModal: FC<ModalProps> = (props) => {
                   w='full'
                 />
               </Flex>
+            </Flex>
+            <Flex direction="column" gap={1}>
+              <Text pl={2}>
+                Memo
+              </Text>
+              <Input
+                p='1rem'
+                bg='rgba(255, 255, 255, 0.15)'
+                border='none'
+                rounded='full'
+                shadow='0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+                onChange={(e) => setMemo(e.target.value)}
+              />
             </Flex>
             <Flex direction="column" gap={1}>
               <Text pl={2}>
