@@ -9,18 +9,18 @@ import passkey from '@/lib/passkeyClient';
 const connectors = [passkey(), freighter(), lobstr()];
 
 interface Props {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export default function ({ children }: Props) {
-    return (
-        <SorobanReactProvider
-            chains={chains}
-            appName={'Soroswap'}
-            connectors={connectors}
-            activeChain={activeChain}
-        >
-            {children}
-        </SorobanReactProvider>
-    );
+  return (
+    <SorobanReactProvider
+      chains={chains}
+      appName={'Soroswap'}
+      connectors={connectors}
+      activeChain={activeChain}
+    >
+      {children}
+    </SorobanReactProvider>
+  );
 }

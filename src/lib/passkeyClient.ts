@@ -1,6 +1,8 @@
 import axios from "axios";
 import { PasskeyKit } from "passkey-kit";
 
+import { TxResponse } from "@soroban-react/contracts";
+
 import { activeChain } from "./chain";
 
 const projectName = process.env.NEXT_PUBLIC_PROJECT_NAME!;
@@ -17,8 +19,11 @@ export interface IPasskeyWallet {
   keyIdBase64: string;
 }
 
-export function send(xdr: string) {
-  return axios.post("/api/send", { xdr });
+export async function send(xdr: string) {
+  const { data } = await axios.post<TxResponse>("/api/send", {
+    xdr,
+  });
+  return data;
 }
 
 async function getContractId(signer: string) {
@@ -77,11 +82,8 @@ const passkey = () => {
         accountToSign?: string;
       }
     ) => {
-      const _xdr = await passkeyKit.sign(xdr);
-
-      const response = await send(_xdr.toXDR());
-
-      throw new Error(JSON.stringify(response));
+      const signedTx = await passkeyKit.sign(xdr);
+      return signedTx.toXDR();
     },
   };
 };

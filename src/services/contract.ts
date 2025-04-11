@@ -1,23 +1,11 @@
-import { contractInvoke } from "@soroban-react/contracts";
 import { SorobanContextType } from "@soroban-react/core";
 import { Asset } from "@stellar-asset-lists/sdk";
 import { nativeToScVal, scValToNative, xdr } from "@stellar/stellar-sdk";
 
+import { contractInvoke } from "@/lib/contract-fe";
 import { accountToScVal, scValToNumber } from "@/utils";
 
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
-
-const processTx = async (tx: Promise<any>) => {
-  try {
-    return await tx;
-  } catch (err: any) {
-    const response = JSON.parse(err.message);
-    if (response.status == "SUCCESS") {
-      return response;
-    }
-    throw new Error(err.message);
-  }
-};
 
 export async function tokenBalance(
   sorobanContext: SorobanContextType,
@@ -71,6 +59,7 @@ export const sendAsset = async (
   sorobanContext: SorobanContextType,
   asset: Asset,
   recipient: string,
+  memo: string,
   amount: number
 ) => {
   const { address } = sorobanContext;
@@ -79,18 +68,17 @@ export const sendAsset = async (
     throw new Error("Wallet is not connected yet.");
   }
 
-  return await processTx(
-    contractInvoke({
-      contractAddress: asset.contract,
-      method: "transfer",
-      args: [
-        accountToScVal(address),
-        accountToScVal(recipient),
-        nativeToScVal(amount * Math.pow(10, asset.decimals), { type: "i128" }),
-      ],
-      sorobanContext,
-      signAndSend: true,
-      reconnectAfterTx: false,
-    })
-  );
+  return contractInvoke({
+    contractAddress: asset.contract,
+    method: "transfer",
+    args: [
+      accountToScVal(address),
+      accountToScVal(recipient),
+      nativeToScVal(amount * Math.pow(10, asset.decimals), { type: "i128" }),
+    ],
+    memo,
+    sorobanContext,
+    signAndSend: true,
+    reconnectAfterTx: false,
+  })
 };

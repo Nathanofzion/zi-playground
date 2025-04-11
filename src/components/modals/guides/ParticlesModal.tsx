@@ -3,7 +3,6 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
-import { Connector } from "@soroban-react/types";
 
 import Button from "@/components/Button";
 import { ModalCloseButton, ModalContent, ModalOverlay } from "@/components/common";
@@ -16,7 +15,7 @@ import { WalletConnectButton } from "@/components/wallet";
 import { Action } from "@/enums";
 import useAirdrop from "@/hooks/useAirdrop";
 import useWallets from "@/hooks/useWallets";
-import { connect } from "@/lib/wallet";
+import { LuArrowDown } from "react-icons/lu";
 
 const config = {
   zIndex: 1030,
@@ -33,7 +32,6 @@ interface StepProps {
 }
 
 const Step: FC<StepProps> = ({ step, onFinish }) => {
-  const { connectors, setActiveConnectorAndConnect } = useSorobanReact();
   const wallets = useWallets();
 
   const clickedRef = useRef(0);
@@ -41,16 +39,10 @@ const Step: FC<StepProps> = ({ step, onFinish }) => {
   const [startAnimation, setStartAnimation] = useState(false);
 
   const wallet = useMemo(() => wallets.find(wallet => wallet.id == 'passkey')!, [wallets]);
-  const connector = useMemo(() => connectors[wallets.findIndex(wallet => wallet.id == 'passkey')]!, [connectors, wallets]);
-
-  const handleConnect = async (connector: Connector) => {
-    await connect(connector);
-    setActiveConnectorAndConnect?.(connector);
-  }
 
   if (step == 1) {
     return (
-      <WalletConnectButton wallet={wallet} onClick={() => handleConnect(connector)} />
+      <WalletConnectButton wallet={wallet} />
     )
   }
 
@@ -146,9 +138,11 @@ const airdrops = [
 const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
   const { address } = useSorobanReact();
   const { status } = useAirdrop();
+  const ref = useRef<HTMLDivElement | null>(null);
   const [step, setStep] = useState(1);
   const [showButton, setShowButton] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [showScrollTip, setShowScrollTip] = useState(false);
 
   useEffect(() => {
     if (step == 1 && address) {
@@ -162,14 +156,32 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
       setFinished(true);
   }, [step, status]);
 
+  if (ref.current) {
+    if (showScrollTip) {
+      if (ref.current.scrollHeight == ref.current.clientHeight)
+        setShowScrollTip(false);
+    } else {
+      if (ref.current.scrollHeight > ref.current.clientHeight)
+        setShowScrollTip(true);
+    }
+  }
+
   return (
     <Modal {...props}>
       <ModalOverlay />
       <ModalContent
         w="360px"
       >
+        {showScrollTip && <LuArrowDown className="scroll-tip" size="24px" />}
         <ModalCloseButton />
-        <Flex w="full" p={4} direction="column" gap={2} overflowY="auto">
+        <Flex
+          ref={ref}
+          w="full"
+          p={4}
+          direction="column"
+          gap={2}
+          overflowY="auto"
+        >
           <Flex direction="column" gap={1}>
             <Text fontSize="xl">{airdrops[step].title}</Text>
             <Text whiteSpace='pre-wrap'>

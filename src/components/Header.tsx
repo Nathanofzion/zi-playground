@@ -7,7 +7,6 @@ import { useSorobanReact } from "@soroban-react/core";
 import { AppContext } from "@/providers";
 import { truncateAddress } from "@/utils";
 import Button from "./Button";
-import AddSignerModal from "./modals/AddSignerModal";
 import BalanceModal from "./modals/BalanceModal";
 import ConnectWalletModal from "./modals/ConnectWalletModal";
 import ServicesModal from "./modals/ServicesModal";
@@ -24,7 +23,6 @@ const Header = () => {
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
-  const [showAddSignerModal, setShowAddSignerModal] = useState(false);
 
   return (
     <>
@@ -84,13 +82,6 @@ const Header = () => {
                   >
                     <MenuItem
                       p="8px 16px"
-                      value="add_ed25519_signer"
-                      onClick={() => setShowAddSignerModal(true)}
-                    >
-                      Add Ed25519
-                    </MenuItem>
-                    <MenuItem
-                      p="8px 16px"
                       value="disconnect"
                       onClick={() => disconnect()}
                     >
@@ -122,10 +113,6 @@ const Header = () => {
       <ConnectWalletModal
         isOpen={showConnectWalletModal}
         onClose={() => setShowConnectWalletModal(false)}
-      />
-      <AddSignerModal
-        isOpen={showAddSignerModal}
-        onClose={() => setShowAddSignerModal(false)}
       />
     </>
   );
