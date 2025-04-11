@@ -12,9 +12,8 @@ async function signAndSendTransaction({
     sorobanContext,
     timeoutSeconds = 20,
 }: SignAndSendArgs) {
-    const { activeChain, activeConnector } = sorobanContext;
-    let networkPassphrase = activeChain!.networkPassphrase;
-    let server = sorobanContext.server;
+    const { server, activeChain, activeConnector } = sorobanContext;
+    const networkPassphrase = activeChain!.networkPassphrase;
     if (!secretKey && !activeConnector)
         throw Error('signAndSend: no secretKey neither activeConnector');
     if (!server)
@@ -54,8 +53,8 @@ async function signAndSendTransaction({
         return send(signed);
     } else {
         const transactionToSubmit = StellarSdk.TransactionBuilder.fromXDR(signed, networkPassphrase);
-        let tx = transactionToSubmit;
-        let secondsToWait = timeoutSeconds;
+        const tx = transactionToSubmit;
+        const secondsToWait = timeoutSeconds;
         const raw = await sendTx({ tx: tx as Tx, secondsToWait, server });
         return raw;
     }
@@ -110,7 +109,7 @@ export async function contractInvoke({
         .setTimeout(StellarSdk.TimeoutInfinite);
     if (memo)
         tx = tx.addMemo(StellarSdk.Memo.text(memo));
-    let txn = tx.build();
+    const txn = tx.build();
 
     const simulated = await server.simulateTransaction(txn);
     if (Api.isSimulationError(simulated)) {
