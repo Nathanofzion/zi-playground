@@ -101,9 +101,6 @@ importers:
       tsparticles-slim:
         specifier: ^2.12.0
         version: 2.12.0
-      zafegard-policy-sdk:
-        specifier: file:./contracts/zafegard-policy-sdk
-        version: file:contracts/zafegard-policy-sdk
     devDependencies:
       '@types/canvas-confetti':
         specifier: ^1.9.0
@@ -2501,9 +2498,6 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-
-  zafegard-policy-sdk@file:contracts/zafegard-policy-sdk:
-    resolution: {directory: contracts/zafegard-policy-sdk, type: directory}
 
   zustand@3.7.2:
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
@@ -5666,13 +5660,6 @@ snapshots:
   yaml@1.10.2: {}
 
   yocto-queue@0.1.0: {}
-
-  zafegard-policy-sdk@file:contracts/zafegard-policy-sdk:
-    dependencies:
-      '@stellar/stellar-sdk': 13.1.0
-      buffer: 6.0.3
-    transitivePeerDependencies:
-      - debug
 
   zustand@3.7.2(react@18.3.1):
     optionalDependencies:
