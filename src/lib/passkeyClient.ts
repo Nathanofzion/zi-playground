@@ -83,10 +83,7 @@ const passkey = () => {
       }
     ) => {
       const signedTx = await passkeyKit.sign(xdr);
-
-      const response = await send(signedTx.toXDR());
-
-      throw new Error(JSON.stringify(response));
+      return signedTx.toXDR();
     },
   };
 };
