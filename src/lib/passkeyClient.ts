@@ -4,8 +4,8 @@ import { PasskeyKit } from "passkey-kit";
 import { TxResponse } from "@soroban-react/contracts";
 
 import { activeChain } from "./chain";
+import { handleRegister } from "./passkey";
 
-const projectName = process.env.NEXT_PUBLIC_PROJECT_NAME!;
 const walletWasmHash = process.env.NEXT_PUBLIC_WALLET_WASM_HASH!;
 
 export const passkeyKit = new PasskeyKit({
@@ -56,22 +56,8 @@ const passkey = () => {
     getNetworkDetails: async () => activeChain,
 
     getPublicKey: async () => {
-      const connectOrCreate = async () => {
-        try {
-          return await passkeyKit.connectWallet({
-            getContractId,
-          });
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
-          const wallet = await passkeyKit.createWallet(projectName, "");
-          await send(wallet.signedTx.toXDR());
-          await fundContract(wallet.contractId);
-          return wallet;
-        }
-      };
-
-      const { contractId } = await connectOrCreate();
-      return contractId;
+      await handleRegister();
+      return "";
     },
 
     signTransaction: async (
