@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { nativeToScVal } from "@stellar/stellar-sdk";
 
 import nativeToken from "@/constants/nativeToken";
-import { contractInvoke } from "@/lib/contract-be";
+import { contractInvoke } from "@/lib/contract";
 import { accountToScVal } from "@/utils";
 
 const funderPublicKey = process.env.FUNDER_PUBLIC_KEY!;
