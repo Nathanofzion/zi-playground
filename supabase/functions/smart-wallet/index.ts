@@ -18,8 +18,10 @@ const corsHeaders = {
 };
 
 const rpName = "Zi-playground";
-const rpID = "zi-playground-git-dev-to-journeys-projects.vercel.app";
-const origin = "https://zi-playground-git-dev-to-journeys-projects.vercel.app";
+const rpID = "localhost";
+const origin = "http://localhost:3000";
+// const rpID = "zi-playground-git-dev-to-journeys-projects.vercel.app";
+// const origin = "https://zi-playground-git-dev-to-journeys-projects.vercel.app";
 
 const secretKey = Deno.env.get("SECRET_KEY")!;
 
@@ -52,17 +54,17 @@ Deno.serve(async (req) => {
   }
 
   if (req.method === "POST") {
-    const { operation, username, data } = await req.json();
+    const { operation, user_id, challenge_id, data } = await req.json();
 
     switch (operation) {
       case "generate-registration-options":
-        return handleRegistration(username);
+        return handleRegistration();
       case "verify-registration":
-        return handleRegistrationVerification(data, username);
+        return handleRegistrationVerification(data, user_id);
       case "generate-authentication-options":
-        return handleAuthentication(username);
+        return handleAuthentication(challenge_id);
       case "verify-authentication":
-        return handleAuthenticationVerification(data, username);
+        return handleAuthenticationVerification(data, challenge_id);
       case "sign-transaction":
         return handleSignTransaction(data);
       default:
@@ -91,25 +93,18 @@ Deno.serve(async (req) => {
 });
 
 // Registration Handler
-async function handleRegistration(username: string) {
-  const { data: existingUser } = await supabase
-    .from("users")
-    .select("id, username")
-    .eq("username", username)
-    .single();
-
-  if (existingUser) {
-    return new Response("User id already exist", {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-      status: 409,
-    });
-  }
-  const { error } = await supabase.from("users").insert({
-    username,
+async function handleRegistration() {
+  // Generate registration options (challenge, etc.)
+  const options = await generateRegistrationOptions({
+    rpName,
+    rpID,
+    userName: "Smart wallet",
   });
+
+  const { error } = await supabase
+    .from("challenges")
+    .insert({ user_id: options.user.id, challenge: options.challenge });
+
   if (error) {
     return new Response(JSON.stringify(error), {
       headers: {
@@ -119,20 +114,6 @@ async function handleRegistration(username: string) {
       status: 500,
     });
   }
-
-  // Generate registration options (challenge, etc.)
-  const options = await generateRegistrationOptions({
-    rpName,
-    rpID,
-    userName: username,
-  });
-
-  await supabase
-    .from("users")
-    .update({
-      challenge: options.challenge,
-    })
-    .eq("username", username);
 
   return new Response(JSON.stringify(options), {
     headers: {
@@ -145,22 +126,16 @@ async function handleRegistration(username: string) {
 // Registration Verification Handler
 async function handleRegistrationVerification(
   assertionResponse: any,
-  username: string
+  user_id: string
 ) {
   try {
-    // Fetch the user details (including the challenge stored during registration)
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("id, challenge")
-      .eq("username", username)
+    const { data: challenge } = await supabase
+      .from("challenges")
+      .select()
+      .eq("user_id", user_id)
       .single();
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (!user) {
-      return new Response("User not found", {
+    if (!challenge) {
+      return new Response("Challenge not found", {
         headers: {
           ...corsHeaders,
           "Content-Type": "application/json",
@@ -168,11 +143,13 @@ async function handleRegistrationVerification(
         status: 404,
       });
     }
+    // Delete the challenge after fetching it
+    await supabase.from("challenges").delete().eq("user_id", user_id);
 
     // Verify the response from the client-side
     const verification = await verifyRegistrationResponse({
       response: assertionResponse,
-      expectedChallenge: user.challenge,
+      expectedChallenge: challenge.challenge,
       expectedOrigin: origin,
       expectedRPID: rpID,
     });
@@ -186,24 +163,22 @@ async function handleRegistrationVerification(
 
       // Save the public key in the database
       const credential = verification.registrationInfo!.credential;
-      const { error } = await supabase
-        .from("users")
-        .update({
-          publicKey: keypair.publicKey(),
-          secretKey: keypair.secret(),
-          passkey_id: credential.id,
-          passkey_public_key: uint8ArrayToArray(credential.publicKey),
-          counter: credential.counter,
-          transports: credential.transports,
-        })
-        .eq("username", username);
+      const { error } = await supabase.from("users").insert({
+        user_id: user_id,
+        publicKey: keypair.publicKey(),
+        secretKey: keypair.secret(),
+        passkey_id: credential.id,
+        passkey_public_key: uint8ArrayToArray(credential.publicKey),
+        counter: credential.counter,
+        transports: credential.transports,
+      });
 
       if (error) {
         throw new Error(error.message);
       }
 
       const token = generateToken({
-        id: user.id,
+        id: user_id,
       });
 
       return new Response(
@@ -236,35 +211,25 @@ async function handleRegistrationVerification(
 }
 
 // Authentication Handler
-async function handleAuthentication(username: string) {
-  // Get the user details (including public key)
-  const { data: user } = await supabase
-    .from("users")
-    .select("id, challenge")
-    .eq("username", username)
-    .single();
-
-  if (!user) {
-    return new Response("User not found", {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-      status: 404,
-    });
-  }
-
+async function handleAuthentication(challenge_id: string) {
   // Generate authentication options (challenge)
   const options = await generateAuthenticationOptions({
     rpID: rpID,
   });
 
-  await supabase
-    .from("users")
-    .update({
-      challenge: options.challenge,
-    })
-    .eq("username", username);
+  const { error } = await supabase
+    .from("challenges")
+    .insert({ challenge_id, challenge: options.challenge });
+
+  if (error) {
+    return new Response(JSON.stringify(error), {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
+      status: 500,
+    });
+  }
 
   // Send authentication options (challenge) back to client
   return new Response(JSON.stringify(options), {
@@ -278,20 +243,40 @@ async function handleAuthentication(username: string) {
 // Authentication Verification Handler
 async function handleAuthenticationVerification(
   assertionResponse: any,
-  username: string
+  challenge_id: string
 ) {
   try {
     // Get the user details (including public key)
-    const { data: user, error } = await supabase
-      .from("users")
-      .select(
-        "id, publicKey, challenge, passkey_id, passkey_public_key, counter, transports"
-      )
-      .eq("username", username)
+    const { data: challenge, error: challengeError } = await supabase
+      .from("challenges")
+      .select()
+      .eq("challenge_id", challenge_id)
       .single();
+    if (challengeError) {
+      throw new Error(challengeError.message);
+    }
 
-    if (error) {
-      throw new Error(error.message);
+    if (!challenge) {
+      return new Response("Challenge not found", {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+        status: 404,
+      });
+    }
+    // Delete the challenge after fetching it
+    await supabase.from("challenges").delete().eq("challenge_id", challenge_id);
+
+    const user_id = assertionResponse.response.userHandle;
+
+    const { data: user, error: userError } = await supabase
+      .from("users")
+      .select()
+      .eq("user_id", user_id)
+      .single();
+    if (userError) {
+      throw new Error(userError.message);
     }
 
     if (!user) {
@@ -307,7 +292,7 @@ async function handleAuthenticationVerification(
     // Verify the response from the client-side
     const verification = await verifyAuthenticationResponse({
       response: assertionResponse,
-      expectedChallenge: user.challenge,
+      expectedChallenge: challenge.challenge,
       expectedOrigin: origin,
       expectedRPID: rpID,
       credential: {
@@ -362,8 +347,8 @@ const handleSignTransaction = async (data: any) => {
     const decoded = jwt.verify(token, secretKey);
     const { data: user, error } = await supabase
       .from("users")
-      .select("id, secretKey")
-      .eq("id", decoded.id)
+      .select()
+      .eq("user_id", decoded.id)
       .single();
 
     if (error) {
