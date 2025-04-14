@@ -1,5 +1,8 @@
 {
   "imports": {
-    "@simplewebauthn/server": "jsr:@simplewebauthn/server@^13.1.0"
+    "@simplewebauthn/server": "jsr:@simplewebauthn/server@^13.1.0",
+    "@stellar/stellar-sdk": "npm:@stellar/stellar-sdk@^13.2.0",
+    "axios": "npm:axios@^1.8.4",
+    "jsonwebtoken": "npm:jsonwebtoken@^9.0.2"
   }
 }

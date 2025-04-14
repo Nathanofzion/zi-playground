@@ -7,6 +7,9 @@ import {
   verifyRegistrationResponse,
 } from "jsr:@simplewebauthn/server";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { Keypair } from "npm:@stellar/stellar-sdk";
+import axios from "npm:axios";
+import jwt from "npm:jsonwebtoken";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,16 +17,34 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const rpName = Deno.env.get("SUPABASE_RP_NAME")!;
-const rpID = Deno.env.get("SUPABASE_RP_ID")!;
-const origin = Deno.env.get("SUPABASE_ORIGIN")!;
+const rpName = "Zi-playground";
+const rpID = "localhost";
+const origin = "http://localhost:3000";
+
+const secretKey = Deno.env.get("SECRET_KEY")!;
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabasekey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 const supabase = createClient(supabaseUrl, supabasekey);
 
-Deno.serve(async (req: Request) => {
+function arrayToUint8Array(array: number[]) {
+  return new Uint8Array(array);
+}
+
+function uint8ArrayToArray(uint8Array: Uint8Array) {
+  return Array.from(uint8Array);
+}
+
+function generateToken(payload: any) {
+  const options = {
+    expiresIn: "1h",
+  };
+
+  return jwt.sign(payload, secretKey, options);
+}
+
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: corsHeaders,
@@ -58,7 +79,10 @@ Deno.serve(async (req: Request) => {
     }
   } else {
     return new Response("Method Not Allowed", {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
       status: 405,
     });
   }
@@ -74,16 +98,22 @@ async function handleRegistration(username: string) {
 
   if (existingUser) {
     return new Response("User id already exist", {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
       status: 409,
     });
   }
-
-  const { error } = await supabase.from("users").insert({ username });
-
+  const { error } = await supabase.from("users").insert({
+    username,
+  });
   if (error) {
     return new Response(JSON.stringify(error), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
       status: 500,
     });
   }
@@ -95,8 +125,18 @@ async function handleRegistration(username: string) {
     userName: username,
   });
 
+  await supabase
+    .from("users")
+    .update({
+      challenge: options.challenge,
+    })
+    .eq("username", username);
+
   return new Response(JSON.stringify(options), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
     status: 200,
   });
 }
@@ -109,13 +149,16 @@ async function handleRegistrationVerification(
   // Fetch the user details (including the challenge stored during registration)
   const { data: user } = await supabase
     .from("users")
-    .select("id, challenge, public_key")
-    .eq("id", username)
+    .select("id, challenge")
+    .eq("username", username)
     .single();
 
   if (!user) {
     return new Response("User not found", {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
       status: 404,
     });
   }
@@ -130,35 +173,59 @@ async function handleRegistrationVerification(
     });
 
     if (verification.verified) {
+      // Create stellar account
+      const keypair = Keypair.random();
+      await axios.get(
+        `https://friendbot.stellar.org?addr=${keypair.publicKey()}`
+      );
+
       // Save the public key in the database
+      const credential = verification.registrationInfo!.credential;
       const { error } = await supabase
         .from("users")
         .update({
-          public_key: verification.registrationInfo?.credential.publicKey,
+          publicKey: keypair.publicKey(),
+          secretKey: keypair.secret(),
+          passkey_id: credential.id,
+          passkey_public_key: uint8ArrayToArray(credential.publicKey),
+          counter: credential.counter,
+          transports: credential.transports,
         })
-        .eq("id", username);
+        .eq("username", username);
 
       if (error) {
-        return new Response("Failed to store public key", {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 500,
-        });
+        throw new Error(error.message);
       }
 
-      return new Response("Registration successful", {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+      const token = generateToken({
+        id: user.id,
       });
+
+      return new Response(
+        JSON.stringify({ publicKey: keypair.publicKey(), token }),
+        {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+          status: 200,
+        }
+      );
     } else {
       return new Response("Verification failed", {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
         status: 400,
       });
     }
-  } catch (err) {
-    console.error(err);
-    return new Response("Error during verification", {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+  } catch (err: any) {
+    return new Response(err.message, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
       status: 500,
     });
   }
@@ -169,13 +236,16 @@ async function handleAuthentication(username: string) {
   // Get the user details (including public key)
   const { data: user } = await supabase
     .from("users")
-    .select("id, public_key, challenge")
-    .eq("id", username)
+    .select("id, challenge")
+    .eq("username", username)
     .single();
 
   if (!user) {
     return new Response("User not found", {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
       status: 404,
     });
   }
@@ -183,12 +253,21 @@ async function handleAuthentication(username: string) {
   // Generate authentication options (challenge)
   const options = await generateAuthenticationOptions({
     rpID: rpID,
-    challenge: user.challenge,
   });
+
+  await supabase
+    .from("users")
+    .update({
+      challenge: options.challenge,
+    })
+    .eq("username", username);
 
   // Send authentication options (challenge) back to client
   return new Response(JSON.stringify(options), {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
   });
 }
 
@@ -197,50 +276,77 @@ async function handleAuthenticationVerification(
   assertionResponse: any,
   username: string
 ) {
-  // Get the user details (including public key)
-  const { data: user } = await supabase
-    .from("users")
-    .select("id, public_key, challenge")
-    .eq("id", username)
-    .single();
-
-  if (!user) {
-    return new Response("User not found", {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 404,
-    });
-  }
-
-  // Verify the response from the client-side
   try {
+    // Get the user details (including public key)
+    const { data: user, error } = await supabase
+      .from("users")
+      .select(
+        "id, publicKey, challenge, passkey_id, passkey_public_key, counter, transports"
+      )
+      .eq("username", username)
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!user) {
+      return new Response("User not found", {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+        status: 404,
+      });
+    }
+
+    // Verify the response from the client-side
     const verification = await verifyAuthenticationResponse({
       response: assertionResponse,
       expectedChallenge: user.challenge,
       expectedOrigin: origin,
       expectedRPID: rpID,
       credential: {
-        id: passkey.id,
-        publicKey: passkey.publicKey,
-        counter: passkey.counter,
-        transports: passkey.transports,
+        id: user.passkey_id,
+        publicKey: arrayToUint8Array(user.passkey_public_key),
+        counter: user.counter,
+        transports: user.transports,
       },
     });
 
+    const token = generateToken({
+      id: user.id,
+    });
+
     if (verification.verified) {
-      return new Response("Authentication successful", {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      return new Response(
+        JSON.stringify({
+          publicKey: user.publicKey,
+          token,
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+          status: 200,
+        }
+      );
     } else {
       return new Response("Verification failed", {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
         status: 400,
       });
     }
-  } catch (err) {
-    console.error(err);
-    return new Response("Error during verification", {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+  } catch (err: any) {
+    return new Response(err.message, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
       status: 500,
     });
   }
