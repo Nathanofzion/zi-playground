@@ -18,8 +18,8 @@ const corsHeaders = {
 };
 
 const rpName = "Zi-playground";
-const rpID = "localhost";
-const origin = "http://localhost:3000";
+const rpID = "zi-playground-git-dev-to-journeys-projects.vercel.app";
+const origin = "https://zi-playground-git-dev-to-journeys-projects.vercel.app";
 
 const secretKey = Deno.env.get("SECRET_KEY")!;
 
