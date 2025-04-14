@@ -1,46 +1,5 @@
-import axios from "axios";
-import { PasskeyKit } from "passkey-kit";
-
-import { TxResponse } from "@soroban-react/contracts";
-
 import { activeChain } from "./chain";
-
-const projectName = process.env.NEXT_PUBLIC_PROJECT_NAME!;
-const walletWasmHash = process.env.NEXT_PUBLIC_WALLET_WASM_HASH!;
-
-export const passkeyKit = new PasskeyKit({
-  rpcUrl: activeChain.sorobanRpcUrl!,
-  networkPassphrase: activeChain.networkPassphrase,
-  walletWasmHash: walletWasmHash,
-});
-
-export interface IPasskeyWallet {
-  contractId: string;
-  keyIdBase64: string;
-}
-
-export async function send(xdr: string) {
-  const { data } = await axios.post<TxResponse>("/api/send", {
-    xdr,
-  });
-  return data;
-}
-
-async function getContractId(signer: string) {
-  const { data } = await axios.get<{ contractId: string }>(
-    `/api/contract/${signer}`
-  );
-  return data.contractId;
-}
-
-function fundContract(address: string) {
-  return axios.get(`/api/fund/${address}`);
-}
-
-export async function getSigners(contractId: string) {
-  const { data } = await axios.get(`/api/signer/${contractId}`);
-  return data;
-}
+import { handleLogin, handleRegister, handleSign } from "./passkey";
 
 const passkey = () => {
   return {
@@ -56,34 +15,37 @@ const passkey = () => {
     getNetworkDetails: async () => activeChain,
 
     getPublicKey: async () => {
+      const username = localStorage.getItem("username");
+
+      if (!username) {
+        throw new Error("Please input user name");
+      }
+
       const connectOrCreate = async () => {
         try {
-          return await passkeyKit.connectWallet({
-            getContractId,
-          });
+          const wallet = await handleLogin(username);
+          return wallet;
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
-          const wallet = await passkeyKit.createWallet(projectName, "");
-          await send(wallet.signedTx.toXDR());
-          await fundContract(wallet.contractId);
+          const wallet = await handleRegister(username);
           return wallet;
         }
       };
 
-      const { contractId } = await connectOrCreate();
-      return contractId;
+      const wallet = await connectOrCreate();
+      localStorage.setItem("token", wallet.token);
+      return wallet.publicKey;
     },
 
     signTransaction: async (
       xdr: string,
-      _opts?: {
+      opts?: {
         network?: string;
         networkPassphrase?: string;
         accountToSign?: string;
       }
     ) => {
-      const signedTx = await passkeyKit.sign(xdr);
-      return signedTx.toXDR();
+      return await handleSign(xdr, opts);
     },
   };
 };

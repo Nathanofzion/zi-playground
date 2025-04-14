@@ -22,9 +22,9 @@ const Background = () => {
       {theme == Theme.Atomic && (
         <BgAtomic />
       )}
-      {theme == Theme.Particle && (
+      {/* {theme == Theme.Particle && (
         <BgParticles />
-      )}
+      )} */}
       {theme == Theme.SpaceInvaders && (
         <BgSpaceInvaders />
       )}
