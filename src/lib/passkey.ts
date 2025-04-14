@@ -9,48 +9,67 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const handleRegister = async () => {
-  try {
-    const { data: options } = await supabase.functions.invoke("smart-wallet", {
+export const handleRegister = async (username: string) => {
+  const { data: optionsJSON } = await supabase.functions.invoke(
+    "smart-wallet",
+    {
       method: "POST",
       body: {
         operation: "generate-registration-options",
+        username,
       },
-    });
-    const regResponse = await startRegistration({
-      optionsJSON: options,
-    });
-    const { data: result } = await supabase.functions.invoke("smart-wallet", {
-      method: "POST",
-      body: {
-        operation: "verify-registration",
-        data: regResponse,
-      },
-    });
-    return result;
-  } catch (error) {
-    console.error("Error during registration:", error);
-  }
+    }
+  );
+  const regResponse = await startRegistration({ optionsJSON });
+  const { data: result } = await supabase.functions.invoke("smart-wallet", {
+    method: "POST",
+    body: {
+      operation: "verify-registration",
+      username,
+      data: regResponse,
+    },
+  });
+  return result;
 };
 
-export const handleLogin = async () => {
-  try {
-    const { data: options } = await supabase.functions.invoke("smart-wallet", {
-      method: "POST",
-      body: {
-        operation: "generate-authentication-options",
-      },
-    });
-    const authResponse = await startAuthentication(options);
-    const { data: result } = await supabase.functions.invoke("smart-wallet", {
-      method: "POST",
-      body: {
-        operation: "verify-authentication",
-        data: authResponse,
-      },
-    });
-    return result;
-  } catch (error) {
-    console.error("Error during authentication:", error);
+export const handleLogin = async (username: string) => {
+  const { data: options } = await supabase.functions.invoke("smart-wallet", {
+    method: "POST",
+    body: {
+      operation: "generate-authentication-options",
+      username,
+    },
+  });
+  const authResponse = await startAuthentication(options);
+  const { data: result } = await supabase.functions.invoke("smart-wallet", {
+    method: "POST",
+    body: {
+      operation: "verify-authentication",
+      username,
+      data: authResponse,
+    },
+  });
+  return result;
+};
+
+export const handleSign = async (
+  xdr: string,
+  opts?: {
+    network?: string;
+    networkPassphrase?: string;
+    accountToSign?: string;
   }
+) => {
+  const { data } = await supabase.functions.invoke("smart-wallet", {
+    method: "POST",
+    body: {
+      operation: "sign-transaction",
+      data: {
+        token: localStorage.getItem("token"),
+        xdr,
+        opts,
+      },
+    },
+  });
+  return data.signedTxXdr;
 };
