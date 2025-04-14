@@ -1,3 +1,5 @@
 {
-  "imports": {}
+  "imports": {
+    "@simplewebauthn/server": "jsr:@simplewebauthn/server@^13.1.0"
+  }
 }
