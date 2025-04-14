@@ -7,7 +7,7 @@ import {
   verifyRegistrationResponse,
 } from "jsr:@simplewebauthn/server";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { Keypair } from "npm:@stellar/stellar-sdk";
+import { Keypair, TransactionBuilder } from "npm:@stellar/stellar-sdk";
 import axios from "npm:axios";
 import jwt from "npm:jsonwebtoken";
 
@@ -63,6 +63,8 @@ Deno.serve(async (req) => {
         return handleAuthentication(username);
       case "verify-authentication":
         return handleAuthenticationVerification(data, username);
+      case "sign-transaction":
+        return handleSignTransaction(data);
       default:
         return new Response(
           JSON.stringify({
@@ -137,7 +139,6 @@ async function handleRegistration(username: string) {
       ...corsHeaders,
       "Content-Type": "application/json",
     },
-    status: 200,
   });
 }
 
@@ -212,7 +213,6 @@ async function handleRegistrationVerification(
             ...corsHeaders,
             "Content-Type": "application/json",
           },
-          status: 200,
         }
       );
     } else {
@@ -333,7 +333,6 @@ async function handleAuthenticationVerification(
             ...corsHeaders,
             "Content-Type": "application/json",
           },
-          status: 200,
         }
       );
     } else {
@@ -355,3 +354,57 @@ async function handleAuthenticationVerification(
     });
   }
 }
+
+const handleSignTransaction = async (data: any) => {
+  const { token, xdr, opts } = data;
+
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("id, secretKey")
+      .eq("id", decoded.id)
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!user) {
+      return new Response("User not found", {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+        status: 404,
+      });
+    }
+
+    const keypair = Keypair.fromSecret(user.secretKey);
+
+    const transaction = TransactionBuilder.fromXDR(xdr, opts.networkPassphrase);
+
+    transaction.sign(keypair);
+
+    return new Response(
+      JSON.stringify({
+        signedTxXdr: transaction.toXDR(),
+        signerAddress: keypair.publicKey(),
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (err: any) {
+    return new Response(err.message, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
+      status: 500,
+    });
+  }
+};
