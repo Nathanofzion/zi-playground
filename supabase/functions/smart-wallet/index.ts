@@ -146,25 +146,29 @@ async function handleRegistrationVerification(
   assertionResponse: any,
   username: string
 ) {
-  // Fetch the user details (including the challenge stored during registration)
-  const { data: user } = await supabase
-    .from("users")
-    .select("id, challenge")
-    .eq("username", username)
-    .single();
-
-  if (!user) {
-    return new Response("User not found", {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-      status: 404,
-    });
-  }
-
-  // Verify the response from the client-side
   try {
+    // Fetch the user details (including the challenge stored during registration)
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("id, challenge")
+      .eq("username", username)
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!user) {
+      return new Response("User not found", {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+        status: 404,
+      });
+    }
+
+    // Verify the response from the client-side
     const verification = await verifyRegistrationResponse({
       response: assertionResponse,
       expectedChallenge: user.challenge,
