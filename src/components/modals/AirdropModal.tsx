@@ -5,8 +5,8 @@ import { Flex, Heading, Text } from "@chakra-ui/react";
 import { Action, Theme } from "@/enums";
 import useAirdrop from "@/hooks/useAirdrop";
 import { AppContext } from "@/providers";
-import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
+import Button from "../common/Button";
 import { ModalProps } from "../common/Modal";
 
 const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
@@ -19,9 +19,11 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const { status } = useAirdrop();
 
   const canReceiveAirdrop = useMemo(() => {
-    return !(status[Action.SpinCube].data
-      && status[Action.Partices].data
-      && status[Action.Theme].data);
+    return !(
+      status[Action.SpinCube].data &&
+      status[Action.Partices].data &&
+      status[Action.Theme].data
+    );
   }, [status]);
 
   return (
@@ -39,9 +41,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
         <Heading as="h2" textAlign="center" size="lg">
           Airdrops & Themes
         </Heading>
-        <Text>
-          Please select your Airdrop or theme from the buttons below.
-        </Text>
+        <Text>Please select your Airdrop or theme from the buttons below.</Text>
         <Flex direction="column" gap={4}>
           <Button
             size="xl"

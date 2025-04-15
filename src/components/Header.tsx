@@ -6,7 +6,7 @@ import { useSorobanReact } from "@soroban-react/core";
 
 import { AppContext } from "@/providers";
 import { truncateAddress } from "@/utils";
-import Button from "./Button";
+import Button from "./common/Button";
 import BalanceModal from "./modals/BalanceModal";
 import ConnectWalletModal from "./modals/ConnectWalletModal";
 import ServicesModal from "./modals/ServicesModal";
@@ -15,11 +15,8 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 const Header = () => {
   const { address, disconnect } = useSorobanReact();
-  const {
-    openAirdropModal,
-    openStakingModal,
-    openLoginModal,
-  } = useContext(AppContext);
+  const { openAirdropModal, openStakingModal, openLoginModal } =
+    useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
@@ -47,9 +44,7 @@ const Header = () => {
             translateX={{ base: "-50%", lg: "unset" }}
             gap={{ base: "4px", lg: "16px" }}
           >
-            <Button onClick={openAirdropModal}>
-              Airdrop
-            </Button>
+            <Button onClick={openAirdropModal}>Airdrop</Button>
             <Button onClick={openStakingModal}>Staking</Button>
             <Button onClick={openLoginModal}>Rewards</Button>
           </Flex>
@@ -91,10 +86,7 @@ const Header = () => {
                 </MenuRoot>
               </>
             ) : (
-              <Button
-                size="lg"
-                onClick={() => setShowConnectWalletModal(true)}
-              >
+              <Button size="lg" onClick={() => setShowConnectWalletModal(true)}>
                 Connect
               </Button>
             )}

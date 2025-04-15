@@ -3,8 +3,8 @@ import { SocialIcon } from "react-social-icons";
 
 import { Box, Flex, Heading, HStack, Input, Text } from "@chakra-ui/react";
 
-import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
+import Button from "../common/Button";
 import { ModalProps } from "../common/Modal";
 
 const LoginModal: FC<ModalProps> = (props) => {

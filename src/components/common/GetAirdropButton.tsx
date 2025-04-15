@@ -2,7 +2,7 @@ import { FC } from "react";
 
 import { ButtonProps, Spinner } from "@chakra-ui/react";
 
-import Button from "@/components/Button";
+import Button from "@/components/common/Button";
 import { Action } from "@/enums";
 import useAirdrop from "@/hooks/useAirdrop";
 
