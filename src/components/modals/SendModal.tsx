@@ -83,11 +83,6 @@ const SendModal: FC<ModalProps> = (props) => {
               <Flex direction="column" gap={2}>
                 <Flex gap={2}>
                   <Input
-                    p="1rem"
-                    bg="rgba(255, 255, 255, 0.15)"
-                    border="none"
-                    rounded="full"
-                    shadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
                   />
@@ -98,25 +93,11 @@ const SendModal: FC<ModalProps> = (props) => {
             </Flex>
             <Flex direction="column" gap={1}>
               <Text pl={2}>Memo</Text>
-              <Input
-                p="1rem"
-                bg="rgba(255, 255, 255, 0.15)"
-                border="none"
-                rounded="full"
-                shadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
-                onChange={(e) => setMemo(e.target.value)}
-              />
+              <Input onChange={(e) => setMemo(e.target.value)} />
             </Flex>
             <Flex direction="column" gap={1}>
               <Text pl={2}>Amount</Text>
-              <Input
-                p="1rem"
-                bg="rgba(255, 255, 255, 0.15)"
-                border="none"
-                rounded="full"
-                shadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
-                onChange={(e) => setAmount(e.target.value)}
-              />
+              <Input onChange={(e) => setAmount(e.target.value)} />
             </Flex>
             <Flex justify="right" gap={2}>
               <Button onClick={handleSend}>
