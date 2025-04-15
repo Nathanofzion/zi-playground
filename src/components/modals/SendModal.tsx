@@ -1,14 +1,6 @@
 import { FC, useState } from "react";
 
-import {
-  Box,
-  Flex,
-  Heading,
-  Image,
-  Input,
-  Spinner,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Flex, Heading, Input, Spinner, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 import { Asset } from "@stellar-asset-lists/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +9,7 @@ import useAssets from "@/hooks/useAssets";
 import { sendAsset } from "@/services/contract";
 
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
+import AssetCard from "../common/AssetCard";
 import Button from "../common/Button";
 import { ModalProps } from "../common/Modal";
 import QRCodeScanner from "../common/QRCodeScanner";
@@ -111,42 +104,11 @@ const SendModal: FC<ModalProps> = (props) => {
             {assets
               .filter((asset) => asset.balance && asset.balance > 0)
               .map((asset, index) => (
-                <Flex
+                <AssetCard
                   key={index}
-                  p={2}
-                  gap={2}
-                  rounded="md"
-                  cursor="pointer"
-                  _hover={{
-                    bg: "rgba(255, 255, 255, 0.15)",
-                  }}
+                  asset={asset}
                   onClick={() => setAsset(asset)}
-                >
-                  <Flex flex="1 1 0" gap={2}>
-                    <Image
-                      flex="none"
-                      w={10}
-                      h={10}
-                      alt={asset.code}
-                      src={asset.icon}
-                    />
-                    <Flex direction="column" justify="space-around">
-                      <Text maxW="120px" fontSize="small" truncate>
-                        {asset.name}
-                      </Text>
-                      <Text fontSize="x-small">
-                        {asset.code} ({asset.domain})
-                      </Text>
-                    </Flex>
-                  </Flex>
-                  <Flex direction="column" justify="space-around">
-                    {asset.balance != undefined ? (
-                      <Text>{asset.balance}</Text>
-                    ) : (
-                      <Spinner size="sm" />
-                    )}
-                  </Flex>
-                </Flex>
+                />
               ))}
           </Flex>
         )}
