@@ -304,7 +304,7 @@ async function handleAuthenticationVerification(
     });
 
     const token = generateToken({
-      id: user.id,
+      id: user.user_id,
     });
 
     if (verification.verified) {
