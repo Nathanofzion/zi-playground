@@ -13,7 +13,6 @@ const LoginModal: FC<ModalProps> = (props) => {
     <Modal {...props}>
       <ModalOverlay />
       <ModalContent
-        left={{ base: "50%", lg: "75%" }}
         p={8}
         w="full"
         maxW={{ base: "320px", lg: "420px" }}

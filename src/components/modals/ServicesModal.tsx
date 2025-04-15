@@ -7,6 +7,7 @@ import { AppContext } from "@/providers";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import Button from "../common/Button";
 import { ModalProps } from "../common/Modal";
+import SwapModal from "./SwapModal";
 
 const ServicesModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const {
@@ -21,12 +22,7 @@ const ServicesModal: FC<ModalProps> = ({ onClose, ...props }) => {
   return (
     <Modal onClose={onClose} {...props}>
       <ModalOverlay />
-      <ModalContent
-        left={{ base: "50%", lg: "75%" }}
-        p="48px"
-        w="full"
-        maxW={{ base: "360px", lg: "480px" }}
-      >
+      <ModalContent p="48px" w="full" maxW={{ base: "360px", lg: "480px" }}>
         <ModalCloseButton />
         <Grid w="full" templateColumns="repeat(2, minmax(0, 1fr))" gap="32px">
           <Button

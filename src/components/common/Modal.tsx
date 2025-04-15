@@ -1,36 +1,23 @@
-import { createContext, FC, ReactNode, useState } from "react";
+import { FC, ReactNode } from "react";
 
-export interface ModalProps {
+import { Dialog, DialogRootProps } from "@chakra-ui/react";
+
+export type ModalProps = Partial<DialogRootProps> & {
   children?: ReactNode;
-  isOpen?: boolean;
-  onClose?: () => void;
-}
+  isOpen: boolean;
+  onClose: () => void;
+};
 
-interface IModal {
-  isOpen?: boolean;
-  onOpen?: () => void;
-  onClose?: () => void;
-}
-
-export const ModalContext = createContext<IModal>({});
-
-const Modal: FC<ModalProps> = ({ children, isOpen, onClose }) => {
-  const [show, setShow] = useState(false);
-
+const Modal: FC<ModalProps> = ({ isOpen, onClose, ...props }) => {
   return (
-    <ModalContext.Provider
-      value={{
-        isOpen: isOpen ?? show,
-        onOpen: () => setShow(true),
-        onClose: () => {
-          setShow(false);
-          onClose?.();
-        }
-      }}
-    >
-      {children}
-    </ModalContext.Provider>
-  )
-}
+    <Dialog.Root
+      children
+      placement="center"
+      open={isOpen}
+      onOpenChange={(detail) => !detail.open && onClose()}
+      {...props}
+    />
+  );
+};
 
 export default Modal;

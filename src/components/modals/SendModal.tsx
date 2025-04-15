@@ -56,7 +56,6 @@ const SendModal: FC<ModalProps> = (props) => {
     <Modal {...props}>
       <ModalOverlay />
       <ModalContent
-        left={{ base: "50%", lg: "75%" }}
         p={8}
         w="full"
         maxW={{ base: "320px", lg: "420px" }}
@@ -107,6 +106,9 @@ const SendModal: FC<ModalProps> = (props) => {
                 <AssetCard
                   key={index}
                   asset={asset}
+                  _hover={{
+                    bg: "rgba(255, 255, 255, 0.15)",
+                  }}
                   onClick={() => setAsset(asset)}
                 />
               ))}

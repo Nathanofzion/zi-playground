@@ -30,7 +30,6 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
     <Modal onClose={onClose} {...props}>
       <ModalOverlay />
       <ModalContent
-        left={{ base: "50%", lg: "75%" }}
         p={8}
         w="full"
         maxW={{ base: "320px", lg: "420px" }}
