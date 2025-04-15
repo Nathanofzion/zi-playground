@@ -15,26 +15,18 @@ const passkey = () => {
     getNetworkDetails: async () => activeChain,
 
     getPublicKey: async () => {
-      const username = localStorage.getItem("username");
-
-      if (!username) {
-        throw new Error("Please input user name");
-      }
-
       const connectOrCreate = async () => {
         try {
-          const wallet = await handleLogin(username);
-          return wallet;
+          return await handleLogin();
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
-          const wallet = await handleRegister(username);
-          return wallet;
+          return await handleRegister();
         }
       };
 
-      const wallet = await connectOrCreate();
-      localStorage.setItem("token", wallet.token);
-      return wallet.publicKey;
+      const { token, publicKey } = await connectOrCreate();
+      localStorage.setItem("token", token);
+      return publicKey;
     },
 
     signTransaction: async (

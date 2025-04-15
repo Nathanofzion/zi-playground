@@ -33,52 +33,36 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
   };
 
   return (
-    <>
-      {wallet?.id == "passkey" && (
-        <Input
-          placeholder="Username"
-          p="1rem"
-          bg="rgba(255, 255, 255, 0.15)"
-          border="none"
-          rounded="full"
-          shadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
-          defaultValue={localStorage.getItem("username") ?? ""}
-          onChange={(e) => {
-            localStorage.setItem("username", e.target.value);
-          }}
+    <Flex
+      p="16px"
+      justify="space-between"
+      bg={useColorModeValue("#F8F8F8", "#0F1016")}
+      rounded="16px"
+      cursor="pointer"
+      onClick={handleConnect}
+      {...props}
+    >
+      <Flex gap="16px">
+        <Image
+          alt={wallet?.sname}
+          src={wallet?.iconUrl}
+          w="24px"
+          h="24px"
+          rounded="8px"
         />
-      )}
-      <Flex
-        p="16px"
-        justify="space-between"
-        bg={useColorModeValue("#F8F8F8", "#0F1016")}
-        rounded="16px"
-        cursor="pointer"
-        onClick={handleConnect}
-        {...props}
-      >
-        <Flex gap="16px">
-          <Image
-            alt={wallet?.sname}
-            src={wallet?.iconUrl}
-            w="24px"
-            h="24px"
-            rounded="8px"
-          />
-          <Text>{wallet?.name} Wallet</Text>
-        </Flex>
-        <HStack>
-          {isConnecting && <Spinner size="sm" />}
-          {wallet?.isConnected ? (
-            <Text color={useColorModeValue("#F66B3C", "#B4EFAF")}>
-              {wallet?.sname == "Passkey" ? "Available" : "Detected"}
-            </Text>
-          ) : (
-            <Text color="#F66B3C">Install</Text>
-          )}
-        </HStack>
+        <Text>{wallet?.name} Wallet</Text>
       </Flex>
-    </>
+      <HStack>
+        {isConnecting && <Spinner size="sm" />}
+        {wallet?.isConnected ? (
+          <Text color={useColorModeValue("#F66B3C", "#B4EFAF")}>
+            {wallet?.sname == "Passkey" ? "Available" : "Detected"}
+          </Text>
+        ) : (
+          <Text color="#F66B3C">Install</Text>
+        )}
+      </HStack>
+    </Flex>
   );
 };
 
