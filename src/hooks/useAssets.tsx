@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useMemo } from "react";
+import { v4 as uuid } from "uuid";
 
 import { useSorobanReact } from "@soroban-react/core";
 import { useQueries, useQuery } from "@tanstack/react-query";
@@ -21,7 +22,7 @@ const useAssets = () => {
         const { data } = await axios.get(
           "https://raw.githubusercontent.com/soroswap/token-list/refs/heads/main/tokenList.json"
         );
-        return data.assets;
+        return data.assets.map((asset: any) => ({ ...asset, id: uuid() }));
       } else {
         const { data } = await axios.get<
           { network: string; assets: IAsset[] }[]
@@ -30,7 +31,7 @@ const useAssets = () => {
           zionToken,
           ...(data.find((list) => list.network == activeChain.network)
             ?.assets ?? []),
-        ];
+        ].map((asset: any) => ({ ...asset, id: uuid() }));
       }
     },
     enabled: !!activeChain,

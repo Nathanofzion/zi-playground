@@ -36,23 +36,14 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
 
       const result2 = await contractInvoke({
         contractAddress: contract,
-        method: "decimals",
-        sorobanContext,
-      });
-
-      const decimals = scValToNative(result2 as xdr.ScVal);
-
-      const result3 = await contractInvoke({
-        contractAddress: contract,
         method: "get_reserves",
         sorobanContext,
       });
 
-      const reserves = scValToNative(result3 as xdr.ScVal);
+      const reserves = scValToNative(result2 as xdr.ScVal);
 
       return {
         contract,
-        decimals,
         reserves,
       };
     },
@@ -60,7 +51,6 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
   });
 
   const contract = data?.contract;
-  const decimals = data?.decimals;
   const reserves = (() => {
     if (!asset1 || !asset2 || !data) return null;
     if (asset1.contract < asset2.contract)
@@ -68,26 +58,9 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
     return [data.reserves[1], data.reserves[0]];
   })();
 
-  const { data: balance } = useQuery({
-    queryKey: ["balance", address, contract],
-    queryFn: async () => {
-      if (!contract || !decimals) return;
-
-      const result3 = await contractInvoke({
-        contractAddress: contract,
-        method: "balance",
-        args: [nativeToScVal(address, { type: "address" })],
-        sorobanContext,
-      });
-
-      return scValToNative(result3 as xdr.ScVal);
-    },
-    enabled: !!contract,
-  });
-
   const addLiquidity = async (
-    amount_a: string | number,
-    amount_b: string | number,
+    amount_a: string,
+    amount_b: string,
     signAndSend: boolean | undefined = true
   ) => {
     if (!address) {
@@ -144,14 +117,72 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
     return simulated[2];
   };
 
+  const removeLiquidity = async (
+    amount: string,
+    signAndSend: boolean | undefined = true
+  ) => {
+    if (!address) {
+      throw new Error("Wallet is not connected yet!");
+    }
+
+    if (!asset1 || !asset2) {
+      throw new Error("Please select pair to remove liquidity!");
+    }
+
+    try {
+      setIsRemoving(true);
+
+      const result = await contractInvoke({
+        contractAddress: routerContractAddress,
+        method: "remove_liquidity",
+        args: RouterContract.spec.funcArgsToScVals("remove_liquidity", {
+          token_a: asset1.contract,
+          token_b: asset2.contract,
+          liquidity: BigNumber(amount).times(10000000).toFixed(0),
+          amount_a_min: 0,
+          amount_b_min: 0,
+          to: address,
+          deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
+        }),
+        signAndSend,
+        sorobanContext,
+        reconnectAfterTx: false,
+      });
+
+      if (signAndSend) {
+        queryClient.invalidateQueries({
+          queryKey: ["balance", address, contract],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["balance", address, asset1.contract],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["balance", address, asset2.contract],
+        });
+      } else {
+        return scValToNative(result as xdr.ScVal);
+      }
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+
+  const calculateAmount = async (amount: string) => {
+    const simulated = await removeLiquidity(amount, false);
+    return simulated;
+  };
+
   return {
     address,
-    decimals,
     reserves,
-    balance,
     calculateLpAmount,
     isAdding,
     addLiquidity,
+    calculateAmount,
+    isRemoving,
+    removeLiquidity,
   };
 };
 

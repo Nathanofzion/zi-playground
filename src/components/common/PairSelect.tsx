@@ -3,44 +3,44 @@ import { LuChevronDown } from "react-icons/lu";
 
 import { Box, Flex, Input, Popover, Text } from "@chakra-ui/react";
 
-import useAssets from "@/hooks/useAssets";
+import usePairs from "@/hooks/usePairs";
 import { CloseButton } from "../ui/close-button";
 import { useColorModeValue } from "../ui/color-mode";
-import AssetCard from "./AssetCard";
+import PairCard from "./PairCard";
 
 interface Props {
-  selectedAssetId: string | null;
-  onSelectAsset: (assetId: string) => void;
+  selectedPairId: number | null;
+  onSelectPair: (pairId: number) => void;
 }
 
-const AssetSelect: FC<Props> = ({ selectedAssetId, onSelectAsset }) => {
-  const { assets } = useAssets();
+const PairSelect: FC<Props> = ({ selectedPairId, onSelectPair }) => {
+  const { pairs } = usePairs();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const selectedAsset = useMemo(
-    () => assets.find((asset) => asset.id == selectedAssetId),
-    [assets, selectedAssetId]
+  const selectedPair = useMemo(
+    () => pairs.find((pair) => pair.id == selectedPairId),
+    [pairs, selectedPairId]
   );
 
-  const filteredAssets = useMemo(
+  const filteredPairs = useMemo(
     () =>
-      assets.filter(
-        (asset) =>
-          asset.code.toLowerCase().indexOf(search.toLowerCase()) >= 0 ||
-          asset.name.toLowerCase().indexOf(search.toLowerCase()) >= 0
+      pairs.filter(
+        (pair) =>
+          pair.code.toLowerCase().indexOf(search.toLowerCase()) >= 0 ||
+          pair.name.toLowerCase().indexOf(search.toLowerCase()) >= 0
       ),
-    [assets, search]
+    [pairs, search]
   );
 
   return (
     <Popover.Root open={open} onOpenChange={(details) => setOpen(details.open)}>
       <Popover.Trigger asChild>
         <Flex justify="space-between" align="center">
-          {selectedAsset ? (
-            <AssetCard flexGrow={1} asset={selectedAsset} />
+          {selectedPair ? (
+            <PairCard flexGrow={1} pair={selectedPair} />
           ) : (
-            "Select asset"
+            "Select pair"
           )}
           <LuChevronDown color="white" />
         </Flex>
@@ -59,25 +59,25 @@ const AssetSelect: FC<Props> = ({ selectedAssetId, onSelectAsset }) => {
           <Popover.Body p={2}>
             <Flex direction="column" gap={2}>
               <Flex justify="space-between" align="center">
-                <Text p={1}>Select asset</Text>
+                <Text p={1}>Select pair</Text>
                 <Popover.CloseTrigger>
                   <CloseButton as={Box} size="xs" />
                 </Popover.CloseTrigger>
               </Flex>
               <Input
                 px={2}
-                placeholder="Search assets"
+                placeholder="Search pairs"
                 rounded="full"
                 onChange={(e) => setSearch(e.target.value)}
               />
               <Flex maxH={48} pr={1} direction="column" overflowY="auto">
-                {filteredAssets.map((asset) => (
-                  <AssetCard
-                    key={asset.id}
-                    asset={asset}
+                {filteredPairs.map((pair) => (
+                  <PairCard
+                    key={pair.id}
+                    pair={pair}
                     _hover={{ bg: "#fff2" }}
                     onClick={() => {
-                      onSelectAsset(asset.id);
+                      onSelectPair(pair.id);
                       setOpen(false);
                     }}
                   />
@@ -91,4 +91,4 @@ const AssetSelect: FC<Props> = ({ selectedAssetId, onSelectAsset }) => {
   );
 };
 
-export default AssetSelect;
+export default PairSelect;

@@ -8,6 +8,7 @@ export interface IWallet {
 }
 
 export interface IAsset {
+  id: string;
   name: string;
   code: string;
   issuer?: string;
@@ -16,4 +17,14 @@ export interface IAsset {
   domain?: string;
   icon: string;
   decimals: number;
+}
+
+export interface IPair {
+  id: number;
+  contract: string;
+  decimals: number;
+  name: string;
+  code: string;
+  token_a: string;
+  token_b: string;
 }

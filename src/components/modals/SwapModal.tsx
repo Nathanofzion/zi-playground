@@ -22,19 +22,19 @@ export function strToScVal(base64Xdr: string): xdr.ScVal {
 const SwapModal: FC<ModalProps> = (props) => {
   const { address } = useSorobanReact();
   const { assets } = useAssets();
-  const [assetId1, setAssetId1] = useState(0);
-  const [assetId2, setAssetId2] = useState(1);
+  const [assetId1, setAssetId1] = useState<string | null>(null);
+  const [assetId2, setAssetId2] = useState<string | null>(null);
   const [amount1, setAmount1] = useState("0");
   const [amount2, setAmount2] = useState("0");
   const timerRef = useRef<any | null>();
 
   const asset1 = useMemo(
-    () => assets.find((_, index) => index == assetId1) ?? null,
+    () => assets.find((asset) => asset.id == assetId1) ?? null,
     [assets, assetId1]
   );
 
   const asset2 = useMemo(
-    () => assets.find((_, index) => index == assetId2) ?? null,
+    () => assets.find((asset) => asset.id == assetId2) ?? null,
     [assets, assetId2]
   );
 
@@ -90,23 +90,17 @@ const SwapModal: FC<ModalProps> = (props) => {
             selectedAssetId={assetId1}
             onSelectAsset={(assetId) => setAssetId1(assetId)}
           />
-          {asset1 && (
-            <>
-              {BigNumber(amount1).gt(asset1.balance) && (
-                <Text color="red.500">Insufficient {asset1.code}</Text>
-              )}
-              <Input
-                value={amount1}
-                onChange={(e) => setAmount1(e.target.value)}
-              />
-            </>
+          {asset1 && BigNumber(amount1).gt(asset1.balance) && (
+            <Text color="red.500">Insufficient {asset1.code}</Text>
           )}
+          <Input value={amount1} onChange={(e) => setAmount1(e.target.value)} />
         </VStack>
         <VStack align="stretch">
           <AssetSelect
             selectedAssetId={assetId2}
             onSelectAsset={(assetId) => setAssetId2(assetId)}
           />
+          <Input value={amount2} disabled />
         </VStack>
         <Button loading={isSwapping} onClick={handleSwap}>
           Swap
