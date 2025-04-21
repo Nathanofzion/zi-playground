@@ -50,9 +50,6 @@ importers:
       '@soroban-react/xbull':
         specifier: ^9.3.0
         version: 9.3.0(react@18.3.1)
-      '@stellar-asset-lists/sdk':
-        specifier: ^1.0.1
-        version: 1.0.1
       '@stellar/stellar-sdk':
         specifier: ^12.2.0
         version: 12.2.0
@@ -68,6 +65,9 @@ importers:
       axios:
         specifier: ^1.7.9
         version: 1.7.9
+      bignumber.js:
+        specifier: ^9.3.0
+        version: 9.3.0
       canvas-confetti:
         specifier: ^1.9.3
         version: 1.9.3
@@ -509,10 +509,6 @@ packages:
     resolution: {integrity: sha512-TDhpyeHlS0Zv7AgCO8t9ymH4QkREo3A9lpjVtFQmlO4VvnVm70oTT3U12uARwVpgJrVShaesKIsyhvO20v4K0A==}
     peerDependencies:
       react: '>=16.8'
-
-  '@stellar-asset-lists/sdk@1.0.1':
-    resolution: {integrity: sha512-UuPb3n8Ka0m+DfXgBWJRNe4EqrlBZTaSI3C05ZkjPpotcY9YEjLeYn69V1+qcM+8WV9DPVCTy+RgP6JsKzCCyQ==}
-    engines: {node: '>=18'}
 
   '@stellar/freighter-api@1.7.1':
     resolution: {integrity: sha512-XvPO+XgEbkeP0VhP0U1edOkds+rGS28+y8GRGbCVXeZ9ZslbWqRFQoETAdX8IXGuykk2ib/aPokiLc5ZaWYP7w==}
@@ -1013,8 +1009,8 @@ packages:
   bidi-js@1.0.3:
     resolution: {integrity: sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw==}
 
-  bignumber.js@9.1.2:
-    resolution: {integrity: sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==}
+  bignumber.js@9.3.0:
+    resolution: {integrity: sha512-EM7aMFTXbptt/wZdMlBv2t8IViwQL+h6SLHosp8Yf0dqJMTnY6iL32opnAB6kAdL0SZPuvcAzFr31o0c/R3/RA==}
 
   brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
@@ -3095,7 +3091,7 @@ snapshots:
   '@soroban-react/utils@9.1.13':
     dependencies:
       '@stellar/stellar-sdk': 12.2.0
-      bignumber.js: 9.1.2
+      bignumber.js: 9.3.0
     transitivePeerDependencies:
       - debug
 
@@ -3108,8 +3104,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@stellar-asset-lists/sdk@1.0.1': {}
-
   '@stellar/freighter-api@1.7.1': {}
 
   '@stellar/js-xdr@3.1.2': {}
@@ -3118,7 +3112,7 @@ snapshots:
     dependencies:
       '@stellar/js-xdr': 3.1.2
       base32.js: 0.1.0
-      bignumber.js: 9.1.2
+      bignumber.js: 9.3.0
       buffer: 6.0.3
       sha.js: 2.4.11
       tweetnacl: 1.0.3
@@ -3129,7 +3123,7 @@ snapshots:
     dependencies:
       '@stellar/js-xdr': 3.1.2
       base32.js: 0.1.0
-      bignumber.js: 9.1.2
+      bignumber.js: 9.3.0
       buffer: 6.0.3
       sha.js: 2.4.11
       tweetnacl: 1.0.3
@@ -3140,7 +3134,7 @@ snapshots:
     dependencies:
       '@stellar/stellar-base': 12.1.1
       axios: 1.7.9
-      bignumber.js: 9.1.2
+      bignumber.js: 9.3.0
       eventsource: 2.0.2
       randombytes: 2.1.0
       toml: 3.0.0
@@ -3152,7 +3146,7 @@ snapshots:
     dependencies:
       '@stellar/stellar-base': 13.0.1
       axios: 1.7.9
-      bignumber.js: 9.1.2
+      bignumber.js: 9.3.0
       eventsource: 2.0.2
       feaxios: 0.0.23
       randombytes: 2.1.0
@@ -3973,7 +3967,7 @@ snapshots:
     dependencies:
       require-from-string: 2.0.2
 
-  bignumber.js@9.1.2: {}
+  bignumber.js@9.3.0: {}
 
   brace-expansion@1.1.11:
     dependencies:
