@@ -141,7 +141,7 @@ const airdrops = [
   },
 ];
 
-const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
+const ParticlesModal: FC<ModalProps> = ({ isOpen, ...props }) => {
   const { address } = useSorobanReact();
   const { status } = useAirdrop();
   const ref = useRef<HTMLDivElement | null>(null);
@@ -153,7 +153,9 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
   useEffect(() => {
     if (step == 1 && address) {
       setFinished(true);
-      confetti(config);
+      if (isOpen) {
+        confetti(config);
+      }
     }
   }, [address, step]);
 
@@ -172,7 +174,7 @@ const ParticlesModal: FC<ModalProps> = ({ ...props }) => {
   }
 
   return (
-    <Modal {...props}>
+    <Modal isOpen={isOpen} {...props}>
       <ModalOverlay />
       <ModalContent w="360px">
         {showScrollTip && <LuArrowDown className="scroll-tip" size="24px" />}

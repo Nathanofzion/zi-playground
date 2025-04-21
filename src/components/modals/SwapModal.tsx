@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { Heading, Text, VStack } from "@chakra-ui/react";
+import { useSorobanReact } from "@soroban-react/core";
 import { xdr } from "@stellar/stellar-sdk";
 
 import useAssets from "@/hooks/useAssets";
@@ -19,6 +20,7 @@ export function strToScVal(base64Xdr: string): xdr.ScVal {
 }
 
 const SwapModal: FC<ModalProps> = (props) => {
+  const { address } = useSorobanReact();
   const { assets } = useAssets();
   const [assetId1, setAssetId1] = useState(0);
   const [assetId2, setAssetId2] = useState(1);
@@ -39,7 +41,7 @@ const SwapModal: FC<ModalProps> = (props) => {
   const { isSwapping, swap, calculateAmount } = useSwap(asset1, asset2);
 
   const refetchAmount = async () => {
-    if (!asset1 || !asset2) return;
+    if (!address || !asset1 || !asset2) return;
     const lpAmount = await calculateAmount(amount1);
     setAmount2(formatBalance(lpAmount, asset2!.decimals));
   };
@@ -105,14 +107,6 @@ const SwapModal: FC<ModalProps> = (props) => {
             selectedAssetId={assetId2}
             onSelectAsset={(assetId) => setAssetId2(assetId)}
           />
-          {asset2 && (
-            <>
-              {BigNumber(amount1).gt(asset2.balance) && (
-                <Text color="red.500">Insufficient {asset2.code}</Text>
-              )}
-              <Input value={amount2} disabled />
-            </>
-          )}
         </VStack>
         <Button loading={isSwapping} onClick={handleSwap}>
           Swap

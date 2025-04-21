@@ -69,7 +69,7 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
   })();
 
   const { data: balance } = useQuery({
-    queryKey: ["balance", contract, address],
+    queryKey: ["balance", address, contract],
     queryFn: async () => {
       if (!contract || !decimals) return;
 

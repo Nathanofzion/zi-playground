@@ -1,5 +1,11 @@
 import { Tx } from "@soroban-react/contracts";
-import { BASE_FEE, Contract, Keypair, TransactionBuilder, xdr } from "@stellar/stellar-sdk";
+import {
+  BASE_FEE,
+  Contract,
+  Keypair,
+  TransactionBuilder,
+  xdr,
+} from "@stellar/stellar-sdk";
 import { Api, Server } from "@stellar/stellar-sdk/rpc";
 import { activeChain } from "./chain";
 
@@ -24,9 +30,8 @@ export async function sendTx(tx: Tx) {
 }
 
 export type InvokeArgs = {
-  contractAddress?: string;
-  operation?: xdr.Operation;
-  method?: string;
+  contractAddress: string;
+  method: string;
   args?: xdr.ScVal[] | undefined;
   secretKey: string;
 };
@@ -50,7 +55,7 @@ export const contractInvoke = async ({
     fee: BASE_FEE,
     networkPassphrase: activeChain.networkPassphrase,
   })
-    .addOperation(contract.call(method!, ...args!))
+    .addOperation(contract.call(method, ...args!))
     .setTimeout(30)
     .build();
 

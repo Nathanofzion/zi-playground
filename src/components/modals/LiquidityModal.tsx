@@ -10,6 +10,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { useSorobanReact } from "@soroban-react/core";
 
 import useAssets from "@/hooks/useAssets";
 import useLiquidity from "@/hooks/useLiquidity";
@@ -22,6 +23,7 @@ import { ModalProps } from "../common/Modal";
 import { toaster } from "../ui/toaster";
 
 const LiquidityModal: FC<ModalProps> = (props) => {
+  const { address } = useSorobanReact();
   const { assets } = useAssets();
   const [assetId1, setAssetId1] = useState(0);
   const [assetId2, setAssetId2] = useState(1);
@@ -50,6 +52,7 @@ const LiquidityModal: FC<ModalProps> = (props) => {
   } = useLiquidity(asset1, asset2);
 
   const refetchLpAmount = async () => {
+    if (!address || !asset1 || !asset2) return;
     const lpAmount = await calculateLpAmount(amount1, amount2);
     setLPAmount(formatBalance(lpAmount, decimals));
   };
@@ -159,7 +162,7 @@ const LiquidityModal: FC<ModalProps> = (props) => {
                 />
                 {asset2 && (
                   <>
-                    {BigNumber(amount1).gt(asset2.balance) && (
+                    {BigNumber(amount2).gt(asset2.balance) && (
                       <Text color="red.500">Insufficient {asset2.code}</Text>
                     )}
                     <Input

@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, VStack } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -25,7 +25,7 @@ const SendModal: FC<ModalProps> = (props) => {
   const [recipient, setRecipient] = useState("");
   const [memo, setMemo] = useState("");
   const [amount, setAmount] = useState("");
-  const [result, setResult] = useState<string>();
+  const [result, setResult] = useState<string | null>(null);
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => {
@@ -68,7 +68,10 @@ const SendModal: FC<ModalProps> = (props) => {
           SEND
         </Heading>
         {result ? (
-          <Text textAlign="center">{result}</Text>
+          <VStack>
+            <Text textAlign="center">{result}</Text>
+            <Button onClick={() => setResult(null)}>Send again</Button>
+          </VStack>
         ) : asset ? (
           <Flex direction="column" gap={2}>
             <Flex direction="column" gap={1}>
