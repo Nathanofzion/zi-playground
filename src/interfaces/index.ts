@@ -6,3 +6,14 @@ export interface IWallet {
   isConnected: boolean;
   connect: () => Promise<void>;
 }
+
+export interface IAsset {
+  name: string;
+  code: string;
+  issuer?: string;
+  contract: string;
+  org?: string;
+  domain?: string;
+  icon: string;
+  decimals: number;
+}
