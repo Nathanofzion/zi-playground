@@ -5,7 +5,6 @@ import {
   FlexProps,
   HStack,
   Image,
-  Input,
   Spinner,
   Text,
 } from "@chakra-ui/react";

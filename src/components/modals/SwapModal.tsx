@@ -38,7 +38,7 @@ const SwapModal: FC<ModalProps> = (props) => {
 
   const { isSwapping, swap, calculateAmount } = useSwap(asset1, asset2);
 
-  const refetchLpAmount = async () => {
+  const refetchAmount = async () => {
     if (!asset1 || !asset2) return;
     const lpAmount = await calculateAmount(amount1);
     setAmount2(formatBalance(lpAmount, asset2!.decimals));
@@ -50,7 +50,7 @@ const SwapModal: FC<ModalProps> = (props) => {
     }
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
-      refetchLpAmount();
+      refetchAmount();
     }, 500);
   }, [amount1]);
 

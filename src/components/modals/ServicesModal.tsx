@@ -7,7 +7,6 @@ import { AppContext } from "@/providers";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import Button from "../common/Button";
 import { ModalProps } from "../common/Modal";
-import SwapModal from "./SwapModal";
 
 const ServicesModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const {

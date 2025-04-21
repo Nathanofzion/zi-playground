@@ -1,16 +1,17 @@
 import { FC, useState } from "react";
 
-import { Box, Flex, Heading, Input, Spinner, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
-import { Asset } from "@stellar-asset-lists/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import useAssets from "@/hooks/useAssets";
 import { sendAsset } from "@/services/contract";
 
+import { IAsset } from "@/interfaces";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import AssetCard from "../common/AssetCard";
 import Button from "../common/Button";
+import Input from "../common/Input";
 import { ModalProps } from "../common/Modal";
 import QRCodeScanner from "../common/QRCodeScanner";
 import { toaster } from "../ui/toaster";
@@ -20,7 +21,7 @@ const SendModal: FC<ModalProps> = (props) => {
   const { address } = sorobanContext;
   const queryClient = useQueryClient();
   const { assets } = useAssets();
-  const [asset, setAsset] = useState<Asset>();
+  const [asset, setAsset] = useState<IAsset>();
   const [recipient, setRecipient] = useState("");
   const [memo, setMemo] = useState("");
   const [amount, setAmount] = useState("");
@@ -35,7 +36,7 @@ const SendModal: FC<ModalProps> = (props) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["getAssetBalance", address, asset?.contract],
+        queryKey: ["balance", address, asset?.contract],
       });
       setResult("Transaction Confirmed ! ✅");
     },
@@ -92,8 +93,7 @@ const SendModal: FC<ModalProps> = (props) => {
               <Input onChange={(e) => setAmount(e.target.value)} />
             </Flex>
             <Flex justify="right" gap={2}>
-              <Button onClick={handleSend}>
-                {isPending && <Spinner size="sm" />}
+              <Button loading={isPending} onClick={handleSend}>
                 Send
               </Button>
             </Flex>
