@@ -1,9 +1,10 @@
 import { FC } from "react";
 
 import { Flex, FlexProps, Image, Spinner, Text } from "@chakra-ui/react";
-import { Asset } from "@stellar-asset-lists/sdk";
 
-const AssetCard: FC<FlexProps & { asset: Asset & { balance: number } }> = ({
+import { IAsset } from "@/interfaces";
+
+const AssetCard: FC<FlexProps & { asset: IAsset & { balance: number } }> = ({
   asset,
   ...props
 }) => {
@@ -19,7 +20,7 @@ const AssetCard: FC<FlexProps & { asset: Asset & { balance: number } }> = ({
       {...props}
     >
       <Flex flex="1 1 0" gap={2}>
-        <Image flex="none" w={10} h={10} alt={asset.code} src={asset.icon} />
+        <Image flex="none" h={10} alt={asset.code} src={asset.icon} />
         <Flex direction="column" justify="space-around">
           <Text maxW="120px" fontSize="small" truncate>
             {asset.name}
