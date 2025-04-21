@@ -1,46 +1,46 @@
-import { useMemo } from 'react';
+import axios from "axios";
+import { useMemo } from "react";
 
-import { useSorobanReact } from '@soroban-react/core';
-import { Asset, fetchAssetList } from '@stellar-asset-lists/sdk';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useSorobanReact } from "@soroban-react/core";
+import { useQueries, useQuery } from "@tanstack/react-query";
 
-import nativeToken from '@/constants/nativeToken';
-import zionToken from '@/constants/zionToken';
-import { tokenBalance } from '@/services/contract';
-import { fetchAssetImage } from '@/utils';
-
-const assetListUrl = process.env.NEXT_PUBLIC_ASSET_LIST_URL!;
+import zionToken from "@/constants/zionToken";
+import { IAsset } from "@/interfaces";
+import { tokenBalance } from "@/services/contract";
 
 const useAssets = () => {
   const sorobanContext = useSorobanReact();
-  const { address } = sorobanContext;
+  const { address, activeChain } = sorobanContext;
 
-  const { data } = useQuery<Asset[]>({
-    queryKey: ['getAssets'],
+  const { data } = useQuery<IAsset[]>({
+    queryKey: ["asset", activeChain?.network],
     queryFn: async () => {
-      const { assets } = await fetchAssetList(assetListUrl);
-      return [
-        nativeToken,
-        zionToken,
-        ...assets,
-      ];
+      if (!activeChain)
+        throw new Error("Soroban context is not initialized yet!");
+      if (activeChain.network == "mainnet") {
+        const { data } = await axios.get(
+          "https://raw.githubusercontent.com/soroswap/token-list/refs/heads/main/tokenList.json"
+        );
+        return data.assets;
+      } else {
+        const { data } = await axios.get<
+          { network: string; assets: IAsset[] }[]
+        >("https://api.soroswap.finance/api/tokens");
+        return [
+          zionToken,
+          ...(data.find((list) => list.network == activeChain.network)
+            ?.assets ?? []),
+        ];
+      }
     },
+    enabled: !!activeChain,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
-  const imageTable = useQueries({
-    queries: (data ?? []).map(asset => ({
-      queryKey: ['getAssetImage', asset.contract],
-      queryFn: () => fetchAssetImage(asset),
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-    })),
-  });
-
   const balanceTable = useQueries({
-    queries: (data ?? []).map(asset => ({
-      queryKey: ['getAssetBalance', address, asset.contract],
+    queries: (data ?? []).map((asset) => ({
+      queryKey: ["balance", address, asset.contract],
       queryFn: async () => {
         try {
           const balance = await tokenBalance(sorobanContext, asset.contract);
@@ -56,20 +56,16 @@ const useAssets = () => {
     })),
   });
 
-  const assets = useMemo(
-    () => {
-      return (data ?? []).map((asset, index) => {
-        return {
-          ...asset,
-          icon: imageTable[index].data ?? asset.icon,
-          balance: balanceTable[index].data ?? 0,
-        };
-      });
-    },
-    [data, imageTable, balanceTable],
-  );
+  const assets = useMemo(() => {
+    return (data ?? []).map((asset, index) => {
+      return {
+        ...asset,
+        balance: balanceTable[index].data ?? 0,
+      };
+    });
+  }, [data, balanceTable]);
 
   return { assets };
-}
+};
 
 export default useAssets;
