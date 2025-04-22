@@ -1,10 +1,11 @@
 import { FC } from "react";
 import { SocialIcon } from "react-social-icons";
 
-import { Box, Flex, Heading, HStack, Input, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, HStack, Text } from "@chakra-ui/react";
 
-import Button from "../Button";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
+import Button from "../common/Button";
+import Input from "../common/Input";
 import { ModalProps } from "../common/Modal";
 
 const LoginModal: FC<ModalProps> = (props) => {
@@ -12,7 +13,6 @@ const LoginModal: FC<ModalProps> = (props) => {
     <Modal {...props}>
       <ModalOverlay />
       <ModalContent
-        left={{ base: "50%", lg: "75%" }}
         p={8}
         w="full"
         maxW={{ base: "320px", lg: "420px" }}
@@ -26,23 +26,8 @@ const LoginModal: FC<ModalProps> = (props) => {
         <Flex w="full" direction="column" align="center" gap={6}>
           <Flex w="full" direction="column" align="center" gap={4}>
             <Flex w="full" direction="column" gap={2}>
-              <Input
-                placeholder="Email"
-                p="1rem"
-                bg="rgba(255, 255, 255, 0.15)"
-                border="none"
-                rounded="full"
-                shadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
-              />
-              <Input
-                type="password"
-                placeholder="Password"
-                p="1rem"
-                bg="rgba(255, 255, 255, 0.15)"
-                border="none"
-                rounded="full"
-                shadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
-              />
+              <Input />
+              <Input />
             </Flex>
             <Button w="80%">SIGN UP</Button>
           </Flex>

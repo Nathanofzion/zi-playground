@@ -1,8 +1,8 @@
 import { FC } from "react";
 
-import { ButtonProps, Spinner } from "@chakra-ui/react";
+import { ButtonProps } from "@chakra-ui/react";
 
-import Button from "@/components/Button";
+import Button from "@/components/common/Button";
 import { Action } from "@/enums";
 import useAirdrop from "@/hooks/useAirdrop";
 
@@ -17,7 +17,8 @@ const GetAirdropButton: FC<Props> = ({ action, onReceive, ...props }) => {
   return (
     <Button
       gap={1}
-      disabled={status[action].data || isLoading}
+      disabled={status[action].data}
+      loading={isLoading}
       onClick={async () => {
         if (action) {
           await getAirdrop(action);
@@ -26,7 +27,6 @@ const GetAirdropButton: FC<Props> = ({ action, onReceive, ...props }) => {
       }}
       {...props}
     >
-      {isLoading && <Spinner size="sm" />}
       Get airdrop
     </Button>
   );
