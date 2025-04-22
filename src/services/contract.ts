@@ -1,7 +1,7 @@
 import { SorobanContextType } from "@soroban-react/core";
-import { Asset } from "@stellar-asset-lists/sdk";
 import { nativeToScVal, scValToNative, xdr } from "@stellar/stellar-sdk";
 
+import { IAsset } from "@/interfaces";
 import { contractInvoke } from "@/lib/contract-fe";
 import { accountToScVal, scValToNumber } from "@/utils";
 
@@ -57,7 +57,7 @@ export const getAirdropStatus = async (
 
 export const sendAsset = async (
   sorobanContext: SorobanContextType,
-  asset: Asset,
+  asset: IAsset,
   recipient: string,
   memo: string,
   amount: number
@@ -80,5 +80,5 @@ export const sendAsset = async (
     sorobanContext,
     signAndSend: true,
     reconnectAfterTx: false,
-  })
+  });
 };

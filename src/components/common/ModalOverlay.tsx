@@ -1,26 +1,9 @@
-import { Box, BoxProps } from "@chakra-ui/react";
-import { FC, useContext, useEffect, useState } from "react";
-import { ModalContext } from "./Modal";
+import { FC } from "react";
 
-const ModalOverlay: FC<BoxProps> = ({ ...props }) => {
-    const { isOpen, onClose } = useContext(ModalContext);
-    const [opacity, setOpacity] = useState(0);
+import { Dialog, DialogBackdropProps } from "@chakra-ui/react";
 
-    useEffect(() => {
-        setOpacity(isOpen ? 0.5 : 0);
-    }, [isOpen]);
-
-    return <Box
-        position='fixed'
-        inset={0}
-        zIndex={1010}
-        display={isOpen ? 'flex' : 'none'}
-        bg='black'
-        opacity={opacity}
-        transition='opacity'
-        onClick={onClose}
-        {...props}
-    />
-}
+const ModalOverlay: FC<DialogBackdropProps> = (props) => {
+  return <Dialog.Backdrop {...props} />;
+};
 
 export default ModalOverlay;

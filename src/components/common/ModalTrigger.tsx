@@ -1,23 +1,9 @@
-import { Children, FC, ReactElement, ReactNode, cloneElement, isValidElement, useContext } from "react";
-import { ModalContext } from "./Modal";
+import { FC } from "react";
 
-interface Props {
-    children: ReactNode;
-}
+import { Dialog, DialogTriggerProps } from "@chakra-ui/react";
 
-const ModalTrigger: FC<Props> = ({ children }) => {
-    const { onOpen } = useContext(ModalContext);
-
-    const renderChildren = () => {
-        return Children.map(children, (child) => {
-            if (isValidElement(child)) {
-                return cloneElement(child as ReactElement<any>, { onClick: onOpen });
-            }
-            return child;
-        });
-    };
-
-    return <>{renderChildren()}</>;
+const ModalTrigger: FC<DialogTriggerProps> = (props) => {
+  return <Dialog.Trigger {...props} />;
 };
 
 export default ModalTrigger;

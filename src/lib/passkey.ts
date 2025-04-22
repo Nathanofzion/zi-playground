@@ -2,26 +2,21 @@ import {
   startAuthentication,
   startRegistration,
 } from "@simplewebauthn/browser";
-import { createClient } from "@supabase/supabase-js";
 import { v4 as uuid } from "uuid";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from "./supabase";
 
 export const handleRegister = async () => {
   const { data: options } = await supabase.functions.invoke("smart-wallet", {
     method: "POST",
     body: {
-      operation: "generate-registration-options",
+      action: "generate-registration-options",
     },
   });
   const regResponse = await startRegistration({ optionsJSON: options });
   const { data: result } = await supabase.functions.invoke("smart-wallet", {
     method: "POST",
     body: {
-      operation: "verify-registration",
+      action: "verify-registration",
       user_id: options.user.id,
       data: regResponse,
     },
@@ -34,7 +29,7 @@ export const handleLogin = async () => {
   const { data: options } = await supabase.functions.invoke("smart-wallet", {
     method: "POST",
     body: {
-      operation: "generate-authentication-options",
+      action: "generate-authentication-options",
       challenge_id,
     },
   });
@@ -42,7 +37,7 @@ export const handleLogin = async () => {
   const { data: result } = await supabase.functions.invoke("smart-wallet", {
     method: "POST",
     body: {
-      operation: "verify-authentication",
+      action: "verify-authentication",
       challenge_id,
       data: authResponse,
     },
@@ -61,7 +56,7 @@ export const handleSign = async (
   const { data } = await supabase.functions.invoke("smart-wallet", {
     method: "POST",
     body: {
-      operation: "sign-transaction",
+      action: "sign-transaction",
       data: {
         token: localStorage.getItem("token"),
         xdr,

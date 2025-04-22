@@ -1,11 +1,15 @@
-import { FC, useContext } from "react";
-import { CloseButton, CloseButtonProps } from "../ui/close-button";
-import { ModalContext } from "./Modal";
+import { FC } from "react";
 
-const ModalCloseButton: FC<CloseButtonProps> = ({ ...props }) => {
-    const { onClose } = useContext(ModalContext);
+import { Dialog, DialogCloseTriggerProps } from "@chakra-ui/react";
 
-    return <CloseButton position='absolute' right={2} top={2} onClick={onClose} {...props} />
-}
+import { CloseButton } from "../ui/close-button";
+
+const ModalCloseButton: FC<DialogCloseTriggerProps> = (props) => {
+  return (
+    <Dialog.CloseTrigger position="absolute" right={4} top={4} {...props}>
+      <CloseButton size="sm" />
+    </Dialog.CloseTrigger>
+  );
+};
 
 export default ModalCloseButton;
