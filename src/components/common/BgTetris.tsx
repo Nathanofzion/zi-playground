@@ -12,7 +12,7 @@ function Cell({ type }: { type: CellOptions }) {
   return (
     <Box
       className={`${type} cell`}
-      w={{ base: "20px", xl: "28px" }}
+      w={{ base: "18px", xl: "28px" }}
       borderRadius="lg"
     />
   );
@@ -79,7 +79,7 @@ const UpcomingBlocks: FC<UpcomingBlocksProps> = ({
                       <Box
                         key={`${blockIndex}-${rowIndex}-${cellIndex}`}
                         className={`cell ${cellClass}`}
-                        w={{ base: "20px", xl: "28px" }}
+                        w={{ base: "18px", xl: "28px" }}
                         borderRadius="lg"
                       />
                     );
@@ -215,7 +215,7 @@ const BgTetris = () => {
   return (
     <Flex
       h="full"
-      pt={{ base: 32, md: 36 }}
+      pt={{ base: 28, md: 36 }}
       direction="column"
       perspective="700px"
       bg="radial-gradient(rgba(118, 0, 191, 0.5) 0%, transparent 70%), linear-gradient(#0b161e 40%, #202076 70%)"
