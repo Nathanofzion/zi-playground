@@ -12,6 +12,7 @@ import {
   ParticlesModal,
   SpaceInvadersModal,
 } from "@/components/modals/guides";
+import TetrisModal from "@/components/modals/guides/TetrisModal";
 import InfoModal from "@/components/modals/InfoModal";
 import LiquidityModal from "@/components/modals/LiquidityModal";
 import LoginModal from "@/components/modals/LoginModal";
@@ -41,6 +42,7 @@ export interface IApp {
   openParticlesModal?: () => void;
   openAtomicModal?: () => void;
   openSpaceInvadersModal?: () => void;
+  openTetrisModal?: () => void;
 }
 
 export const AppContext = createContext<IApp>({
@@ -54,9 +56,17 @@ interface Props {
   children: ReactNode;
 }
 
+const getTheme = () => {
+  if (typeof window !== "undefined") {
+    const theme = localStorage.getItem("airdrop-theme");
+    if (theme) return theme as Theme;
+  }
+  return Theme.Particle;
+};
+
 const Provider: FC<Props> = ({ children }) => {
   const [signers, setSigners] = useState<Signer[]>([]);
-  const [theme, setTheme] = useState<Theme>(Theme.Particle);
+  const [theme, setTheme] = useState<Theme>(getTheme());
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -69,12 +79,18 @@ const Provider: FC<Props> = ({ children }) => {
   const [showParticlesModal, setShowParticlesModal] = useState(false);
   const [showAtomicModal, setShowAtomicModal] = useState(false);
   const [showSpaceInvadersModal, setShowSpaceInvadersModal] = useState(false);
+  const [showTetrisModal, setShowTetrisModal] = useState(false);
 
   return (
     <AppContext.Provider
       value={{
         theme,
-        setTheme,
+        setTheme: (theme: Theme) => {
+          setTheme(theme);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("airdrop-theme", theme);
+          }
+        },
         signers,
         setSigners,
         openAirdropModal: () => setShowAirdropModal(true),
@@ -89,6 +105,7 @@ const Provider: FC<Props> = ({ children }) => {
         openParticlesModal: () => setShowParticlesModal(true),
         openAtomicModal: () => setShowAtomicModal(true),
         openSpaceInvadersModal: () => setShowSpaceInvadersModal(true),
+        openTetrisModal: () => setShowTetrisModal(true),
       }}
     >
       <ThemeProvider>
@@ -135,18 +152,18 @@ const Provider: FC<Props> = ({ children }) => {
               isOpen={showParticlesModal}
               onClose={() => setShowParticlesModal(false)}
             />
-            {showAtomicModal && (
-              <AtomicModal
-                isOpen={true}
-                onClose={() => setShowAtomicModal(false)}
-              />
-            )}
-            {showSpaceInvadersModal && (
-              <SpaceInvadersModal
-                isOpen={true}
-                onClose={() => setShowSpaceInvadersModal(false)}
-              />
-            )}
+            <AtomicModal
+              isOpen={showAtomicModal}
+              onClose={() => setShowAtomicModal(false)}
+            />
+            <SpaceInvadersModal
+              isOpen={showSpaceInvadersModal}
+              onClose={() => setShowSpaceInvadersModal(false)}
+            />
+            <TetrisModal
+              isOpen={showTetrisModal}
+              onClose={() => setShowTetrisModal(false)}
+            />
           </SorobanReactProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>

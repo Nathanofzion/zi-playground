@@ -15,6 +15,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
     openParticlesModal,
     openAtomicModal,
     openSpaceInvadersModal,
+    openTetrisModal,
   } = useContext(AppContext);
   const { status } = useAirdrop();
 
@@ -75,6 +76,17 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
             }}
           >
             Space invaders
+          </Button>
+
+          <Button
+            size="xl"
+            onClick={() => {
+              setTheme?.(Theme.Tetris);
+              openTetrisModal?.();
+              onClose?.();
+            }}
+          >
+            Blockchain tetris
           </Button>
 
           <Button

@@ -49,13 +49,128 @@ a {
 }
 
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateY(-25%);
     animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
+
   50% {
     transform: none;
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
+}
+
+.gridx {
+  background: linear-gradient(transparent 65%,
+      rgba(46, 38, 255, 0.4) 75%,
+      #7d41e6 80%,
+      rgba(46, 38, 255, 0.4) 85%,
+      transparent 95%),
+    linear-gradient(90deg,
+      transparent 65%,
+      rgba(46, 38, 255, 0.4) 75%,
+      #7d41e6 80%,
+      rgba(46, 38, 255, 0.4) 85%,
+      transparent 95%);
+  background-size: 30px 30px;
+  width: 200vw;
+  height: 300vh;
+  position: absolute;
+  bottom: -120vh;
+  transform: rotateX(-100deg);
+  mask-image: linear-gradient(rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 80%);
+  -webkit-mask-image: linear-gradient(rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 80%);
+}
+
+.tetris-title {
+  text-transform: uppercase;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+  transform: perspective(600px) rotateX(15deg);
+  -webkit-transform: perspective(600px) rotateX(15deg);
+}
+
+.tetris-title span {
+  animation: neonGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes neonGlow {
+  from {
+    text-shadow: 0 0 2px currentColor, 0 0 5px currentColor;
+  }
+
+  to {
+    text-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+  }
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  aspect-ratio: 1;
+}
+
+.cell.hidden {
+  visibility: hidden;
+}
+
+.cell.Empty {
+  background-color: none;
+}
+
+.cell.I {
+  background-color: rgb(80, 227, 230);
+  box-shadow: 0 0 5px rgb(80, 227, 230), 0 0 15px rgb(80, 227, 230);
+  border: 1px solid black;
+}
+
+.cell.J {
+  background-color: rgb(36, 95, 223);
+  box-shadow: 0 0 5px rgb(36, 95, 223), 0 0 15px rgb(36, 95, 223);
+  border: 1px solid black;
+}
+
+.cell.L {
+  background-color: rgb(223, 173, 36);
+  box-shadow: 0 0 5px rgb(223, 173, 36), 0 0 15px rgb(223, 173, 36);
+  border: 1px solid black;
+}
+
+.cell.O {
+  background-color: rgb(223, 217, 36);
+  box-shadow: 0 0 5px rgb(223, 217, 36), 0 0 15px rgb(223, 217, 36);
+  border: 1px solid black;
+}
+
+.cell.S {
+  background-color: rgb(48, 211, 56);
+  box-shadow: 0 0 5px rgb(48, 211, 56), 0 0 15px rgb(48, 211, 56);
+  border: 1px solid black;
+}
+
+.cell.T {
+  background-color: rgb(132, 61, 198);
+  box-shadow: 0 0 5px rgb(132, 61, 198), 0 0 15px rgb(132, 61, 198);
+  border: 1px solid black;
+}
+
+.cell.Z {
+  background-color: rgb(227, 78, 78);
+  box-shadow: 0 0 5px rgb(227, 78, 78), 0 0 15px rgb(227, 78, 78);
+  border: 1px solid black;
+}
+
+.Ghost,
+.IGhost,
+.JGhost,
+.LGhost,
+.OGhost,
+.SGhost,
+.TGhost,
+.ZGhost {
+  background-color: rgba(128, 128, 128, 0.5);
+  border: 1px solid black;
 }

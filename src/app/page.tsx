@@ -13,10 +13,10 @@ export default function Home() {
   const { address } = useSorobanReact();
 
   return (
-    <Grid flex='1 1 0' templateColumns={{ lg: 'repeat(2, minmax(0, 1fr))' }}>
-      {theme != Theme.SpaceInvaders && (
-        <Viewer startAnimation={!!address} />
-      )}
+    <Grid flex="1 1 0" templateColumns={{ lg: "repeat(2, minmax(0, 1fr))" }}>
+      {(theme == Theme.Particle ||
+        theme == Theme.Atomic ||
+        theme == Theme.NightDay) && <Viewer startAnimation={!!address} />}
     </Grid>
   );
 }
