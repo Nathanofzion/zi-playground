@@ -9,6 +9,7 @@ import {
   SHAPES,
 } from "@/types/tetris";
 import {
+  Action,
   BOARD_HEIGHT,
   getEmptyBoard,
   getRandomBlock,
@@ -275,6 +276,9 @@ export function useTetris(gameOverCallback: () => void) {
 
   return {
     board: renderedBoard,
+    move: (value: Action) => dispatchBoardState(value),
+    down: () => setTickSpeed(TickSpeed.Fast),
+    release: () => setTickSpeed(TickSpeed.Normal),
     startGame,
     isPlaying,
     score,

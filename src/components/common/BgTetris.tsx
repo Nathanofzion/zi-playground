@@ -1,12 +1,14 @@
 "use client";
 
-import { Box, BoxProps, Flex, FlexProps, Text, VStack } from "@chakra-ui/react";
 import { FC, useEffect, useState } from "react";
+import { FaArrowDown, FaArrowLeft, FaArrowRight, FaUndo } from "react-icons/fa";
+
+import { Box, BoxProps, Flex, FlexProps, Text, VStack } from "@chakra-ui/react";
 
 import { useTetris } from "@/hooks/useTetris";
+import { Action } from "@/hooks/useTetrisBoard";
 import { Block, BoardShape, CellOptions, SHAPES } from "@/types/tetris";
 import Button from "./Button";
-
 // Cell Component
 function Cell({ type }: { type: CellOptions }) {
   return (
@@ -187,23 +189,60 @@ const Title = () => {
   );
 };
 
+interface ControllerProps extends FlexProps {
+  move: (value: Action) => void;
+  down: () => void;
+  release: () => void;
+}
+
+const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
+  return (
+    <Flex
+      display={{ base: "flex", md: "none" }}
+      px={2}
+      align="center"
+      {...props}
+    >
+      <Flex gap={2}>
+        <Button onClick={() => move({ type: "move", isPressingLeft: true })}>
+          <FaArrowLeft />
+        </Button>
+        <Button onClick={() => move({ type: "move", isPressingRight: true })}>
+          <FaArrowRight />
+        </Button>
+      </Flex>
+      <Flex direction="column" gap={2}>
+        <Button onClick={() => move({ type: "move", isRotating: true })}>
+          <FaUndo />
+        </Button>
+        <Button onTouchStart={down} onTouchEnd={release}>
+          <FaArrowDown />
+        </Button>
+      </Flex>
+    </Flex>
+  );
+};
 // Main Tetris Component
 const BgTetris = () => {
-  const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
   const [bestScore, setBestScore] = useState("");
 
   const handleGameOver = async () => {
-    // await addScore({ name: playerName, score });
-    setGameStarted(false);
     setLastUpdated(Date.now());
   };
 
-  const { board, startGame, isPlaying, score, upcomingBlocks } =
-    useTetris(handleGameOver);
+  const {
+    board,
+    startGame,
+    move,
+    isPlaying,
+    score,
+    upcomingBlocks,
+    down,
+    release,
+  } = useTetris(handleGameOver);
 
   const handleGameStart = async () => {
-    setGameStarted(true);
     startGame();
   };
 
@@ -241,6 +280,7 @@ const BgTetris = () => {
         </Flex>
 
         <Flex
+          position="relative"
           order={2}
           w={{ base: "full", xl: "1/3" }}
           direction="column"
@@ -248,6 +288,15 @@ const BgTetris = () => {
           gap={{ base: 2, sm: 4 }}
         >
           <Board currentBoard={board} border="2px solid white" />
+          <Controller
+            position="absolute"
+            bottom={0}
+            w="full"
+            justify="space-between"
+            move={move}
+            down={down}
+            release={release}
+          />
           <Button size={{ base: "sm", md: "md" }} onClick={handleGameStart}>
             Start Game
           </Button>

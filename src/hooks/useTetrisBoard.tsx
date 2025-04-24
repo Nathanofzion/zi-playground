@@ -94,7 +94,7 @@ function rotateBlock(shape: BlockShape): BlockShape {
   return rotated;
 }
 
-type Action = {
+export type Action = {
   type: "start" | "drop" | "commit" | "move";
   newBoard?: BoardShape;
   newBlock?: Block;
