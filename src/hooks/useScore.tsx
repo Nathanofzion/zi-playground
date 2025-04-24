@@ -1,6 +1,7 @@
 import { useSorobanReact } from "@soroban-react/core";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { toaster } from "@/components/ui/toaster";
 import { supabase } from "@/lib/supabase";
 
 export interface IScore {
@@ -8,6 +9,7 @@ export interface IScore {
 }
 
 const useScore = () => {
+  const queryClient = useQueryClient();
   const sorobanContext = useSorobanReact();
   const { address } = sorobanContext;
 
@@ -27,7 +29,14 @@ const useScore = () => {
   });
 
   const { mutateAsync: createScore } = useMutation({
-    mutationFn: async (score: IScore) =>
+    mutationFn: async (score: IScore) => {
+      if (!address) {
+        toaster.create({
+          type: "error",
+          title: "You have to connect wallet to submit your score.",
+        });
+        return;
+      }
       supabase.functions.invoke("score", {
         method: "POST",
         body: {
@@ -37,7 +46,15 @@ const useScore = () => {
             ...score,
           },
         },
-      }),
+      });
+    },
+    onSuccess: () => {
+      toaster.create({
+        type: "success",
+        title: "Your score has been submitted.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["score", address] });
+    },
   });
 
   return { scores: data, createScore };
