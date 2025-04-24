@@ -112,6 +112,7 @@ function LeadBoard() {
           <Box key={score.id} display="flex" justifyContent="space-between">
             <Text>{truncateAddress(score.publicKey as string)}</Text>
             <Text>{score.tetris}</Text>
+            <Text>{new Date(score.created_at as string).toLocaleString()}</Text>
           </Box>
         ))}
       </VStack>
