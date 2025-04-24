@@ -1,7 +1,13 @@
 "use client";
 
 import { FC, useEffect, useState } from "react";
-import { FaArrowDown, FaArrowLeft, FaArrowRight, FaUndo } from "react-icons/fa";
+import {
+  FaArrowDown,
+  FaArrowLeft,
+  FaArrowRight,
+  FaPlay,
+  FaUndo,
+} from "react-icons/fa";
 
 import { Box, BoxProps, Flex, FlexProps, Text, VStack } from "@chakra-ui/react";
 
@@ -186,16 +192,18 @@ interface ControllerProps extends FlexProps {
   move: (value: Action) => void;
   down: () => void;
   release: () => void;
+  onGameStart: () => void;
 }
 
-const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
+const Controller: FC<ControllerProps> = ({
+  move,
+  down,
+  release,
+  onGameStart,
+  ...props
+}) => {
   return (
-    <Flex
-      display={{ base: "flex", md: "none" }}
-      px={2}
-      align="center"
-      {...props}
-    >
+    <Flex display={{ base: "flex", md: "none" }} px={2} align="end" {...props}>
       <Flex gap={2}>
         <Button onClick={() => move({ type: "move", isPressingLeft: true })}>
           <FaArrowLeft />
@@ -205,6 +213,9 @@ const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
         </Button>
       </Flex>
       <Flex direction="column" gap={2}>
+        <Button mb={32} onClick={onGameStart}>
+          <FaPlay />
+        </Button>
         <Button onClick={() => move({ type: "move", isRotating: true })}>
           <FaUndo />
         </Button>
@@ -287,13 +298,11 @@ const BgTetris = () => {
             bottom={0}
             w="full"
             justify="space-between"
+            onGameStart={handleGameStart}
             move={move}
             down={down}
             release={release}
           />
-          <Button size={{ base: "sm", md: "md" }} onClick={handleGameStart}>
-            Start Game
-          </Button>
         </Flex>
 
         <Flex
