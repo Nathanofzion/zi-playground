@@ -5,9 +5,11 @@ import { FaArrowDown, FaArrowLeft, FaArrowRight, FaUndo } from "react-icons/fa";
 
 import { Box, BoxProps, Flex, FlexProps, Text, VStack } from "@chakra-ui/react";
 
+import useScore from "@/hooks/useScore";
 import { useTetris } from "@/hooks/useTetris";
 import { Action } from "@/hooks/useTetrisBoard";
 import { Block, BoardShape, CellOptions, SHAPES } from "@/types/tetris";
+import { truncateAddress } from "@/utils";
 import Button from "./Button";
 // Cell Component
 function Cell({ type }: { type: CellOptions }) {
@@ -97,15 +99,8 @@ const UpcomingBlocks: FC<UpcomingBlocksProps> = ({
 };
 
 // LeadBoard Component
-function LeadBoard({ lastUpdated }: { lastUpdated: number }) {
-  const [scores, setScores] = useState<{ name: string; score: number }[]>([]);
-
-  useEffect(() => {
-    const localScores = localStorage.getItem("tetrisScores");
-    if (localScores) {
-      setScores(JSON.parse(localScores));
-    }
-  }, [lastUpdated]);
+function LeadBoard() {
+  const { scores } = useScore();
 
   return (
     <Box w="full" p={4} color="white">
@@ -113,15 +108,12 @@ function LeadBoard({ lastUpdated }: { lastUpdated: number }) {
         Leaderboard
       </Text>
       <VStack gap={2} align="stretch">
-        {scores
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 5)
-          .map((score, index) => (
-            <Box key={index} display="flex" justifyContent="space-between">
-              <Text>{score.name}</Text>
-              <Text>{score.score}</Text>
-            </Box>
-          ))}
+        {scores?.map((score) => (
+          <Box key={score.id} display="flex" justifyContent="space-between">
+            <Text>{truncateAddress(score.publicKey as string)}</Text>
+            <Text>{score.tetris}</Text>
+          </Box>
+        ))}
       </VStack>
     </Box>
   );
@@ -224,11 +216,12 @@ const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
 };
 // Main Tetris Component
 const BgTetris = () => {
-  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
+  const { createScore } = useScore();
+
   const [bestScore, setBestScore] = useState("");
 
   const handleGameOver = async () => {
-    setLastUpdated(Date.now());
+    createScore({ tetris: score });
   };
 
   const {
@@ -276,7 +269,7 @@ const BgTetris = () => {
           w={{ base: "full", xl: "1/3" }}
           display={{ base: "none", md: "flex" }}
         >
-          <LeadBoard lastUpdated={lastUpdated} />
+          <LeadBoard />
         </Flex>
 
         <Flex

@@ -56,9 +56,17 @@ interface Props {
   children: ReactNode;
 }
 
+const getTheme = () => {
+  if (typeof window !== "undefined") {
+    const theme = localStorage.getItem("airdrop-theme");
+    if (theme) return theme as Theme;
+  }
+  return Theme.Particle;
+};
+
 const Provider: FC<Props> = ({ children }) => {
   const [signers, setSigners] = useState<Signer[]>([]);
-  const [theme, setTheme] = useState<Theme>(Theme.Particle);
+  const [theme, setTheme] = useState<Theme>(getTheme());
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -77,7 +85,12 @@ const Provider: FC<Props> = ({ children }) => {
     <AppContext.Provider
       value={{
         theme,
-        setTheme,
+        setTheme: (theme: Theme) => {
+          setTheme(theme);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("airdrop-theme", theme);
+          }
+        },
         signers,
         setSigners,
         openAirdropModal: () => setShowAirdropModal(true),
