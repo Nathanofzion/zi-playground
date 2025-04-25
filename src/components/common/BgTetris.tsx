@@ -203,7 +203,7 @@ const Controller: FC<ControllerProps> = ({
   ...props
 }) => {
   return (
-    <Flex display={{ base: "flex", md: "none" }} px={2} align="end" {...props}>
+    <Flex px={2} align="end" {...props}>
       <Flex gap={2}>
         <Button onClick={() => move({ type: "move", isPressingLeft: true })}>
           <FaArrowLeft />
@@ -292,10 +292,20 @@ const BgTetris = () => {
           align="center"
           gap={{ base: 2, sm: 4 }}
         >
-          <Board currentBoard={board} border="2px solid white" />
+          <Flex direction="column" align="center" gap={2}>
+            <Board currentBoard={board} border="2px solid white" />
+            <Button
+              display={{ base: "none", md: "flex" }}
+              mb={32}
+              onClick={handleGameStart}
+            >
+              Start game
+            </Button>
+          </Flex>
           <Controller
             position="absolute"
             bottom={0}
+            display={{ md: "none" }}
             w="full"
             justify="space-between"
             onGameStart={handleGameStart}
