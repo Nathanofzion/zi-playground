@@ -305,7 +305,7 @@ const BgTetris = () => {
           <Controller
             position="absolute"
             bottom={0}
-            display={{ md: "none" }}
+            display={{ base: "flex", md: "none" }}
             w="full"
             justify="space-between"
             onGameStart={handleGameStart}
