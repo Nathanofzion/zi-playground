@@ -305,6 +305,7 @@ const BgTetris = () => {
           <Controller move={move} down={down} release={release} />
           <Button
             position="absolute"
+            display={{ base: "flex", md: "none" }}
             bottom={0}
             left={4}
             onClick={handleGameStart}
