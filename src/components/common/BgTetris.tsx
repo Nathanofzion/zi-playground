@@ -192,32 +192,32 @@ interface ControllerProps extends FlexProps {
   move: (value: Action) => void;
   down: () => void;
   release: () => void;
-  onGameStart: () => void;
 }
 
-const Controller: FC<ControllerProps> = ({
-  move,
-  down,
-  release,
-  onGameStart,
-  ...props
-}) => {
+const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
   return (
-    <Flex px={2} align="end" {...props}>
-      <Flex gap={2}>
+    <Flex
+      position="absolute"
+      bottom={0}
+      display={{ base: "flex", md: "none" }}
+      px={4}
+      w="full"
+      h="full"
+      justify="space-between"
+      align="center"
+      {...props}
+    >
+      <Flex direction="column" gap={4}>
         <Button onClick={() => move({ type: "move", isPressingLeft: true })}>
           <FaArrowLeft />
         </Button>
-        <Button onClick={() => move({ type: "move", isPressingRight: true })}>
-          <FaArrowRight />
-        </Button>
-      </Flex>
-      <Flex direction="column" gap={2}>
-        <Button mb={32} onClick={onGameStart}>
-          <FaPlay />
-        </Button>
         <Button onClick={() => move({ type: "move", isRotating: true })}>
           <FaUndo />
+        </Button>
+      </Flex>
+      <Flex direction="column" gap={4}>
+        <Button onClick={() => move({ type: "move", isPressingRight: true })}>
+          <FaArrowRight />
         </Button>
         <Button onTouchStart={down} onTouchEnd={release}>
           <FaArrowDown />
@@ -302,17 +302,15 @@ const BgTetris = () => {
               Start game
             </Button>
           </Flex>
-          <Controller
+          <Controller move={move} down={down} release={release} />
+          <Button
             position="absolute"
             bottom={0}
-            display={{ base: "flex", md: "none" }}
-            w="full"
-            justify="space-between"
-            onGameStart={handleGameStart}
-            move={move}
-            down={down}
-            release={release}
-          />
+            left={4}
+            onClick={handleGameStart}
+          >
+            <FaPlay />
+          </Button>
         </Flex>
 
         <Flex
