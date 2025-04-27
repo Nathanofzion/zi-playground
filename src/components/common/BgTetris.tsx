@@ -22,7 +22,7 @@ function Cell({ type }: { type: CellOptions }) {
   return (
     <Box
       className={`${type} cell`}
-      w={{ base: "18px", xl: "28px" }}
+      w={{ base: "18px", xl: "20px" }}
       borderRadius="lg"
     />
   );
@@ -89,7 +89,7 @@ const UpcomingBlocks: FC<UpcomingBlocksProps> = ({
                       <Box
                         key={`${blockIndex}-${rowIndex}-${cellIndex}`}
                         className={`cell ${cellClass}`}
-                        w={{ base: "18px", xl: "28px" }}
+                        w={{ base: "18px", xl: "20px" }}
                         borderRadius="lg"
                       />
                     );
@@ -133,7 +133,7 @@ const Title = () => {
       className="tetris-title"
       textAlign="center"
       fontFamily="sans-serif"
-      fontSize={{ base: "2xl", sm: "3xl", md: "6xl" }}
+      fontSize={{ base: "2xl", md: "4xl" }}
       fontWeight="extrabold"
     >
       <Text as="span" color="red.500">

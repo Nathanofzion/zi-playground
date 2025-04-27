@@ -31,13 +31,9 @@ const useScore = () => {
   const { mutateAsync: createScore } = useMutation({
     mutationFn: async (score: IScore) => {
       if (!address) {
-        toaster.create({
-          type: "error",
-          title: "You have to connect wallet to submit your score.",
-        });
-        return;
+        throw new Error("You have to connect wallet to submit your score.");
       }
-      supabase.functions.invoke("score", {
+      const { data } = await supabase.functions.invoke("score", {
         method: "POST",
         body: {
           action: "create",
@@ -47,6 +43,7 @@ const useScore = () => {
           },
         },
       });
+      return data;
     },
     onSuccess: () => {
       toaster.create({
@@ -54,6 +51,12 @@ const useScore = () => {
         title: "Your score has been submitted.",
       });
       queryClient.invalidateQueries({ queryKey: ["score", address] });
+    },
+    onError: (error) => {
+      toaster.create({
+        type: "error",
+        title: error.message,
+      });
     },
   });
 
