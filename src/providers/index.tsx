@@ -17,6 +17,7 @@ import InfoModal from "@/components/modals/InfoModal";
 import LiquidityModal from "@/components/modals/LiquidityModal";
 import LoginModal from "@/components/modals/LoginModal";
 import ReceiveModal from "@/components/modals/ReceiveModal";
+import RewardModal from "@/components/modals/RewardsModal";
 import SendModal from "@/components/modals/SendModal";
 import StakingModal from "@/components/modals/StakingModal";
 import SwapModal from "@/components/modals/SwapModal";
@@ -43,6 +44,7 @@ export interface IApp {
   openAtomicModal?: () => void;
   openSpaceInvadersModal?: () => void;
   openTetrisModal?: () => void;
+  openRewardsModal?: () => void;
 }
 
 export const AppContext = createContext<IApp>({
@@ -80,6 +82,7 @@ const Provider: FC<Props> = ({ children }) => {
   const [showAtomicModal, setShowAtomicModal] = useState(false);
   const [showSpaceInvadersModal, setShowSpaceInvadersModal] = useState(false);
   const [showTetrisModal, setShowTetrisModal] = useState(false);
+  const [showRewardsModal, setShowRewardsModal] = useState(false);
 
   return (
     <AppContext.Provider
@@ -106,6 +109,7 @@ const Provider: FC<Props> = ({ children }) => {
         openAtomicModal: () => setShowAtomicModal(true),
         openSpaceInvadersModal: () => setShowSpaceInvadersModal(true),
         openTetrisModal: () => setShowTetrisModal(true),
+        openRewardsModal: () => setShowRewardsModal(true),
       }}
     >
       <ThemeProvider>
@@ -163,6 +167,10 @@ const Provider: FC<Props> = ({ children }) => {
             <TetrisModal
               isOpen={showTetrisModal}
               onClose={() => setShowTetrisModal(false)}
+            />
+            <RewardModal
+              isOpen={showRewardsModal}
+              onClose={() => setShowRewardsModal(false)}
             />
           </SorobanReactProvider>
           <ReactQueryDevtools initialIsOpen={false} />
