@@ -1,7 +1,7 @@
 "use client";
 import { useContext, useState } from "react";
 
-import { Box, Flex, Image } from "@chakra-ui/react";
+import { Box, Flex, Image, useClipboard } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
 import { AppContext } from "@/providers";
@@ -13,9 +13,17 @@ import ServicesModal from "./modals/ServicesModal";
 import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
+const getInviteLink = (address?: string) => {
+  if (typeof window === "undefined" || !address) return "";
+  return `${window.location.origin}/?ref=${address}`;
+};
+
 const Header = () => {
   const { address, disconnect } = useSorobanReact();
-  const { openAirdropModal, openStakingModal, openLoginModal } =
+  const { copy } = useClipboard({
+    value: getInviteLink(address),
+  });
+  const { openAirdropModal, openStakingModal, openRewardsModal } =
     useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
@@ -46,7 +54,7 @@ const Header = () => {
           >
             <Button onClick={openAirdropModal}>Airdrop</Button>
             <Button onClick={openStakingModal}>Staking</Button>
-            <Button onClick={openLoginModal}>Rewards</Button>
+            <Button onClick={openRewardsModal}>Rewards</Button>
           </Flex>
           <Flex gap={{ base: "8px", lg: "16px" }} align="center">
             <ColorModeButton
@@ -75,6 +83,9 @@ const Header = () => {
                     border="2px solid transparent"
                     rounded="xl"
                   >
+                    <MenuItem p="8px 16px" value="invite_link" onClick={copy}>
+                      Copy invite link
+                    </MenuItem>
                     <MenuItem
                       p="8px 16px"
                       value="disconnect"
