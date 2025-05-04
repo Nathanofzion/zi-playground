@@ -318,17 +318,6 @@ entrypoint = "./functions/auth/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/auth/*.html" ]
 
-[functions.smart-wallet]
-enabled = true
-verify_jwt = true
-import_map = "./functions/smart-wallet/deno.json"
-# Uncomment to specify a custom file path to the entrypoint.
-# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/smart-wallet/index.ts"
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/smart-wallet/*.html" ]
-
 [functions.soroswap]
 enabled = true
 verify_jwt = true
@@ -350,3 +339,14 @@ entrypoint = "./functions/score/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/score/*.html" ]
+
+[functions.rewards]
+enabled = true
+verify_jwt = true
+import_map = "./functions/rewards/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/rewards/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/rewards/*.html" ]
