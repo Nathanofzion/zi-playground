@@ -53,6 +53,8 @@ Deno.serve((req) =>
         await req.json();
 
       switch (action) {
+        case "profile":
+          return handleProfile(data);
         case "generate-registration-options":
           return handleRegistration();
         case "verify-registration":
@@ -70,6 +72,20 @@ Deno.serve((req) =>
     throw new MethodNotAllowedException();
   })
 );
+
+async function handleProfile(data: any) {
+  const { token } = data;
+  const decoded = jwt.verify(token, secretKey);
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("id, publicKey, email")
+    .eq("user_id", decoded.id)
+    .single();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return user;
+}
 
 // Registration Handler
 async function handleRegistration() {
@@ -142,7 +158,7 @@ async function handleRegistrationVerification(
     if (referrer) {
       const { data: user, error: userError } = await supabase
         .from("users")
-        .select("referral_count")
+        .select("id, referral_count")
         .eq("publicKey", referrer)
         .single();
       if (userError) {
@@ -156,6 +172,14 @@ async function handleRegistrationVerification(
         .eq("publicKey", referrer);
       if (updateError) {
         throw new Error(updateError.message);
+      }
+      const { error: rewardError } = await supabase.from("rewards").insert({
+        user_id: user.id,
+        type: "invited",
+        amount: 1,
+      });
+      if (rewardError) {
+        throw new Error(rewardError.message);
       }
     }
 
