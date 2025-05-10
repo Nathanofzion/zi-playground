@@ -35,7 +35,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Provider>
           <Background />
-          <Flex h='100vh' direction='column'>
+          <Flex h="100vh" direction="column">
             <Header />
             {children}
           </Flex>

@@ -4,23 +4,28 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toaster } from "@/components/ui/toaster";
 import zionToken from "@/constants/zionToken";
 import { supabase } from "@/lib/supabase";
+import { IRewards } from "@/interfaces";
 
 const useRewards = () => {
   const queryClient = useQueryClient();
   const { address } = useSorobanReact();
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery<IRewards>({
     queryKey: ["rewards", address],
-    queryFn: () => {
+    queryFn: async () => {
       if (!address) return null;
 
-      return supabase.functions.invoke("rewards", {
+      const { data, error } = await supabase.functions.invoke("rewards", {
         method: "POST",
         body: {
           action: "get-rewards",
           token: localStorage.getItem("token"),
         },
       });
+
+      if (error) throw new Error(error.message);
+
+      return data;
     },
     enabled: !!address,
   });
@@ -58,7 +63,13 @@ const useRewards = () => {
   });
 
   return {
-    rewards: data?.data ?? { referral_count: 0 },
+    rewards: data ?? {
+      referral_count: 0,
+      total_rewards: 0,
+      claimed_rewards: 0,
+      remaining_rewards: 0,
+      history: [],
+    },
     claimRewards,
     isClaiming: isPending,
     isLoading,

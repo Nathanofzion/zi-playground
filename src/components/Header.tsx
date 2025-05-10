@@ -1,10 +1,11 @@
 "use client";
 import { useContext, useState } from "react";
 
-import { Box, Flex, Image, useClipboard } from "@chakra-ui/react";
+import { Box, Flex, Image } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
-import { AppContext } from "@/providers";
+import { supabase } from "@/lib/supabase";
+import { AppContext } from "@/providers/AppProvider";
 import { truncateAddress } from "@/utils";
 import Button from "./common/Button";
 import BalanceModal from "./modals/BalanceModal";
@@ -13,21 +14,31 @@ import ServicesModal from "./modals/ServicesModal";
 import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
-const getInviteLink = (address?: string) => {
-  if (typeof window === "undefined" || !address) return "";
-  return `${window.location.origin}/?ref=${address}`;
-};
-
 const Header = () => {
   const { address, disconnect } = useSorobanReact();
-  const { copy } = useClipboard({
-    value: getInviteLink(address),
-  });
-  const { openAirdropModal, openStakingModal, openRewardsModal } =
+  const { user, openAirdropModal, openStakingModal, openRewardsModal, openLoginModal } =
     useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
+
+  const handleClickRewards = async () => {
+    if (!address) {
+      setShowConnectWalletModal(true);
+      return;
+    }
+    const { data, error } = await supabase.auth.getUser();
+    if (user?.email || (!error && data.user)) {
+      openRewardsModal?.();
+    } else {
+      openLoginModal?.();
+    }
+  };
+
+  const handleDisconnect = async () => {
+    await supabase.auth.signOut();
+    disconnect();
+  };
 
   return (
     <>
@@ -54,7 +65,7 @@ const Header = () => {
           >
             <Button onClick={openAirdropModal}>Airdrop</Button>
             <Button onClick={openStakingModal}>Staking</Button>
-            <Button onClick={openRewardsModal}>Rewards</Button>
+            <Button onClick={handleClickRewards}>Rewards</Button>
           </Flex>
           <Flex gap={{ base: "8px", lg: "16px" }} align="center">
             <ColorModeButton
@@ -83,13 +94,10 @@ const Header = () => {
                     border="2px solid transparent"
                     rounded="xl"
                   >
-                    <MenuItem p="8px 16px" value="invite_link" onClick={copy}>
-                      Copy invite link
-                    </MenuItem>
                     <MenuItem
                       p="8px 16px"
                       value="disconnect"
-                      onClick={() => disconnect()}
+                      onClick={handleDisconnect}
                     >
                       Disconnect
                     </MenuItem>
