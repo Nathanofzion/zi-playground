@@ -21,7 +21,7 @@ const useUser = () => {
       if (error) {
         throw error;
       }
-      return data.user;
+      return data;
     },
     enabled: !!address,
   });
