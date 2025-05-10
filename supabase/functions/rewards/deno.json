@@ -1,5 +1,6 @@
 {
   "imports": {
-    "@stellar/stellar-sdk": "npm:@stellar/stellar-sdk@^13.3.0"
+    "@stellar/stellar-sdk": "npm:@stellar/stellar-sdk@^13.3.0",
+    "jsonwebtoken": "npm:jsonwebtoken@^9.0.2"
   }
 }

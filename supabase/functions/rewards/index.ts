@@ -44,11 +44,18 @@ Deno.serve((req) =>
 const handleGetRewards = async (user_id: number) => {
   const { data: user, error } = await supabase
     .from("users")
-    .select("referral_count, claimed_rewards")
+    .select("id, referral_count, claimed_rewards")
     .eq("user_id", user_id)
     .single();
 
   if (error) throw new Error(error.message);
+
+  const { data: rewards, error: rewardsError } = await supabase
+    .from("rewards")
+    .select()
+    .eq("user_id", user.id);
+
+  if (rewardsError) throw new Error(rewardsError.message);
 
   const referral_count = user.referral_count;
   const total_rewards = referral_count * 10 + Math.floor(referral_count / 10) * 100;
@@ -59,13 +66,14 @@ const handleGetRewards = async (user_id: number) => {
     total_rewards,
     claimed_rewards,
     remaining_rewards: total_rewards - claimed_rewards,
+    history: rewards,
   };
 };
 
 const handleClaimRewards = async (user_id: number) => {
   const { data: user, error } = await supabase
     .from("users")
-    .select("referral_count, claimed_rewards, publicKey")
+    .select("id, referral_count, claimed_rewards, publicKey")
     .eq("user_id", user_id)
     .single();
 
@@ -101,6 +109,14 @@ const handleClaimRewards = async (user_id: number) => {
     .eq("user_id", user_id);
 
   if (updateError) throw new Error(updateError.message);
+
+  const { error: rewardError } = await supabase.from("rewards").insert({
+    user_id: user.id,
+    type: "claimed",
+    amount: remaining_rewards,
+  });
+
+  if (rewardError) throw new Error(rewardError.message);
 
   return {
     success: true,
