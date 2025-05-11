@@ -6,6 +6,7 @@ import { useSorobanReact } from "@soroban-react/core";
 
 import { AppContext } from "@/providers";
 import { truncateAddress } from "@/utils";
+import { useRouter } from "next/router";
 import Button from "./common/Button";
 import BalanceModal from "./modals/BalanceModal";
 import ConnectWalletModal from "./modals/ConnectWalletModal";
@@ -14,6 +15,7 @@ import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 const Header = () => {
+  const navigate = useRouter();
   const { address, disconnect } = useSorobanReact();
   const { openAirdropModal, openStakingModal, openLoginModal } =
     useContext(AppContext);
@@ -34,6 +36,8 @@ const Header = () => {
             height={{ base: "48px", lg: "70px" }}
             alt="logo"
             src="/logo.png"
+            cursor="pointer"
+            onClick={() => navigate.push("/")}
           />
           <Flex
             position={{ base: "fixed", lg: "static" }}
