@@ -7,19 +7,23 @@ import { useSorobanReact } from "@soroban-react/core";
 import { supabase } from "@/lib/supabase";
 import { AppContext } from "@/providers/AppProvider";
 import { truncateAddress } from "@/utils";
-import { useRouter } from "next/router";
 import Button from "./common/Button";
 import BalanceModal from "./modals/BalanceModal";
 import ConnectWalletModal from "./modals/ConnectWalletModal";
 import ServicesModal from "./modals/ServicesModal";
 import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
+import Link from "next/link";
 
 const Header = () => {
-  const navigate = useRouter();
   const { address, disconnect } = useSorobanReact();
-  const { user, openAirdropModal, openStakingModal, openRewardsModal, openLoginModal } =
-    useContext(AppContext);
+  const {
+    user,
+    openAirdropModal,
+    openStakingModal,
+    openRewardsModal,
+    openLoginModal,
+  } = useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
@@ -50,14 +54,15 @@ const Header = () => {
           justify="space-between"
           align="center"
         >
-          <Image
-            width={{ base: "48px", lg: "70px" }}
-            height={{ base: "48px", lg: "70px" }}
-            alt="logo"
-            src="/logo.png"
-            cursor="pointer"
-            onClick={() => navigate.push("/")}
-          />
+          <Link href="/">
+            <Image
+              width={{ base: "48px", lg: "70px" }}
+              height={{ base: "48px", lg: "70px" }}
+              alt="logo"
+              src="/logo.png"
+              cursor="pointer"
+            />
+          </Link>
           <Flex
             position={{ base: "fixed", lg: "static" }}
             left="50%"
