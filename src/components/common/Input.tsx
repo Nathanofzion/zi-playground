@@ -1,6 +1,8 @@
+import { forwardRef, ForwardRefRenderFunction } from "react";
+
 import { Input, InputProps } from "@chakra-ui/react";
 
-export default function (props: InputProps) {
+const CustomInput: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (props, ref) => {
   return (
     <Input
       p="1rem"
@@ -8,7 +10,10 @@ export default function (props: InputProps) {
       border="none"
       rounded="full"
       shadow="0 8px 32px 0 rgba(31, 38, 135, 0.37)"
+      ref={ref}
       {...props}
     />
   );
-}
+};
+
+export default forwardRef(CustomInput);

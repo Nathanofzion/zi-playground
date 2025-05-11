@@ -9,8 +9,10 @@
     "lint": "next lint --fix"
   },
   "dependencies": {
+    "@chakra-ui/charts": "^3.17.0",
     "@chakra-ui/react": "^3.3.1",
     "@emotion/react": "^11.14.0",
+    "@hookform/resolvers": "^5.0.1",
     "@iarna/toml": "^2.2.5",
     "@react-three/drei": "^9.120.5",
     "@react-three/fiber": "^8.17.10",
@@ -31,21 +33,26 @@
     "bignumber.js": "^9.3.0",
     "canvas-confetti": "^1.9.3",
     "html5-qrcode": "^2.3.8",
+    "lodash": "^4.17.21",
     "next": "14.2.22",
     "next-themes": "^0.4.4",
     "passkey-kit": "^0.10.13",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.56.2",
     "react-icons": "^5.4.0",
     "react-particles": "^2.12.2",
     "react-social-icons": "^6.18.0",
+    "recharts": "^2.15.3",
     "three": "^0.172.0",
     "tsparticles-shape-image": "^2.12.0",
     "tsparticles-slim": "^2.12.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.9.0",
+    "@types/lodash": "^4.17.16",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

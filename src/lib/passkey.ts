@@ -6,18 +6,21 @@ import { v4 as uuid } from "uuid";
 import { supabase } from "./supabase";
 
 export const handleRegister = async () => {
-  const { data: options } = await supabase.functions.invoke("smart-wallet", {
+  const params = new URLSearchParams(window.location.search);
+  const referrer = params.get("ref");
+  const { data: options } = await supabase.functions.invoke("auth", {
     method: "POST",
     body: {
       action: "generate-registration-options",
     },
   });
   const regResponse = await startRegistration({ optionsJSON: options });
-  const { data: result } = await supabase.functions.invoke("smart-wallet", {
+  const { data: result } = await supabase.functions.invoke("auth", {
     method: "POST",
     body: {
       action: "verify-registration",
       user_id: options.user.id,
+      referrer,
       data: regResponse,
     },
   });
@@ -26,7 +29,7 @@ export const handleRegister = async () => {
 
 export const handleLogin = async () => {
   const challenge_id = uuid();
-  const { data: options } = await supabase.functions.invoke("smart-wallet", {
+  const { data: options } = await supabase.functions.invoke("auth", {
     method: "POST",
     body: {
       action: "generate-authentication-options",
@@ -34,7 +37,7 @@ export const handleLogin = async () => {
     },
   });
   const authResponse = await startAuthentication(options);
-  const { data: result } = await supabase.functions.invoke("smart-wallet", {
+  const { data: result } = await supabase.functions.invoke("auth", {
     method: "POST",
     body: {
       action: "verify-authentication",
@@ -53,7 +56,7 @@ export const handleSign = async (
     accountToSign?: string;
   }
 ) => {
-  const { data } = await supabase.functions.invoke("smart-wallet", {
+  const { data } = await supabase.functions.invoke("auth", {
     method: "POST",
     body: {
       action: "sign-transaction",

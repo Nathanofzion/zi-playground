@@ -2,10 +2,13 @@ import {
   Account,
   BASE_FEE,
   Contract,
+  Keypair,
   scValToNative,
+  Transaction,
   TransactionBuilder,
   xdr,
 } from "npm:@stellar/stellar-sdk";
+
 import { Api, Server } from "npm:@stellar/stellar-sdk/rpc";
 
 const sorobanRpcUrl = Deno.env.get("SOROBAN_RPC_URL")!;
@@ -16,10 +19,29 @@ export const server = new Server(sorobanRpcUrl);
 const defaultAddress =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
+export async function sendTx(tx: Transaction) {
+  const sendTransactionResponse = await server.sendTransaction(tx);
+
+  let waitTime = 1000;
+  const exponentialFactor = 1.5;
+
+  do {
+    const getTransactionResponse = await server.getTransaction(
+      sendTransactionResponse.hash
+    );
+    if (getTransactionResponse.status != Api.GetTransactionStatus.NOT_FOUND) {
+      return getTransactionResponse;
+    }
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
+    waitTime = waitTime * exponentialFactor;
+  } while (true);
+}
+
 export type InvokeArgs = {
   contractAddress: string;
   method: string;
   args?: xdr.ScVal[] | undefined;
+  secretKey?: string;
 };
 
 export const simulateTransaction = async ({
@@ -50,4 +72,35 @@ export const simulateTransaction = async ({
   }
 
   return scValToNative(simulated.result.retval);
+};
+
+export const contractInvoke = async ({
+  contractAddress,
+  method,
+  args,
+  secretKey,
+}: InvokeArgs) => {
+  if (!secretKey) throw new Error("Secret key is required!");
+
+  const sourceKeypair = Keypair.fromSecret(secretKey);
+
+  if (!sourceKeypair) throw new Error("Invalid signature!");
+
+  const address = sourceKeypair.publicKey();
+  const account = await server.getAccount(address);
+
+  const contract = new Contract(contractAddress!);
+
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase,
+  })
+    .addOperation(contract.call(method, ...args!))
+    .setTimeout(30)
+    .build();
+
+  const preparedTx = await server.prepareTransaction(tx);
+  preparedTx.sign(sourceKeypair);
+
+  return sendTx(preparedTx);
 };
