@@ -4,7 +4,7 @@ import { Flex, Heading, Text } from "@chakra-ui/react";
 
 import { Action, Theme } from "@/enums";
 import useAirdrop from "@/hooks/useAirdrop";
-import { AppContext } from "@/providers";
+import { AppContext } from "@/providers/AppProvider";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import Button from "../common/Button";
 import { ModalProps } from "../common/Modal";

@@ -6,7 +6,7 @@ import { useSorobanReact } from "@soroban-react/core";
 
 import Viewer from "@/components/Earth";
 import { Theme } from "@/enums";
-import { AppContext } from "@/providers";
+import { AppContext } from "@/providers/AppProvider";
 
 export default function Home() {
   const { theme } = useContext(AppContext);
