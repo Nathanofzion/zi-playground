@@ -13,11 +13,17 @@ import ConnectWalletModal from "./modals/ConnectWalletModal";
 import ServicesModal from "./modals/ServicesModal";
 import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
+import Link from "next/link";
 
 const Header = () => {
   const { address, disconnect } = useSorobanReact();
-  const { user, openAirdropModal, openStakingModal, openRewardsModal, openLoginModal } =
-    useContext(AppContext);
+  const {
+    user,
+    openAirdropModal,
+    openStakingModal,
+    openRewardsModal,
+    openLoginModal,
+  } = useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
@@ -48,12 +54,15 @@ const Header = () => {
           justify="space-between"
           align="center"
         >
-          <Image
-            width={{ base: "48px", lg: "70px" }}
-            height={{ base: "48px", lg: "70px" }}
-            alt="logo"
-            src="/logo.png"
-          />
+          <Link href="/">
+            <Image
+              width={{ base: "48px", lg: "70px" }}
+              height={{ base: "48px", lg: "70px" }}
+              alt="logo"
+              src="/logo.png"
+              cursor="pointer"
+            />
+          </Link>
           <Flex
             position={{ base: "fixed", lg: "static" }}
             left="50%"
