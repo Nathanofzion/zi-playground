@@ -108,6 +108,12 @@ export default function PlaygroundPage() {
           borderWidth="1px"
           borderColor={borderColor}
         >
+          <CloseButton
+            position="absolute"
+            top={2}
+            right={2}
+            onClick={() => router.push("/")}
+          />
           <Text color={textColor}>Rewards List</Text>
           <Table.ScrollArea maxW="full">
             <Table.Root>
