@@ -24,19 +24,9 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
 
 ### Getting Started
 
-#### First, run the development server:
-```
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev 
-```
-
 #### **Configure Environment Variables**:
-   - Copy `.env.local.example` to `.env.local`.
+   - Copy `.env.development` to `.env.local`.
+   - Copy `supabase/.env.development` to `supabase/.env.local`.
    - Add credentials for:
      - **Firebase** (for referral system and NextAuth.js adapter)
      - **Supabase** (for serverless functions and database)
@@ -44,6 +34,11 @@ bun dev
      - Blockchain-related keys (e.g., wallet or contract addresses, if applicable)
 
 #### **Run Development Server**:
+   ```bash
+   supabase start
+   supabase functions serve --env-file ./supabase/.env.local
+   ```
+
    ```bash
    pnpm dev
    ```
