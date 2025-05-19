@@ -80,7 +80,7 @@ async function handleProfile(data: any) {
   const decoded = jwt.verify(token, secretKey);
   const { data: user, error } = await supabase
     .from("users")
-    .select("id, publicKey, email")
+    .select("id, publicKey, email, role")
     .eq("user_id", decoded.id)
     .single();
   if (error) {

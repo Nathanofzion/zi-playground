@@ -31,6 +31,8 @@ Deno.serve((req) =>
       switch (action) {
         case "get-rewards":
           return handleGetRewards(decoded.id);
+        case "get-rewards-list":
+          return handleGetRewardsList();
         case "claim-rewards":
           return handleClaimRewards(decoded.id);
         default:
@@ -121,4 +123,12 @@ const handleClaimRewards = async (user_id: number) => {
   return {
     success: true,
   };
+};
+
+const handleGetRewardsList = async () => {
+  const { data, error } = await supabase.from("rewards").select("*, users(email, publicKey)");
+
+  if (error) throw new Error(error.message);
+
+  return data;
 };
