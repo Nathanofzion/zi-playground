@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { useRouter } from "next/navigation";
 
 import { Flex, Heading, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
@@ -15,6 +16,7 @@ const getInviteLink = (address?: string) => {
 };
 
 const RewardsModal: FC<ModalProps> = (props) => {
+  const router = useRouter();
   const { address } = useSorobanReact();
   const { rewards, claimRewards, isClaiming } = useRewards();
 
@@ -34,8 +36,8 @@ const RewardsModal: FC<ModalProps> = (props) => {
         </Heading>
         <Flex direction="column" gap={1}>
           <Text>
-            You&apos;ve invited <b>{rewards.referral_count}</b> friends to
-            join the platform.
+            You&apos;ve invited <b>{rewards.referral_count}</b> friends to join
+            the platform.
           </Text>
           <Text>
             You&apos;ve earned <b>{rewards.total_rewards}</b> ZI from your
@@ -54,7 +56,16 @@ const RewardsModal: FC<ModalProps> = (props) => {
             <ClipboardIconButton />
           </ClipboardRoot>
         </Flex>
-        <Flex justify="end">
+        <Flex justify="end" gap={2}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              router.push("/dashboard");
+              props.onClose?.();
+            }}
+          >
+            Go to Dashboard
+          </Button>
           <Button
             disabled={rewards.remaining_rewards === 0 || isClaiming}
             loading={isClaiming}
