@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Box, Flex, Heading, HStack, Text } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSorobanReact } from "@soroban-react/core";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
@@ -22,6 +23,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
+  const queryClient = useQueryClient();
   const { address } = useSorobanReact();
   const router = useRouter();
   const {
@@ -41,22 +43,24 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
       if (!address) {
         throw new Error("Please connect your wallet to sign up");
       }
-      const { error: userError } = await supabase
-        .from("users")
-        .update({
-          email: data.email,
-        })
-        .eq("publicKey", address);
 
-      if (userError) {
-        throw new Error(userError.message);
-      }
+      await supabase.functions.invoke("auth", {
+        method: "POST",
+        body: {
+          action: "update-profile",
+          data: {
+            token: localStorage.getItem("token"),
+            email: data.email,
+          },
+        },
+      });
 
       toaster.create({
         type: "success",
         title: "You have successfully signed up",
       });
       onClose?.();
+      queryClient.invalidateQueries({ queryKey: ["user", address] });
       router.push("/dashboard");
     } catch (error) {
       console.error("Error signing up:", error);
