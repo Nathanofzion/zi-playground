@@ -5,10 +5,10 @@ import { SocialIcon } from "react-social-icons";
 import { z } from "zod";
 
 import { Box, Flex, Heading, HStack, Text } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSorobanReact } from "@soroban-react/core";
 
 import { supabase } from "@/lib/supabase";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import Button from "../common/Button";
 import Input from "../common/Input";
@@ -17,7 +17,6 @@ import { toaster } from "../ui/toaster";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -34,7 +33,6 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
     mode: "onChange",
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
@@ -42,13 +40,6 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
     try {
       if (!address) {
         throw new Error("Please connect your wallet to sign up");
-      }
-      const { error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      if (error) {
-        throw new Error(error.message);
       }
       const { error: userError } = await supabase
         .from("users")
@@ -98,16 +89,6 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
                 {errors.email && (
                   <Text color="red.500" fontSize="sm">
                     {errors.email.message}
-                  </Text>
-                )}
-                <Input
-                  placeholder="Password"
-                  type="password"
-                  {...register("password")}
-                />
-                {errors.password && (
-                  <Text color="red.500" fontSize="sm">
-                    {errors.password.message}
                   </Text>
                 )}
               </Flex>
