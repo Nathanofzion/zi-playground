@@ -21,7 +21,7 @@ const Header = () => {
     openAirdropModal,
     openStakingModal,
     openRewardsModal,
-    openLoginModal,
+    openEmailRegistrationModal,
   } = useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
@@ -35,7 +35,7 @@ const Header = () => {
     if (user?.email) {
       openRewardsModal?.();
     } else {
-      openLoginModal?.();
+      openEmailRegistrationModal?.();
     }
   };
 

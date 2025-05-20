@@ -16,13 +16,13 @@ import Input from "../common/Input";
 import { ModalProps } from "../common/Modal";
 import { toaster } from "../ui/toaster";
 
-const loginSchema = z.object({
+const emailRegistrationSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type EmailRegistrationFormData = z.infer<typeof emailRegistrationSchema>;
 
-const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
+const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const queryClient = useQueryClient();
   const { address } = useSorobanReact();
   const router = useRouter();
@@ -30,15 +30,15 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<EmailRegistrationFormData>({
+    resolver: zodResolver(emailRegistrationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: EmailRegistrationFormData) => {
     try {
       if (!address) {
         throw new Error("Please connect your wallet to sign up");
@@ -97,11 +97,10 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
                 )}
               </Flex>
               <Button w="80%" type="submit" loading={isSubmitting}>
-                SIGN UP
+                Register email
               </Button>
             </Flex>
           </form>
-          <Text>OR LOGIN WITH</Text>
           <Box
             w="90%"
             h="0.3rem"
@@ -113,11 +112,11 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
             <SocialIcon network="whatsapp" />
             <SocialIcon network="x" />
           </HStack>
-          <Text cursor="pointer">FORGOT PASSWORD?</Text>
+          <Text>Send Your Magic Link with Fb, WhatsApp, X & email.</Text>
         </Flex>
       </ModalContent>
     </Modal>
   );
 };
 
-export default LoginModal;
+export default EmailRegistrationModal;
