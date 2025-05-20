@@ -1,9 +1,12 @@
 <div align="center">
 
 # 🚀 Zig3 V3, Stellar, Soroban, Airdrop, Classic Referrel, Staking Next.js 14 Referrel Web Template
-
+<p align="center">
+  <a href="https://zioncoin.org.uk/">
+    <img src="https://zioncoin.org.uk/wp-content/uploads/2023/12/Zi_Zioncoin_Ticker.png" alt="Zioncoin.org.uk"/>
+  </a>
+</p>
 [![Stellar.org](https://cdn.sanity.io/images/e2r40yh6/production-i18n/0a68a5dca134b65df72fd765865b65af68233e64-3104x1072.png?w=1440&auto=format&dpr=2)](https://stellar.org/)
-[![Zioncoin.org.uk](https://zioncoin.org.uk/wp-content/uploads/2023/12/Zi_Zioncoin_Ticker.png)](hhttps://zioncoin.org.uk/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/) 
 [![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![NextAuth.js](https://img.shields.io/badge/NextAuth.js-black?style=for-the-badge&logo=nextauth&logoColor=white)](https://next-auth.js.org/)
