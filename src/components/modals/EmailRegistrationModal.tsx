@@ -112,7 +112,9 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
             <SocialIcon network="whatsapp" />
             <SocialIcon network="x" />
           </HStack>
-          <Text>Send Your Magic Link with Fb, WhatsApp, X & email.</Text>
+          <Text textAlign="center">
+            Send Your Magic Link with Fb, WhatsApp, X & email.
+          </Text>
         </Flex>
       </ModalContent>
     </Modal>
