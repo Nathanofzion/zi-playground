@@ -1,7 +1,18 @@
+export enum Role {
+  ADMIN = "ADMIN",
+  USER = "USER",
+}
+
+export enum RewardType {
+  INVITED = "INVITED",
+  CLAIMED = "CLAIMED",
+}
+
 export interface IUser {
   id: string;
   publicKey: string;
   email: string;
+  role: Role;
 }
 
 export interface IWallet {
@@ -37,7 +48,7 @@ export interface IPair {
 
 export interface IRewardsHistory {
   id: number;
-  type: "invited" | "claimed";
+  type: RewardType;
   amount: number;
   created_at: string;
 }
@@ -48,4 +59,14 @@ export interface IRewards {
   claimed_rewards: number;
   remaining_rewards: number;
   history: IRewardsHistory[];
+}
+
+export interface IRewardItem {
+  id: number;
+  users?: {
+    email: string;
+    publicKey: string;
+  };
+  amount: number;
+  type: RewardType;
 }

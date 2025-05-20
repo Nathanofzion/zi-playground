@@ -12,7 +12,7 @@ import {
 import TetrisModal from "@/components/modals/guides/TetrisModal";
 import InfoModal from "@/components/modals/InfoModal";
 import LiquidityModal from "@/components/modals/LiquidityModal";
-import LoginModal from "@/components/modals/LoginModal";
+import EmailRegistrationModal from "@/components/modals/EmailRegistrationModal";
 import ReceiveModal from "@/components/modals/ReceiveModal";
 import RewardModal from "@/components/modals/RewardsModal";
 import SendModal from "@/components/modals/SendModal";
@@ -32,7 +32,7 @@ export interface IApp {
   setSigners?: (signers: Signer[]) => void;
   token?: string | null;
   setToken?: (token: string) => void;
-  openLoginModal?: () => void;
+  openEmailRegistrationModal?: () => void;
   openSendModal?: () => void;
   openReceiveModal?: () => void;
   openSwapModal?: () => void;
@@ -78,7 +78,7 @@ const Provider: FC<Props> = ({ children }) => {
   const [token, setToken] = useState<string | null>(getToken());
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showEmailRegistrationModal, setShowEmailRegistrationModal] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [showSwapModal, setShowSwapModal] = useState(false);
@@ -115,7 +115,7 @@ const Provider: FC<Props> = ({ children }) => {
         },
         openAirdropModal: () => setShowAirdropModal(true),
         openStakingModal: () => setShowStakingModal(true),
-        openLoginModal: () => setShowLoginModal(true),
+        openEmailRegistrationModal: () => setShowEmailRegistrationModal(true),
         openSendModal: () => setShowSendModal(true),
         openReceiveModal: () => setShowReceiveModal(true),
         openSwapModal: () => setShowSwapModal(true),
@@ -139,9 +139,9 @@ const Provider: FC<Props> = ({ children }) => {
           isOpen={showStakingModal}
           onClose={() => setShowStakingModal(false)}
         />
-        <LoginModal
-          isOpen={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
+        <EmailRegistrationModal
+          isOpen={showEmailRegistrationModal}
+          onClose={() => setShowEmailRegistrationModal(false)}
         />
         <SendModal
           isOpen={showSendModal}

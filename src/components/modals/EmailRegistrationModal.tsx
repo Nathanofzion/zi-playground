@@ -5,67 +5,62 @@ import { SocialIcon } from "react-social-icons";
 import { z } from "zod";
 
 import { Box, Flex, Heading, HStack, Text } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSorobanReact } from "@soroban-react/core";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import Button from "../common/Button";
 import Input from "../common/Input";
 import { ModalProps } from "../common/Modal";
 import { toaster } from "../ui/toaster";
 
-const loginSchema = z.object({
+const emailRegistrationSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type EmailRegistrationFormData = z.infer<typeof emailRegistrationSchema>;
 
-const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
+const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
+  const queryClient = useQueryClient();
   const { address } = useSorobanReact();
   const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<EmailRegistrationFormData>({
+    resolver: zodResolver(emailRegistrationSchema),
     mode: "onChange",
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: EmailRegistrationFormData) => {
     try {
       if (!address) {
         throw new Error("Please connect your wallet to sign up");
       }
-      const { error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      if (error) {
-        throw new Error(error.message);
-      }
-      const { error: userError } = await supabase
-        .from("users")
-        .update({
-          email: data.email,
-        })
-        .eq("publicKey", address);
 
-      if (userError) {
-        throw new Error(userError.message);
-      }
+      await supabase.functions.invoke("auth", {
+        method: "POST",
+        body: {
+          action: "update-profile",
+          data: {
+            token: localStorage.getItem("token"),
+            email: data.email,
+          },
+        },
+      });
 
       toaster.create({
         type: "success",
         title: "You have successfully signed up",
       });
       onClose?.();
+      queryClient.invalidateQueries({ queryKey: ["user", address] });
       router.push("/dashboard");
     } catch (error) {
       console.error("Error signing up:", error);
@@ -100,23 +95,12 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
                     {errors.email.message}
                   </Text>
                 )}
-                <Input
-                  placeholder="Password"
-                  type="password"
-                  {...register("password")}
-                />
-                {errors.password && (
-                  <Text color="red.500" fontSize="sm">
-                    {errors.password.message}
-                  </Text>
-                )}
               </Flex>
               <Button w="80%" type="submit" loading={isSubmitting}>
-                SIGN UP
+                Register email
               </Button>
             </Flex>
           </form>
-          <Text>OR LOGIN WITH</Text>
           <Box
             w="90%"
             h="0.3rem"
@@ -128,11 +112,13 @@ const LoginModal: FC<ModalProps> = ({ onClose, ...props }) => {
             <SocialIcon network="whatsapp" />
             <SocialIcon network="x" />
           </HStack>
-          <Text cursor="pointer">FORGOT PASSWORD?</Text>
+          <Text textAlign="center">
+            Send Your Magic Link with Fb, WhatsApp, X & email.
+          </Text>
         </Flex>
       </ModalContent>
     </Modal>
   );
 };
 
-export default LoginModal;
+export default EmailRegistrationModal;

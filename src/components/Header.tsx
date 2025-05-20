@@ -1,10 +1,10 @@
 "use client";
+import Link from "next/link";
 import { useContext, useState } from "react";
 
 import { Box, Flex, Image } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
-import { supabase } from "@/lib/supabase";
 import { AppContext } from "@/providers/AppProvider";
 import { truncateAddress } from "@/utils";
 import Button from "./common/Button";
@@ -13,7 +13,6 @@ import ConnectWalletModal from "./modals/ConnectWalletModal";
 import ServicesModal from "./modals/ServicesModal";
 import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
-import Link from "next/link";
 
 const Header = () => {
   const { address, disconnect } = useSorobanReact();
@@ -22,7 +21,7 @@ const Header = () => {
     openAirdropModal,
     openStakingModal,
     openRewardsModal,
-    openLoginModal,
+    openEmailRegistrationModal,
   } = useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
@@ -33,16 +32,14 @@ const Header = () => {
       setShowConnectWalletModal(true);
       return;
     }
-    const { data, error } = await supabase.auth.getUser();
-    if (user?.email || (!error && data.user)) {
+    if (user?.email) {
       openRewardsModal?.();
     } else {
-      openLoginModal?.();
+      openEmailRegistrationModal?.();
     }
   };
 
   const handleDisconnect = async () => {
-    await supabase.auth.signOut();
     disconnect();
   };
 

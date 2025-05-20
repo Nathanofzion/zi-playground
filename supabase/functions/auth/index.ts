@@ -55,6 +55,8 @@ Deno.serve((req) =>
       switch (action) {
         case "profile":
           return handleProfile(data);
+        case "update-profile":
+          return handleUpdateProfile(data);
         case "generate-registration-options":
           return handleRegistration();
         case "verify-registration":
@@ -78,7 +80,7 @@ async function handleProfile(data: any) {
   const decoded = jwt.verify(token, secretKey);
   const { data: user, error } = await supabase
     .from("users")
-    .select("id, publicKey, email")
+    .select("id, publicKey, email, role")
     .eq("user_id", decoded.id)
     .single();
   if (error) {
@@ -303,5 +305,24 @@ const handleSignTransaction = async (data: any) => {
   return {
     signedTxXdr: transaction.toXDR(),
     signerAddress: keypair.publicKey(),
+  };
+};
+
+const handleUpdateProfile = async (data: any) => {
+  const { token, email } = data;
+
+  const decoded = jwt.verify(token, secretKey);
+
+  const { error: updateError } = await supabase
+    .from("users")
+    .update({ email })
+    .eq("user_id", decoded.id);
+
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  return {
+    message: "Profile updated successfully",
   };
 };
