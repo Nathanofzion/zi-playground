@@ -53,7 +53,7 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
 4. **Responsive Design**: Optimized for desktop and mobile using **Tailwind CSS** and **Tremor** components.
 5. **Blockchain Integration**: Stellar Soroban Smart contract interactions for secure asset transfers, atomic swaps, liquidity pools, sending and receiving .
 6. **Analytics**: Integrated **Vercel Analytics** for tracking usage.
-7. **Classic Gamez **: Zig3 v3 Airdrop play ground interoduces classic games like **space invades**, and **tertis** where the user is paid to play.
+7. **Classic Games**: Zig3 v3 Airdrop play ground interoduces classic games like **space invades**, and **tertis** where the user is paid to play.
 
 #### Tech Stack
 1. **Frontend**: Next.js 14 (React, TypeScript, server-side rendering)
