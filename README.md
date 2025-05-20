@@ -1,18 +1,38 @@
 <div align="center">
 
 # 🚀 Zig3 V3, Stellar, Soroban, Airdrop, Classic Referrel, Staking Next.js 14 Referrel Web Template
+
 <p align="center">
   <a href="https://zioncoin.org.uk/">
     <img src="https://zioncoin.org.uk/wp-content/uploads/2023/12/Zi_Zioncoin_Ticker.png" alt="Zioncoin.org.uk"/>
   </a>
 </p>
-[![Stellar.org](https://cdn.sanity.io/images/e2r40yh6/production-i18n/0a68a5dca134b65df72fd765865b65af68233e64-3104x1072.png?w=1440&auto=format&dpr=2)](https://stellar.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/) 
-[![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![NextAuth.js](https://img.shields.io/badge/NextAuth.js-black?style=for-the-badge&logo=nextauth&logoColor=white)](https://next-auth.js.org/)
-[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
-[![Tremor](https://img.shields.io/badge/Tremor-FD0061?style=for-the-badge)](https://www.tremor.so)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+
+<p align="center">
+  <a href="https://stellar.org/">
+    <img src="https://cdn.sanity.io/images/e2r40yh6/production-i18n/0a68a5dca134b65df72fd765865b65af68233e64-3104x1072.png?w=1440&auto=format&dpr=2" alt="Stellar.org"/>
+  </a>
+</p>
+<p align="center">
+  <a href="https://nextjs.org/">
+    <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=nextdotjs" alt="Next.js"/>
+  </a>
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+  </a>
+  <a href="https://next-auth.js.org/">
+    <img src="https://img.shields.io/badge/NextAuth.js-black?style=for-the-badge&logo=nextauth&logoColor=white" alt="NextAuth.js"/>
+  </a>
+  <a href="https://vercel.com/">
+    <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/>
+  </a>
+  <a href="https://www.tremor.so">
+    <img src="https://img.shields.io/badge/Tremor-FD0061?style=for-the-badge" alt="Tremor"/>
+  </a>
+  <a href="https://tailwindcss.com/">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"/>
+  </a>
+</p>
 
 **Stellar, Zig3 v3 Airdrop dapp, Next.js 14** web Rewards magic link referral system (inspired by Slack 😎, Notion 📝, and Figma 🎨) built with **Next Auth** and **Soroban**. Styled with **Tremor** components and  **Tailwind CSS**.
 
