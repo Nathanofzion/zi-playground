@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Zig3 V3 Smart Wallet using the Stellar Blockchain & Soroban smart contracts for Passkey Id wallets, $Zi Airdrop with Classic games, Reward Referrel System, Atomic asset Swaps & Liquidity pools. Play & Earn with this Gamefi Dapp Staking
+# 🚀 Zig3 V3 Smart Wallet using the Stellar Blockchain & Soroban smart contracts for Passkey Id wallets, $Zi Airdrop with Classic games, Reward Referrel System, Atomic asset Swaps & Liquidity pools. Play & Earn with this GameFi Dapp 
 
 <p align="center">
   <a href="https://zioncoin.org.uk/">
