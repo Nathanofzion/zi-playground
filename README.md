@@ -1,3 +1,49 @@
+<div align="center">
+
+# 🚀 Zig3 V3, Stellar, Soroban, Airdrop, Classic Referrel, Staking Next.js 14 Referrel Web Template
+
+<p align="center">
+  <a href="https://zioncoin.org.uk/">
+    <img src="https://zioncoin.org.uk/wp-content/uploads/2023/12/Zi_Zioncoin_Ticker.png" alt="Zioncoin.org.uk"/>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://stellar.org/">
+    <img src="https://cdn.sanity.io/images/e2r40yh6/production-i18n/0a68a5dca134b65df72fd765865b65af68233e64-3104x1072.png?w=1440&auto=format&dpr=2" alt="Stellar.org"/>
+  </a>
+</p>
+<p align="center">
+  <a href="https://nextjs.org/">
+    <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=nextdotjs" alt="Next.js"/>
+  </a>
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/TypeScript-blue?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+  </a>
+  <a href="https://next-auth.js.org/">
+    <img src="https://img.shields.io/badge/NextAuth.js-black?style=for-the-badge&logo=nextauth&logoColor=white" alt="NextAuth.js"/>
+  </a>
+  <a href="https://vercel.com/">
+    <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"/>
+  </a>
+  <a href="https://www.tremor.so">
+    <img src="https://img.shields.io/badge/Tremor-FD0061?style=for-the-badge" alt="Tremor"/>
+  </a>
+  <a href="https://tailwindcss.com/">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"/>
+  </a>
+</p>
+
+**Stellar, Zig3 v3 Airdrop dapp, Next.js 14** web Rewards magic link referral system (inspired by Slack 😎, Notion 📝, and Figma 🎨) built with **Next Auth** and **Soroban**. Styled with **Tremor** components and  **Tailwind CSS**.
+
+</div>
+
+## 🚩 Overview  
+
+
+
+
+
 The merged project, **Zi Airdrop Playground**, is a decentralized application (dApp) built with **Next.js 14**, combining features for secure airdrop management with a referral system inspired by modern platforms like Slack, Notion, and Figma. It leverages blockchain technology, WebAuthn for authentication, and a magic link referral system. The project is developer-friendly, responsive, and optimized for deployment on **Vercel**.
 
 #### Key Features
@@ -7,6 +53,7 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
 4. **Responsive Design**: Optimized for desktop and mobile using **Chakra UI** components.
 5. **Blockchain Integration**: Stellar Soroban Smart contract interactions for secure asset transfers, atomic swaps, liquidity pools, sending and receiving.
 6. **Analytics**: Integrated **Vercel Analytics** for tracking usage.
+7. **Classic Games**: Zig3 v3 Airdrop play ground interoduces classic games like **space invades**, and **tertis** where the user is paid to play.
 
 #### Tech Stack
 1. **Frontend**: Next.js 14 (React, TypeScript, server-side rendering)
@@ -28,9 +75,10 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
    - Copy `.env.development` to `.env.local`.
    - Copy `supabase/.env.development` to `supabase/.env.local`.
    - Add credentials for:
+     - **Soroban** (for referral system)
      - **Supabase** (for serverless functions and database)
      - **SendGrid** (for email-based magic links)
-     - Blockchain-related keys (e.g., wallet or contract addresses, if applicable)
+     - Blockchain-related keys (e.g., wallet or contract addresses)
 
 #### **Run Development Server**:
    - **Important**: This project requires Supabase to run locally. First, install the Supabase CLI globally (`npm install -g supabase` or `pnpm add -g supabase`), then run:
@@ -107,6 +155,8 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
 - **Supabase**: [Docs](https://supabase.com/docs)
 - **WebAuthn**: [Guide](https://webauthn.guide)
 - **Chakra UI**: [Docs](https://chakra-ui.com/docs/get-started/installation)
+- **Passkeys**: [Docs](https://developers.stellar.org/docs/build/apps/guestbook/setup-passkeys)
+- **Soroban**: [Docs](https://developers.stellar.org/docs/build/smart-contracts/overview)
 
 ---
 
