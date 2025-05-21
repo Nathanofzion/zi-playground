@@ -91,7 +91,7 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
 2. **Clone Your Fork**: Clone the forked repository to your local machine.
 
    ```bash
-   git clone https://github.com/<your-username>/nathan_project.git
+   git clone https://github.com/<your-username>/zi-playground.git
    ```
 3. **Install Node modules**.
 
