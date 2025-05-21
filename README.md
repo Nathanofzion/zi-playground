@@ -78,6 +78,9 @@
 - [SendGrid](https://sendgrid.com/en-us) account 
 - [Docker Desktop](https://docs.docker.com/desktop/) installed and running
 - [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) installed globally
+- [Launchtube](https://github.com/Nathanofzion/launchtube) api keys required
+- [Mercury](https://main.mercurydata.app/) api keys required
+- [Soroswap](https://github.com/soroswap)  api keys required
 
 
 ### 📂 Installation
@@ -113,6 +116,25 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
 
 
 ### ⚙️ Configuration & Environment Variables:
+
+Elaborate on these:
+
+FUNDER_PUBLIC_KEY=GAYW7P7VQ6BDSSW4TJOIXX5CITVFG455NQIAMCK22BYUOUHI6CKOAEFV
+FUNDER_SECRET_KEY="sde4werxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+LAUNCHTUBE_URL="https://testnet.launchtube.xyz"
+LAUNCHTUBE_JWT="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0YTFiNWJjNTdmNTU4MzFkNDAzZjA3YjgwN2ZjYWI2YzA0NDNkNjEzMGM1Mzc0NGY4ZWVjZGM1YzgwOTcxYTFlIiwiZXhwIjoxNzUwMjc0ODk1LCJjcmVkaXRzIjoxMDAwMDAwMDAwLCJpYXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+MERCURY_URL="https://api.mercurydata.app"
+MERCURY_PROJECT_NAME="zi-playground"
+MERCURY_JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYXV0aDA2N2EyMzNjMTk0NTk4ZWI2Njg1MmZhMDEiLCJleHAiOjE3NDU0Mjg2OTEsInVzZXJfaWQiOjE3NSwidXNlcm5hbWUiOiJ6eGN2d2VydDM0NThAZ21haWwuY29tIiwiaWF0IjoxNzQyODM2NjkxLCJhdWQiOiJwb3N0Z3JhcGhpbGUiLCJpc3MiOixxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+NEXT_PUBLIC_PROJECT_NAME="zi-playground"
+NEXT_PUBLIC_SOROSWAP_ROUTER="CACIQ6HWPBEMPQYKRRAZSM6ZQORTBTS7DNXCRTI6NQYMUP2BHOXTBUVD"
+NEXT_PUBLIC_SOROSWAP_FACTORY="CBVFAI4TEJCHIICFUYN2C5VYW5TD3CKPIZ4S5P5LVVUWMF5MRLJH77NH"
+NEXT_PUBLIC_AIRDROP_CONTRACT_ID="CCOHNR63ZPQ226AHKCN4MP4WEMO5VALBWMYSU23SCHHJ4LZL7WHGPR5F"
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+
+
    - Copy `.env.development` to `.env.local`.
    - Copy `supabase/.env.development` to `supabase/.env.local`.
    - Add credentials for:
