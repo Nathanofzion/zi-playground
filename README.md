@@ -65,8 +65,6 @@
 6. **Deployment**: Vercel (preview mode, cache invalidation) Supabase (edge function, database)
 7. **Tools**: ESLint, Prettier, Vercel Analytics
 
-#### License
-- **MIT License** for both original repositories, ensuring open-source contributions are welcome.
 
 ---
 
@@ -215,6 +213,6 @@ Contributions are welcome! If you'd like to contribute, please fork the reposito
 
 ## ⚖️ License  
 
-MIT License - see [LICENSE.md](LICENSE.md) for more.
+MIT License - see [LICENSE.md](LICENSE.md) open-source contributions are welcome.
 
 ---
