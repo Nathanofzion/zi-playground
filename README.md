@@ -69,9 +69,50 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
 
 ---
 
-### Getting Started
+## 🚀 Getting Started 
 
-#### **Configure Environment Variables**:
+### ✅ Prerequisites 
+
+- [Node.js 20+](https://nodejs.org/en)  
+- [Vercel](https://vercel.com) account
+- [SendGrid](https://sendgrid.com/en-us) account 
+- [Docker Desktop](https://docs.docker.com/desktop/) installed and running
+- [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) installed globally
+
+
+### 📂 Installation
+
+The project uses [pnpm](https://pnpm.io/installation) for the package manager therefore you should install pnpm globally (if you haven't already):
+
+   ```bash
+   npm install -g pnpm
+   ```
+
+2. **Clone Your Fork**: Clone the forked repository to your local machine.
+
+   ```bash
+   git clone https://github.com/<your-username>/nathan_project.git
+   ```
+3. **Install Node modules**.
+
+   ```bash
+   pnpm install
+   ```
+
+4. **Build Project Locally**.
+
+   ```bash
+   pnpm run build
+   ```
+
+5. **Build Project Locally**.
+
+   ```bash
+   pnpm preview
+   ```
+
+
+### ⚙️ Configuration & Environment Variables:
    - Copy `.env.development` to `.env.local`.
    - Copy `supabase/.env.development` to `supabase/.env.local`.
    - Add credentials for:
@@ -79,8 +120,9 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
      - **Supabase** (for serverless functions and database)
      - **SendGrid** (for email-based magic links)
      - Blockchain-related keys (e.g., wallet or contract addresses)
+     - 
 
-#### **Run Development Server**:
+### ▶️ Run development server
    - **Important**: This project requires Supabase to run locally. First, install the Supabase CLI globally (`npm install -g supabase` or `pnpm add -g supabase`), then run:
 
    ```bash
@@ -142,7 +184,7 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
 
 ---
 
-### Deployment
+### 🚢 Deployment 
 - **Vercel** is the recommended platform for deployment:
   1. Push the repository to a Git provider (e.g., GitHub).
   2. Import the project into Vercel.
@@ -165,8 +207,9 @@ The merged project, **Zi Airdrop Playground**, is a decentralized application (d
 - Ensure code adheres to **ESLint** and **Prettier** standards.
 Contributions are welcome! If you'd like to contribute, please fork the repository and submit a pull request.
 
-## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+## ⚖️ License  
+
+MIT License - see [LICENSE.md](LICENSE.md) for more.
 
 ---
