@@ -102,18 +102,6 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
    pnpm install
    ```
 
-4. **Build Project Locally**.
-
-   ```bash
-   pnpm run build
-   ```
-
-5. **Build Project Locally**.
-
-   ```bash
-   pnpm preview
-   ```
-
 
 ### ⚙️ Configuration & Environment Variables:
 
@@ -192,6 +180,21 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
 
 
 ### 🚢 Deployment 
+
+Check the project can build with no errors
+
+1. **Build Project Locally**.
+
+   ```bash
+   pnpm run build
+   ```
+
+2. **Preview Project Locally**.
+
+   ```bash
+   pnpm preview
+   ```
+   
 - **Vercel** is the recommended platform for deployment:
   1. Push the repository to a Git provider (e.g., GitHub).
   2. Import the project into Vercel.
