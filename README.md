@@ -45,7 +45,7 @@
 
 
 
-The merged project, **Zi Airdrop Playground**, is a decentralized application (dApp) built with **Next.js 14**, combining features for secure airdrop management with a referral system inspired by modern platforms like Slack, Notion, and Figma. It leverages blockchain technology, WebAuthn for authentication, and a magic link referral system. The project is developer-friendly, responsive, and optimized for deployment on **Vercel**.
+**Zi Airdrop Playground**, is a decentralized application (dApp) built with **Next.js 14** fro the new Zig3 v3 Smart wallet, combining features for secure airdrop management with a referral system inspired by modern platforms like Slack, Notion, and Figma. It leverages blockchain technology, WebAuthn for authentication, and a magic link referral system. The project is developer-friendly, responsive, and optimized for deployment on **Vercel**.
 
 #### Key Features
 1. **Airdrop Management**: Distribute digital assets to multiple recipients via blockchain smart contracts.
