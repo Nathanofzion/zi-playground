@@ -127,7 +127,7 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
 
      
 
-### ▶️ Run development server
+### ▶️ Run Development Server
    - **Important**: This project requires Supabase to run locally. First, install the Supabase CLI globally (`npm install -g supabase` or `pnpm add -g supabase`), then run:
 
    ```bash
@@ -141,7 +141,7 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
    - Open [http://localhost:3000](http://localhost:3000) to view the app.
      
 
-#### **Running Supabase Locally**:
+### ▶️ Runing Supabase Locally:
    - **Prerequisites**:
      - Docker Desktop installed and running
      - Supabase CLI installed globally
@@ -179,7 +179,7 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
         supabase stop
         ```
 
-   - **Troubleshooting**:
+   - **Trouble Shooting**:
      - If services fail to start, ensure Docker is running
      - Check logs with `supabase logs`
      - Reset local database with `supabase db reset`
