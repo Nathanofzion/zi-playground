@@ -116,18 +116,22 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
      
 
 ### ▶️ Run Development Server
-   - **Important**: This project requires Supabase to run locally. First, install the Supabase CLI globally (`npm install -g supabase` or `pnpm add -g supabase`), then run:
+   - **Important**: This project requires Supabase to run locally. First, install the Supabase CLI globally:
 
    ```bash
-   supabase start
-   supabase functions serve --env-file ./supabase/.env.local
-   ```
 
-   ```bash
-   pnpm dev
+  npm install -g supabase
    ```
-   - Open [http://localhost:3000](http://localhost:3000) to view the app.
-     
+or
+   ```bash
+
+   pnpm add -g supabase`
+   ```
+or for mac users
+   ```bash
+
+ brew install supabase/tap/supabase
+   ```     
 
 ### ▶️ Runing Supabase Locally:
    - **Prerequisites**:
@@ -161,8 +165,15 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
         - Use Studio to manage your database schema
         - Create tables, policies, and functions
         - Monitor database performance
+       
 
-     5. Stop Supabase services:
+
+     5. Open [http://localhost:3000](http://localhost:3000) to view the app.
+      ```bash
+        pnpm dev
+        ```
+
+     6. Stop Supabase services:
         ```bash
         supabase stop
         ```
