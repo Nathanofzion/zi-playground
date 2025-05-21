@@ -111,7 +111,7 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
      - **Soroban** (for referral system)
      - **Supabase** (for serverless functions and database)
      - **SendGrid** (for email-based magic links)
-     - Blockchain-related keys (e.g., wallet or contract addresses)
+     - **Stellar Blockchain keys** (e.g., wallet or contract addresses)
 
      
 
