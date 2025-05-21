@@ -168,8 +168,8 @@ or for mac users
        
 
 
-     5. Open [http://localhost:3000](http://localhost:3000) to view the app.
-      ```bash
+     5. Run command below (pnpm dev) then Open [http://localhost:3000](http://localhost:3000) to view the app.
+        ```bash
         pnpm dev
         ```
 
