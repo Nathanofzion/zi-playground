@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Zig3 V3, Stellar, Soroban, Airdrop, Classic Referrel, Staking Next.js 14 Referrel Web Template
+# 🚀 Zig3 V3 Smart Wallet using the Stellar Blockchain &Soroban smart contracts for Passkey Id wallet, $Zi Airdrop with Classic games, Reward Referrel System, Atmoic swaps & Liquidity pools. Play and earn with this Gamefi Dapp Staking
 
 <p align="center">
   <a href="https://zioncoin.org.uk/">
