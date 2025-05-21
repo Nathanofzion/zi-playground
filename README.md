@@ -50,11 +50,11 @@
 #### Key Features
 1. **Airdrop Management**: Distribute digital assets to multiple recipients via blockchain smart contracts.
 2. **Referral System**: Magic link-based referrals powered by **Supabase**, inspired by collaborative platforms.
-3. **WebAuthn Authentication**: Passkey-based secure user authentication.
+3. **WebAuthn Authentication**: Passkey-based secure key encryption (secp256r1 curve) for local device for user authentication; no passwords downlaods no user name. 
 4. **Responsive Design**: Optimized for desktop and mobile using **Chakra UI** components.
-5. **Blockchain Integration**: Stellar Soroban Smart contract interactions for secure asset transfers, atomic swaps, liquidity pools, sending and receiving.
+5. **Blockchain Integration**: Stellar Soroban Smart contract interactions for secure asset transfers, Airdrops, atomic swaps, liquidity pools, staking, sending and receiving.
 6. **Analytics**: Integrated **Vercel Analytics** for tracking usage.
-7. **Classic Games**: Zig3 v3 Airdrop play ground interoduces classic games like **space invades**, and **tertis** where the user is paid to play.
+7. **Classic Games**: Zig3 v3 Airdrop play ground interoduces classic games like **Space Invades**, and ** Blockchain Tertis** where the user is paid to play.
 
 #### Tech Stack
 1. **Frontend**: Next.js 14 (React, TypeScript, server-side rendering)
