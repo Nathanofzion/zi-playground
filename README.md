@@ -123,7 +123,7 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
 or
    ```bash
 
-   pnpm add -g supabase`
+   pnpm add -g supabase
    ```
 or for mac users
    ```bash
