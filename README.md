@@ -105,8 +105,6 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
 
 ### ⚙️ Configuration & Environment Variables:
 
-   - Copy `.env.development` to `.env.local`.
-   - Copy `supabase/.env.development` to `supabase/.env.local`.
    - Add credentials for:
      - **Soroban** (for referral system)
      - **Supabase** (for serverless functions and database)
@@ -125,7 +123,7 @@ The project uses [pnpm](https://pnpm.io/installation) for the package manager th
 or
    ```bash
 
-   pnpm add -g supabase`
+   pnpm add -g supabase
    ```
 or for mac users
    ```bash
@@ -147,6 +145,7 @@ or for mac users
      2. Start Supabase services:
         ```bash
         supabase start
+        supabase functions serve --env-file ./supabase/.env.development
         ```
         This will start all required services including:
         - PostgreSQL database
