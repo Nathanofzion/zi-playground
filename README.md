@@ -147,6 +147,17 @@ or for mac users
         supabase start
         supabase functions serve --env-file ./supabase/.env.development
         ```
+     3. Migrate database
+        ```
+        supabase db reset
+        ```
+     4. Synchronize liquidity pair list with router contract
+        ```
+        curl -L -X POST 'http://localhost:54321/functions/v1/soroswap' \
+          -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
+          -H 'Content-Type: application/json' \
+          --data '{"action":"sync"}'
+        ```
         This will start all required services including:
         - PostgreSQL database
         - Supabase Auth
@@ -154,25 +165,23 @@ or for mac users
         - Edge Functions
         - Studio (web interface)
 
-     3. Access Supabase Studio:
+     5. Access Supabase Studio:
         - Open [http://localhost:54323](http://localhost:54323)
         - Default credentials:
           - Email: `supabase`
           - Password: `supabase`
 
-     4. Database Management:
+     6. Database Management:
         - Use Studio to manage your database schema
         - Create tables, policies, and functions
         - Monitor database performance
-       
 
-
-     5. Run command below (pnpm dev) then Open [http://localhost:3000](http://localhost:3000) to view the app.
+     7. Run command below (pnpm dev) then Open [http://localhost:3000](http://localhost:3000) to view the app.
         ```bash
         pnpm dev
         ```
 
-     6. Stop Supabase services:
+     8. Stop Supabase services:
         ```bash
         supabase stop
         ```
