@@ -147,7 +147,7 @@ or for mac users
         supabase start
         supabase functions serve --env-file ./supabase/.env.development
         ```
-     3. Migrate database
+     3. Migrate database leave Start Supabase services running open another terminal (make sure correct node -v is running)
         ```
         supabase db reset
         ```
