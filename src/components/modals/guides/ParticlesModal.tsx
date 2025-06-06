@@ -118,21 +118,21 @@ const airdrops = [
     title: "Spin block",
     description: "Try Spinning the Block to get your 1st Zi Airdrop",
     congratulation: `Wooow 🤗 Amazing!!  🎊 you've now received your 1st Zi airdrop.\nKeep going !!`,
-    action: Action.SpinCube,
+    action: Action.ParticleSpinCube,
   },
   {
     title: "Create Some Particles",
     description: "Create some Particles on the screen by Clicking Here",
     congratulation:
       "Fantastic work!! 🎉🎉 now get your final Zi particle airdrop.",
-    action: Action.Partices,
+    action: Action.ParticleParticles,
   },
   {
     title: "Change theme",
     description:
       "Now change the theme by clicking the Teal Moon & get the last Zi particle Airdrop",
     congratulation: "Superb 😎 🎉 you should now be the proud owner of 5 Zi.",
-    action: Action.Theme,
+    action: Action.ParticleTheme,
   },
   {
     title: "Congratulation 🎉🎉",
