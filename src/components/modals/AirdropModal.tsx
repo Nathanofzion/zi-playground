@@ -17,15 +17,24 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
     openSpaceInvadersModal,
     openTetrisModal,
   } = useContext(AppContext);
-  const { status } = useAirdrop();
+  const { status: particlesStatus } = useAirdrop();
+  const { status: atomicStatus } = useAirdrop();
 
-  const canReceiveAirdrop = useMemo(() => {
+  const canReceiveParticlesAirdrop = useMemo(() => {
     return !(
-      status[Action.SpinCube].data &&
-      status[Action.Partices].data &&
-      status[Action.Theme].data
+      particlesStatus[Action.ParticleSpinCube].data &&
+      particlesStatus[Action.ParticleParticles].data &&
+      particlesStatus[Action.ParticleTheme].data
     );
-  }, [status]);
+  }, [particlesStatus]);
+
+  const canReceiveAtomicAirdrop = useMemo(() => {
+    return !(
+      atomicStatus[Action.AtomicSpinCube].data &&
+      atomicStatus[Action.AtomicAtoms].data &&
+      atomicStatus[Action.AtomicTheme].data
+    );
+  }, [atomicStatus]);
 
   return (
     <Modal onClose={onClose} {...props}>
@@ -47,7 +56,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
             size="xl"
             onClick={() => {
               setTheme?.(Theme.Particle);
-              if (canReceiveAirdrop) {
+              if (canReceiveParticlesAirdrop) {
                 openParticlesModal?.();
               }
               onClose?.();
@@ -59,8 +68,10 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <Button
             size="xl"
             onClick={() => {
-              setTheme?.(Theme.Atomic);
-              openAtomicModal?.();
+              if (canReceiveAtomicAirdrop) {
+                setTheme?.(Theme.Atomic);
+                openAtomicModal?.();
+              }
               onClose?.();
             }}
           >
