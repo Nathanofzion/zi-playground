@@ -21,10 +21,11 @@ const useScore = (type: string) => {
   const { data } = useQuery<IScore[]>({
     queryKey: ["score", address],
     queryFn: async () => {
-      const { data } = await supabase.functions.invoke(`score?type=${type}`, {
+      const { data } = await supabase.functions.invoke("score", {
         method: "POST",
         body: {
           action: "read",
+          type,
         },
       });
       return data;
