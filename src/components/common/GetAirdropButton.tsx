@@ -21,8 +21,10 @@ const GetAirdropButton: FC<Props> = ({ action, onReceive, ...props }) => {
       loading={isLoading}
       onClick={async () => {
         if (action) {
-          await getAirdrop(action);
-          onReceive?.();
+          const result = await getAirdrop(action);
+          if (result) {
+            onReceive?.();
+          }
         }
       }}
       {...props}
