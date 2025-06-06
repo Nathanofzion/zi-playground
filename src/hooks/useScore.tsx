@@ -2,13 +2,18 @@ import { useSorobanReact } from "@soroban-react/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { toaster } from "@/components/ui/toaster";
+import { GameType } from "@/enums";
 import { supabase } from "@/lib/supabase";
 
 export interface IScore {
-  [key: string]: number | string;
+  id: string;
+  publicKey: string;
+  type: GameType;
+  score: number;
+  created_at: string;
 }
 
-const useScore = () => {
+const useScore = (type: string) => {
   const queryClient = useQueryClient();
   const sorobanContext = useSorobanReact();
   const { address } = sorobanContext;
@@ -16,7 +21,7 @@ const useScore = () => {
   const { data } = useQuery<IScore[]>({
     queryKey: ["score", address],
     queryFn: async () => {
-      const { data } = await supabase.functions.invoke("score", {
+      const { data } = await supabase.functions.invoke(`score?type=${type}`, {
         method: "POST",
         body: {
           action: "read",
@@ -29,7 +34,7 @@ const useScore = () => {
   });
 
   const { mutateAsync: createScore } = useMutation({
-    mutationFn: async (score: IScore) => {
+    mutationFn: async (score: number) => {
       if (!address) {
         throw new Error("You have to connect wallet to submit your score.");
       }
@@ -39,7 +44,8 @@ const useScore = () => {
           action: "create",
           data: {
             publicKey: address,
-            ...score,
+            type,
+            score,
           },
         },
       });

@@ -17,12 +17,13 @@ Deno.serve((req) =>
 
     if (req.method === "POST") {
       const { action, data } = await req.json();
+      const { type } = req.url.searchParams;
 
       switch (action) {
         case "create":
           return createScore(data);
         case "read":
-          return readScore();
+          return readScore(type);
         default:
           throw new BadRequestException();
       }
@@ -43,10 +44,11 @@ const createScore = async (createScoreDto: any) => {
   return data;
 };
 
-const readScore = async () => {
+const readScore = async (type: string) => {
   const { data, error } = await supabase
     .from("scores")
     .select()
+    .eq("type", type)
     .order("created_at", { ascending: false })
     .limit(10);
   if (error) throw new Error(error.message);

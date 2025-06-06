@@ -11,12 +11,14 @@ import {
 
 import { Box, BoxProps, Flex, FlexProps, Text, VStack } from "@chakra-ui/react";
 
+import { GameType } from "@/enums";
 import useScore from "@/hooks/useScore";
 import { useTetris } from "@/hooks/useTetris";
 import { Action } from "@/hooks/useTetrisBoard";
 import { Block, BoardShape, CellOptions, SHAPES } from "@/types/tetris";
 import { truncateAddress } from "@/utils";
 import Button from "./Button";
+
 // Cell Component
 function Cell({ type }: { type: CellOptions }) {
   return (
@@ -106,7 +108,7 @@ const UpcomingBlocks: FC<UpcomingBlocksProps> = ({
 
 // LeadBoard Component
 function LeadBoard() {
-  const { scores } = useScore();
+  const { scores } = useScore(GameType.TETRIS);
 
   return (
     <Box w="full" p={4} color="white">
@@ -117,7 +119,7 @@ function LeadBoard() {
         {scores?.map((score) => (
           <Box key={score.id} display="flex" justifyContent="space-between">
             <Text>{truncateAddress(score.publicKey as string)}</Text>
-            <Text>{score.tetris}</Text>
+            <Text>{score.score}</Text>
             <Text>{new Date(score.created_at as string).toLocaleString()}</Text>
           </Box>
         ))}
@@ -228,12 +230,12 @@ const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
 };
 // Main Tetris Component
 const BgTetris = () => {
-  const { createScore } = useScore();
+  const { createScore } = useScore(GameType.TETRIS);
 
   const [bestScore, setBestScore] = useState("");
 
   const handleGameOver = async () => {
-    createScore({ tetris: score });
+    createScore(score);
   };
 
   const {
