@@ -16,8 +16,7 @@ Deno.serve((req) =>
     if (req.method === "OPTIONS") return null;
 
     if (req.method === "POST") {
-      const { action, data } = await req.json();
-      const { type } = req.url.searchParams;
+      const { action, type, data } = await req.json();
 
       switch (action) {
         case "create":
