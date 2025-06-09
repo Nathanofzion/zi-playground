@@ -9,6 +9,9 @@
     "lint": "next lint --fix"
   },
   "dependencies": {
+    "@babylonjs/core": "^4.2.2",
+    "@babylonjs/gui": "^4.2.2",
+    "@babylonjs/loaders": "^4.2.2",
     "@chakra-ui/charts": "^3.17.0",
     "@chakra-ui/react": "^3.3.1",
     "@emotion/react": "^11.14.0",
