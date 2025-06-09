@@ -1,7 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { Engine } from "@babylonjs/core";
+import { Button } from "@chakra-ui/react";
 
+import { GameType } from "@/enums";
+import useScore from "@/hooks/useScore";
 import { Environment } from "./Environment";
 import { GameAssetsManager } from "./GameAssetsManager";
 import { GameController } from "./GameController";
@@ -11,14 +14,12 @@ import { UIText } from "./UIText";
 import spaceinvadersConfig from "./config";
 
 import "./index.css";
-import { Button } from "@chakra-ui/react";
 
 const BgSpaceInvaders = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadingDots, setLoadingDots] = useState("");
-  const canvasRef = useRef(null);
-  const engineRef = useRef(null);
-  const gameControllerRef = useRef(null);
+  const { createScore } = useScore(GameType.SPACE_INVADERS);
+  const canvasRef = useRef<any>(null);
+  const engineRef = useRef<any>(null);
+  const gameControllerRef = useRef<any>(null);
   const lastRenderTimeRef = useRef(0);
   const FPSRef = useRef(60);
 
@@ -75,6 +76,9 @@ const BgSpaceInvaders = () => {
             gameController.clearLevel();
             break;
           case "GAMEOVER":
+            if (State.gameOverStep == 0) {
+              createScore(State.score);
+            }
             gameController.gameOver();
             break;
           default:
@@ -125,19 +129,9 @@ const BgSpaceInvaders = () => {
       window.removeEventListener("resize", handleResize);
       engine.dispose();
     };
-  }, []);
+  }, [createScore]);
 
-  useEffect(() => {
-    const loadingInterval = setInterval(() => {
-      if (isLoading) {
-        setLoadingDots((prev) => prev + ".");
-      }
-    }, 1000);
-
-    return () => clearInterval(loadingInterval);
-  }, [isLoading]);
-
-  const handleModeChange = (event) => {
+  const handleModeChange = (event: any) => {
     const mode = parseInt(event.target.value);
     window.localStorage.setItem("mode", mode.toString());
     document.body.classList.remove("mode0", "mode1", "mode2");
@@ -149,15 +143,6 @@ const BgSpaceInvaders = () => {
 
     // Update FPS if needed
     FPSRef.current = mode === 1 ? 18 : 60;
-  };
-
-  const handleStartGame = () => {
-    setIsLoading(false);
-    State.state = "STARTGAME";
-  };
-
-  const handlePlayAgain = () => {
-    State.state = "STARTGAME";
   };
 
   return (
@@ -182,7 +167,6 @@ const BgSpaceInvaders = () => {
               INVADERS
             </div>
           </div>
-          <div id="portrait-warning">Best played in landscape</div>
           <div id="credits">
             <div>
               <p>------</p>
@@ -210,10 +194,10 @@ const BgSpaceInvaders = () => {
           </div>
         </div>
       </div>
-      <div id="loading" className={isLoading ? "active" : ""}>
+      <div id="loading" className="active">
         LOADING
         <br />
-        {loadingDots}
+        ...
       </div>
       <div id="intro" className="">
         <p>
@@ -227,14 +211,13 @@ const BgSpaceInvaders = () => {
         </p>
         <p>
           <Button
+            id="start-game"
             background="transparent"
             color="#0f0"
             border="2px solid #0f0"
             padding="10px 10px 8px"
             position="relative"
             fontSize="1.2em"
-            id="start-game"
-            onClick={handleStartGame}
           >
             START GAME
           </Button>
@@ -242,14 +225,13 @@ const BgSpaceInvaders = () => {
       </div>
       <div id="panel-play-again" className="">
         <Button
+          id="play-again"
           background="transparent"
           color="#0f0"
           border="2px solid #0f0"
           padding="10px 10px 8px"
           position="relative"
           fontSize="1.2em"
-          id="play-again"
-          onClick={handlePlayAgain}
         >
           PLAY AGAIN
         </Button>

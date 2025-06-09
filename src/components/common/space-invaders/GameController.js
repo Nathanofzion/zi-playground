@@ -6,7 +6,7 @@ import {GameGUI} from "./GameGUI";
 
 export class GameController {
 
-  constructor(environment, inputController, gameAssets = null, UI) {
+  constructor(environment, inputController, gameAssets, UI) {
     this.UI = UI;
     this.environment = environment;
     this.scene = environment.scene;
