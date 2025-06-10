@@ -1,3 +1,5 @@
 {
-  "imports": {}
+  "imports": {
+    "@stellar/stellar-sdk": "npm:@stellar/stellar-sdk@^13.3.0"
+  }
 }
