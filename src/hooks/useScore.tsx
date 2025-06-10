@@ -21,13 +21,16 @@ const useScore = (type: string) => {
   const { data } = useQuery<IScore[]>({
     queryKey: ["score", address],
     queryFn: async () => {
-      const { data } = await supabase.functions.invoke("score", {
+      const { data, error } = await supabase.functions.invoke("score", {
         method: "POST",
         body: {
           action: "read",
           type,
         },
       });
+      if (error) {
+        throw new Error(error.message);
+      }
       return data;
     },
     refetchOnMount: false,
@@ -39,7 +42,10 @@ const useScore = (type: string) => {
       if (!address) {
         throw new Error("You have to connect wallet to submit your score.");
       }
-      const { data } = await supabase.functions.invoke("score", {
+      if (score <= 0) {
+        throw new Error("Score must be greater than 0.");
+      }
+      const { data, error } = await supabase.functions.invoke("score", {
         method: "POST",
         body: {
           action: "create",
@@ -50,6 +56,9 @@ const useScore = (type: string) => {
           },
         },
       });
+      if (error) {
+        throw new Error(error.message);
+      }
       return data;
     },
     onSuccess: () => {
