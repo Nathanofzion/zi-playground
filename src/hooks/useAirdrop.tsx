@@ -16,11 +16,19 @@ const useAirdrop = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const status = useQueries({
-    queries: Array.from({ length: 5 }, (_, action) => ({
+    queries: [
+      Action.Unknown,
+      Action.ParticleSpinCube,
+      Action.ParticleParticles,
+      Action.ParticleTheme,
+      Action.AtomicSpinCube,
+      Action.AtomicAtoms,
+      Action.AtomicTheme,
+    ].map((action) => ({
       queryKey: ["airdrop-status", address, action],
       queryFn: async () => {
-        if (!address || action == Action.Unknown) return false;
-        return getAirdropStatus(sorobanContext, address, action);
+        if (!address || action === Action.Unknown) return false;
+        return getAirdropStatus(sorobanContext, address, +action);
       },
       enabled: !!address,
       refetchOnMount: false,

@@ -9,6 +9,9 @@
     "lint": "next lint --fix"
   },
   "dependencies": {
+    "@babylonjs/core": "^4.2.2",
+    "@babylonjs/gui": "^4.2.2",
+    "@babylonjs/loaders": "^4.2.2",
     "@chakra-ui/charts": "^3.17.0",
     "@chakra-ui/react": "^3.3.1",
     "@emotion/react": "^11.14.0",
@@ -60,5 +63,6 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.22",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
 }

@@ -1,6 +1,9 @@
 export enum Action {
   Unknown = 0,
-  SpinCube = 1,
-  Partices = 2,
-  Theme = 3,
+  ParticleSpinCube = 1,
+  ParticleParticles = 2,
+  ParticleTheme = 3,
+  AtomicSpinCube = 4,
+  AtomicAtoms = 5,
+  AtomicTheme = 6,
 }

@@ -3,13 +3,13 @@ import { useContext } from "react";
 
 import { Box } from "@chakra-ui/react";
 
+import { useColorModeValue } from "@/components/ui/color-mode";
 import { Theme } from "@/enums";
 import { AppContext } from "@/providers/AppProvider";
-import { useColorModeValue } from "../ui/color-mode";
 import BgAtomic from "./BgAtomic";
 import BgParticles from "./BgParticles";
-import BgSpaceInvaders from "./BgSpaceInvaders";
 import BgTetris from "./BgTetris";
+import BgSpaceInvaders from "./space-invaders";
 
 const Background = () => {
   const { theme } = useContext(AppContext);

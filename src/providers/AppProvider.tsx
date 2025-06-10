@@ -1,6 +1,6 @@
 "use client";
 import { Signer } from "passkey-kit";
-import { createContext, FC, ReactNode, useState } from "react";
+import { createContext, FC, ReactNode, useState, useEffect } from "react";
 
 import AirdropModal from "@/components/modals/AirdropModal";
 import BridgeModal from "@/components/modals/BridgeModal";
@@ -57,25 +57,10 @@ interface Props {
   children: ReactNode;
 }
 
-const getTheme = () => {
-  if (typeof window !== "undefined") {
-    const theme = localStorage.getItem("airdrop-theme");
-    if (theme) return theme as Theme;
-  }
-  return Theme.Particle;
-};
-
-const getToken = () => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
-  }
-  return null;
-};
-
 const Provider: FC<Props> = ({ children }) => {
   const [signers, setSigners] = useState<Signer[]>([]);
-  const [theme, setTheme] = useState<Theme>(getTheme());
-  const [token, setToken] = useState<string | null>(getToken());
+  const [theme, setTheme] = useState<Theme>(Theme.Particle);
+  const [token, setToken] = useState<string | null>(null);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showEmailRegistrationModal, setShowEmailRegistrationModal] = useState(false);
@@ -92,6 +77,18 @@ const Provider: FC<Props> = ({ children }) => {
   const [showRewardsModal, setShowRewardsModal] = useState(false);
 
   const { user } = useUser();
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("airdrop-theme");
+    if (savedTheme) {
+      setTheme(savedTheme as Theme);
+    }
+
+    const savedToken = localStorage.getItem("token");
+    if (savedToken) {
+      setToken(savedToken);
+    }
+  }, []);
 
   return (
     <AppContext.Provider

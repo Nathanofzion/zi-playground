@@ -39,26 +39,28 @@ const BgAtomic: FC<Props> = ({
   const bubblesRef = useRef<GradientBubble[]>([]);
   const dimensionsRef = useRef({ width: 0, height: 0 });
 
-  const initializeBubbles = useCallback((width: number, height: number) => {
-    const bubbles: GradientBubble[] = [];
-
-    for (let i = 0; i < bubbleCount; i++) {
-      const radius = minRadius + Math.random() * (maxRadius - minRadius);
-
-      bubbles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
+  const createBubble = useCallback(
+    (
+      width: number,
+      height: number,
+      defaultValues?: {
+        x?: number;
+        y?: number;
+      }
+    ) => {
+      return {
+        x: defaultValues?.x ?? Math.random() * width,
+        y: defaultValues?.y ?? Math.random() * height,
         dx: (Math.random() - 0.5) * 2,
         dy: (Math.random() - 0.5) * 2,
-        radius: radius,
+        radius: minRadius + Math.random() * (maxRadius - minRadius),
         color: colors[Math.floor(Math.random() * colors.length)],
         opacity:
           opacityRange[0] + Math.random() * (opacityRange[1] - opacityRange[0]),
-      });
-    }
-
-    return bubbles;
-  }, [bubbleCount, colors, maxRadius, minRadius, opacityRange]);
+      };
+    },
+    [colors, maxRadius, minRadius, opacityRange]
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -70,14 +72,16 @@ const BgAtomic: FC<Props> = ({
         canvas.height = height;
         dimensionsRef.current = { width, height };
 
-        bubblesRef.current = initializeBubbles(width, height);
+        bubblesRef.current = Array.from({ length: bubbleCount }, () =>
+          createBubble(width, height)
+        );
       }
     };
 
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [initializeBubbles]);
+  }, [bubbleCount, createBubble]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -143,9 +147,40 @@ const BgAtomic: FC<Props> = ({
     };
   }, [speed]);
 
-  return (
-    <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
-  )
-}
+  useEffect(() => {
+    const handlePCAddBubble = (e: MouseEvent) => {
+      bubblesRef.current.push(
+        createBubble(
+          dimensionsRef.current.width,
+          dimensionsRef.current.height,
+          {
+            x: e.clientX,
+            y: e.clientY,
+          }
+        )
+      );
+    };
+    const handleMobileAddBubble = (e: TouchEvent) => {
+      bubblesRef.current.push(
+        createBubble(
+          dimensionsRef.current.width,
+          dimensionsRef.current.height,
+          {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+          }
+        )
+      );
+    };
+    window.addEventListener("click", handlePCAddBubble);
+    window.addEventListener("touchstart", handleMobileAddBubble);
+    return () => {
+      window.removeEventListener("click", handlePCAddBubble);
+      window.removeEventListener("touchstart", handleMobileAddBubble);
+    };
+  }, [createBubble]);
+
+  return <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
+};
 
 export default BgAtomic;

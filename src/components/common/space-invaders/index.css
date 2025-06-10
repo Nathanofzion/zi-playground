@@ -1,0 +1,288 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.mode2 #credits {
+  perspective: 200px;
+  perspective-origin: bottom;
+}
+
+.scanlines #container {
+  position: relative;
+}
+
+.scanlines #container #ui {
+  /* filter: blur(0.03em); */
+  text-shadow: 0 0 0.4em rgba(255, 255, 255, 0.7);
+}
+
+.scanlines #container #title {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.26)) blur(1px);
+}
+
+.scanlines #intro,
+.scanlines #play-again {
+  filter: blur(0.8px);
+}
+
+#container {
+  width: 100%;
+  height: 100%;
+}
+
+#loading {
+  display: none;
+  text-align: center;
+  color: #fff;
+  position: absolute;
+  top: 46%;
+  font-size: 1.7vh;
+  line-height: 1.5;
+  width: 300px;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  left: 50%;
+  transform: translateX(-50%);
+  /* @media(min-width: 1350px) {
+    font-size: 22px;
+  } */
+}
+
+#loading.active {
+  display: block;
+}
+
+#intro {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  position: absolute;
+  top: 46%;
+  font-size: 1.7vh;
+  /* @media(min-width: 1350px) {
+    font-size: 22px;
+  } */
+  line-height: 1.5;
+  display: none;
+}
+
+#intro.active {
+  display: block;
+}
+
+#intro button {
+  margin-top: 1.5em;
+}
+
+#intro select {
+  font: inherit;
+  background: transparent;
+  color: #99f;
+  border: none;
+  border-bottom: 2px solid #99f;
+  padding: 5px 0;
+  position: relative;
+}
+
+#intro select option {
+  background: #000;
+  color: #fff;
+  position: relative;
+}
+
+#panel-play-again {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, 15vh);
+  text-align: center;
+}
+
+#panel-play-again.active {
+  display: block;
+}
+
+#ui {
+  display: none;
+  font-size: 1.7vh;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+}
+
+#ui.active {
+  display: block;
+}
+
+#ui #game-ui {
+  display: none;
+}
+
+#ui #game-ui.active {
+  display: block;
+}
+
+#ui #panel-score {
+  position: absolute;
+  top: 20px;
+  left: calc(50% - 450px);
+  transform: translate(-50%);
+}
+
+#ui #panel-level {
+  position: absolute;
+  top: 20px;
+  left: calc(50% - 150px);
+  transform: translate(-50%);
+}
+
+#ui #panel-lives {
+  position: absolute;
+  top: 20px;
+  right: calc(50% - 150px);
+  transform: translate(50%);
+}
+
+#ui #panel-highscore {
+  position: absolute;
+  top: 20px;
+  right: calc(50% - 450px);
+  transform: translate(50%);
+}
+
+#ui #panel-game-over {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.2);
+  opacity: 0;
+  font-size: 6.5em;
+  transition: none;
+  text-align: center;
+}
+
+#ui #panel-game-over.active {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 9;
+  transition: all ease 2s;
+}
+
+#ui #panel-new-highscore {
+  display: none;
+  position: absolute;
+  color: #ffff00;
+  left: 50%;
+  top: 35%;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+#ui #panel-new-highscore.active {
+  display: block;
+}
+
+#ui #panel-new-highscore .value {
+  color: #f00;
+  padding-top: 1em;
+}
+
+#ui #panel-game-hints {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  max-width: 80%;
+  width: 600px;
+  line-height: 1.5;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  color: #fa3;
+  font-size: 0.666em;
+}
+
+#ui #panel-game-hints .lg {
+  font-size: 2.1em;
+  color: #ff0;
+  vertical-align: middle;
+}
+
+#ui #panel-game-hints .value {
+  font-size: 1.5em;
+  color: #fff;
+  margin: 1em 0;
+}
+
+#ui #panel-game-hints.active {
+  display: block;
+}
+
+#ui #title-screen {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 1.7vh;
+  display: none;
+  line-height: 1.6;
+}
+
+#ui #title-screen.active {
+  display: block;
+}
+
+#ui #title-screen #title {
+  position: absolute;
+  top: 30%;
+  width: 100%;
+  text-align: center;
+  font-size: 6vh;
+  color: #ff0;
+  line-height: 1.05;
+  text-shadow: 0 0.05em #000, 0 -0.05em #000, 0.05em 0 #000, -0.05em 0 #000,
+    0.05em 0.05em #000, 0.05em -0.05em #000, 0.05em -0.05em #000, -0.05em -0.05em #000;
+}
+
+#ui #title-screen #title .layer {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  transform-origin: bottom;
+}
+
+#ui #title-screen #title .layer1 {
+  color: #000;
+  text-shadow: 0 0.05em #000, 0 -0.05em #000, 0.05em 0 #000, -0.05em 0 #000,
+    0.05em 0.05em #000, 0.05em -0.05em #000, 0.05em -0.05em #000, -0.05em -0.05em #000;
+  transform: rotateX(-17deg) scaleY(2) translateZ(-0.2em) translateY(-0.2em);
+}
+
+#ui #title-screen #title .layer2 {
+  color: #c00;
+  text-shadow: 0 0.02em #c00, 0 -0.02em #c00, 0.02em 0 #c00, -0.02em 0 #c00,
+    0.02em 0.02em #c00, 0.02em -0.02em #c00, 0.02em -0.02em #c00, -0.02em -0.02em #c00;
+  transform: rotateX(-17deg) scaleY(2) translateZ(-0.1em) translateY(-0.12em);
+}
+
+#ui #title-screen #title .layer3 {
+  transform: rotateX(-17deg) scaleY(2);
+}
+
+#ui #title-screen #credits {
+  font-size: 0.9em;
+  position: absolute;
+  bottom: 60px;
+  padding: 0 2em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#ui #title-screen #credits > div {
+  transform: rotateX(20deg);
+}
