@@ -131,20 +131,6 @@ const BgSpaceInvaders = () => {
     };
   }, [createScore]);
 
-  const handleModeChange = (event: any) => {
-    const mode = parseInt(event.target.value);
-    window.localStorage.setItem("mode", mode.toString());
-    document.body.classList.remove("mode0", "mode1", "mode2");
-    document.body.classList.add(`mode${mode}`);
-
-    // Update config based on mode
-    spaceinvadersConfig.oldSchoolEffects.enabled = mode === 1;
-    spaceinvadersConfig.actionCam = mode === 2;
-
-    // Update FPS if needed
-    FPSRef.current = mode === 1 ? 18 : 60;
-  };
-
   return (
     <div id="container">
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
@@ -203,7 +189,7 @@ const BgSpaceInvaders = () => {
         <p>
           Select mode
           <br />
-          <select id="change-mode" onChange={handleModeChange}>
+          <select id="change-mode">
             <option value="0">Traditional 2D</option>
             <option value="1">2D oldschool CRT</option>
             <option value="2">Action cam 3D</option>
