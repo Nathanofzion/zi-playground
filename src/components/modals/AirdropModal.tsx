@@ -14,8 +14,8 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
     setTheme,
     openParticlesModal,
     openAtomicModal,
-    openSpaceInvadersModal,
-    openTetrisModal,
+    // openSpaceInvadersModal,
+    // openTetrisModal,
   } = useContext(AppContext);
   const { status: particlesStatus } = useAirdrop();
   const { status: atomicStatus } = useAirdrop();
@@ -82,7 +82,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
             size="xl"
             onClick={() => {
               setTheme?.(Theme.SpaceInvaders);
-              openSpaceInvadersModal?.();
+              // openSpaceInvadersModal?.();
               onClose?.();
             }}
           >
@@ -93,7 +93,7 @@ const AirdropModal: FC<ModalProps> = ({ onClose, ...props }) => {
             size="xl"
             onClick={() => {
               setTheme?.(Theme.Tetris);
-              openTetrisModal?.();
+              // openTetrisModal?.();
               onClose?.();
             }}
           >
