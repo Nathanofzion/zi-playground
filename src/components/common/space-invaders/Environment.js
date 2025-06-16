@@ -13,6 +13,7 @@ export class Environment {
     this.scene = this.CreateScene();
     this.initLightsAndCamera();
     this.oldSchoolEffects();
+    console.log(spaceinvadersConfig.actionCam)
     if (spaceinvadersConfig.actionCam) {
       this.createFog();
     }
@@ -47,6 +48,7 @@ export class Environment {
     this.scene.fogMode = Scene.FOGMODE_LINEAR;
     this.scene.fogStart = 200;
     this.scene.fogEnd = 400;
+    console.log(spaceinvadersConfig.actionCam)
     if (spaceinvadersConfig.actionCam) {
       this.scene.fogStart = 140;
       this.scene.fogEnd = 160;
@@ -61,6 +63,7 @@ export class Environment {
   }
 
   actionCam(x) {
+    console.log(spaceinvadersConfig.actionCam)
     if (spaceinvadersConfig.actionCam) {
       this.camera.position.x = Scalar.Lerp(this.camera.position.x, x, 0.1 * State.delta);
       this.camera.rotation.y = Scalar.Lerp(this.camera.rotation.y, -this.camera.position.x / 300, 0.05 * State.delta);
@@ -69,6 +72,7 @@ export class Environment {
 
   CreateCamera() {
     let camera;
+    console.log(spaceinvadersConfig.actionCam)
     if (spaceinvadersConfig.actionCam) {
       //camera = new UniversalCamera("camera", new Vector3(0, -60, -60), this.scene);
       camera = new UniversalCamera("camera", new Vector3(0, -35, -22), this.scene);
@@ -87,6 +91,7 @@ export class Environment {
         this.setOrthographicRatio(camera, orthoSize);
       });
     }
+    console.log(spaceinvadersConfig.actionCam)
     if (spaceinvadersConfig.actionCam) {
       camera.setTarget(new Vector3(0, 30, 0));
     } else {
