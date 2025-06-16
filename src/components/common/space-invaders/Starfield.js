@@ -12,7 +12,6 @@ export class Starfield {
     this.maxY = 150;
     this.minSize = spaceinvadersConfig.starField.minStarSize;
     this.maxSize = spaceinvadersConfig.starField.maxStarSize;
-    console.log(spaceinvadersConfig.actionCam)
     if (spaceinvadersConfig.actionCam) {
       this.maxY = 500;
     }
@@ -27,7 +26,6 @@ export class Starfield {
 
     // With actioncam enabled the starfield is rolling
     // at an angle. Speed it up to compensate.
-    console.log(spaceinvadersConfig.actionCam)
     if (spaceinvadersConfig.actionCam) this.speed *= 2;
 
     if (spaceinvadersConfig.oldSchoolEffects.enabled && spaceinvadersConfig.oldSchoolEffects.blurIntensity > 0.2) {
@@ -67,7 +65,6 @@ export class Starfield {
 
   addStar() {
     let z = 10;
-    console.log(spaceinvadersConfig.actionCam)
     if (spaceinvadersConfig.actionCam) z = 5;
 
     let star = new Sprite("star", this.spriteManager);

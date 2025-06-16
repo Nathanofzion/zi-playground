@@ -15,6 +15,23 @@ import spaceinvadersConfig from "./config";
 
 import "./index.css";
 
+const parseSelectedMode = () => {
+  const mode = parseInt(window.localStorage.getItem("mode") ?? "0");
+  document.body.classList.add(`mode${mode}`);
+  switch (mode) {
+    case 0:
+      break;
+    case 1:
+      spaceinvadersConfig.oldSchoolEffects.enabled = true;
+      break;
+    case 2:
+      spaceinvadersConfig.actionCam = true;
+      break;
+    default:
+      break;
+  }
+};
+
 const BgSpaceInvaders = () => {
   const { createScore } = useScore(GameType.SPACE_INVADERS);
   const canvasRef = useRef<any>(null);
@@ -27,6 +44,7 @@ const BgSpaceInvaders = () => {
     if (!canvasRef.current) return;
 
     // Initialize game
+    parseSelectedMode();
     const canvas = canvasRef.current;
     const engine = new Engine(canvas, true);
     engineRef.current = engine;
@@ -103,25 +121,6 @@ const BgSpaceInvaders = () => {
       engine.resize();
     };
     window.addEventListener("resize", handleResize);
-
-    // Parse selected mode
-    const parseSelectedMode = () => {
-      const mode = parseInt(window.localStorage.getItem("mode") ?? "0");
-      document.body.classList.add(`mode${mode}`);
-      switch (mode) {
-        case 0:
-          break;
-        case 1:
-          spaceinvadersConfig.oldSchoolEffects.enabled = true;
-          break;
-        case 2:
-          spaceinvadersConfig.actionCam = true;
-          break;
-        default:
-          break;
-      }
-    };
-    parseSelectedMode();
 
     // Cleanup
     return () => {
