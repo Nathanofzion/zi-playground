@@ -106,6 +106,7 @@ const BgSpaceInvaders = () => {
 
     // Parse selected mode
     const parseSelectedMode = () => {
+      console.log("parseSelectedMode");
       const mode = parseInt(window.localStorage.getItem("mode") ?? "0");
       document.body.classList.add(`mode${mode}`);
       switch (mode) {
