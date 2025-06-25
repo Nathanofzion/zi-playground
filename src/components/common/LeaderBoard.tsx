@@ -5,6 +5,7 @@ import { Box, Flex, Table, Text } from "@chakra-ui/react";
 import { GameType } from "@/enums";
 import useScore from "@/hooks/useScore";
 import { truncateAddress } from "@/utils";
+import { useColorModeValue } from "../ui/color-mode";
 import Button from "./Button";
 import Modal from "./Modal";
 import ModalCloseButton from "./ModalCloseButton";
@@ -41,7 +42,6 @@ const LeaderBoard: FC<Props> = ({ type }) => {
               bg="whiteAlpha.50"
               borderRadius="lg"
               overflow="hidden"
-              boxShadow="sm"
             >
               <Table.Header bg="purple.500">
                 <Table.Row>
@@ -77,33 +77,32 @@ const LeaderBoard: FC<Props> = ({ type }) => {
                 {scores?.map((score, index) => (
                   <Table.Row 
                     key={score.id}
-                    _hover={{ bg: "purple.50" }}
                     transition="background-color 0.2s"
                     bg={index % 2 === 0 ? "whiteAlpha.50" : "transparent"}
                   >
                     <Table.Cell 
                       textAlign="center" 
                       fontWeight="semibold"
-                      color="purple.600"
+                      color={useColorModeValue("purple.700", "purple.300")}
                     >
                       {index + 1}
                     </Table.Cell>
                     <Table.Cell 
                       fontFamily="mono" 
                       fontSize="sm"
-                      color="gray.700"
+                      color={useColorModeValue("gray.800", "gray.200")}
                     >
                       {truncateAddress(score.publicKey)}
                     </Table.Cell>
                     <Table.Cell 
                       fontWeight="bold"
-                      color="purple.700"
+                      color={useColorModeValue("purple.700", "purple.300")}
                     >
                       {score.score.toLocaleString()}
                     </Table.Cell>
                     <Table.Cell 
                       fontSize="sm"
-                      color="gray.600"
+                      color={useColorModeValue("gray.800", "gray.200")}
                     >
                       {new Date(score.created_at).toLocaleDateString()}
                     </Table.Cell>
