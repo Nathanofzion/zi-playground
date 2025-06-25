@@ -1,11 +1,12 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   FaArrowDown,
   FaArrowLeft,
   FaArrowRight,
   FaPlay,
+  FaTrophy,
   FaUndo,
 } from "react-icons/fa";
 
@@ -208,6 +209,7 @@ const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
 // Main Tetris Component
 const BgTetris = () => {
   const { createScore } = useScore(GameType.TETRIS);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleGameOver = async () => {
     createScore(score);
@@ -237,8 +239,11 @@ const BgTetris = () => {
       bg="radial-gradient(rgba(118, 0, 191, 0.5) 0%, transparent 70%), linear-gradient(#0b161e 40%, #202076 70%)"
       color="white"
     >
-      <LeaderBoard type={GameType.TETRIS} />
-
+      <LeaderBoard
+        type={GameType.TETRIS}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
       <Flex direction="column" align="center" gap={2}>
         <Title />
         {isPlaying && <Text>Score: {score}</Text>}
@@ -255,14 +260,30 @@ const BgTetris = () => {
           >
             <FaPlay />
           </Button>
+          <Button
+            position="absolute"
+            bottom={0}
+            right={4}
+            display={{ base: "flex", md: "none" }}
+            onClick={() => setIsOpen(true)}
+          >
+            <FaTrophy />
+          </Button>
         </Flex>
-        <Button
-          display={{ base: "none", md: "flex" }}
-          mb={32}
-          onClick={handleGameStart}
-        >
-          Start game
-        </Button>
+        <Flex gap={4}>
+          <Button
+            display={{ base: "none", md: "flex" }}
+            onClick={handleGameStart}
+          >
+            <FaPlay />
+          </Button>
+          <Button
+            display={{ base: "none", md: "flex" }}
+            onClick={() => setIsOpen(true)}
+          >
+            <FaTrophy />
+          </Button>
+        </Flex>
       </Flex>
     </Flex>
   );
