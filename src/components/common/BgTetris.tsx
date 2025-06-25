@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 import {
   FaArrowDown,
   FaArrowLeft,
@@ -9,15 +9,15 @@ import {
   FaUndo,
 } from "react-icons/fa";
 
-import { Box, BoxProps, Flex, FlexProps, Text, VStack } from "@chakra-ui/react";
+import { Box, BoxProps, Flex, FlexProps, Text } from "@chakra-ui/react";
 
 import { GameType } from "@/enums";
 import useScore from "@/hooks/useScore";
 import { useTetris } from "@/hooks/useTetris";
 import { Action } from "@/hooks/useTetrisBoard";
 import { Block, BoardShape, CellOptions, SHAPES } from "@/types/tetris";
-import { truncateAddress } from "@/utils";
 import Button from "./Button";
+import LeaderBoard from "./LeaderBoard";
 
 // Cell Component
 function Cell({ type }: { type: CellOptions }) {
@@ -70,7 +70,6 @@ const UpcomingBlocks: FC<UpcomingBlocksProps> = ({
     <Flex
       zIndex={50}
       w="full"
-      direction={{ md: "column" }}
       justify="center"
       align="center"
       gap={8}
@@ -105,28 +104,6 @@ const UpcomingBlocks: FC<UpcomingBlocksProps> = ({
     </Flex>
   );
 };
-
-// LeadBoard Component
-function LeadBoard() {
-  const { scores } = useScore(GameType.TETRIS);
-
-  return (
-    <Box w="full" p={4} color="white">
-      <Text textAlign="center" fontSize="xl" fontWeight="bold" mb={4}>
-        Leaderboard
-      </Text>
-      <VStack gap={2} align="stretch">
-        {scores?.map((score) => (
-          <Box key={score.id} display="flex" justifyContent="space-between">
-            <Text>{truncateAddress(score.publicKey as string)}</Text>
-            <Text>{score.score}</Text>
-            <Text>{new Date(score.created_at as string).toLocaleString()}</Text>
-          </Box>
-        ))}
-      </VStack>
-    </Box>
-  );
-}
 
 const Title = () => {
   return (
@@ -232,8 +209,6 @@ const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
 const BgTetris = () => {
   const { createScore } = useScore(GameType.TETRIS);
 
-  const [bestScore, setBestScore] = useState("");
-
   const handleGameOver = async () => {
     createScore(score);
   };
@@ -253,11 +228,6 @@ const BgTetris = () => {
     startGame();
   };
 
-  useEffect(() => {
-    const localScore = localStorage.getItem("tetrisScore");
-    setBestScore(localScore ? JSON.parse(localScore) : 0);
-  }, [score]);
-
   return (
     <Flex
       h="full"
@@ -267,43 +237,14 @@ const BgTetris = () => {
       bg="radial-gradient(rgba(118, 0, 191, 0.5) 0%, transparent 70%), linear-gradient(#0b161e 40%, #202076 70%)"
       color="white"
     >
-      <Box className="gridx" />
-      <Box className="lines" />
+      <LeaderBoard type={GameType.TETRIS} />
 
-      <Title />
-
-      <Flex
-        flexGrow={1}
-        w="full"
-        direction={{ base: "column", xl: "row" }}
-        gap={{ base: 2, sm: 4, md: 8 }}
-      >
-        <Flex
-          order={{ base: 3, md: 1 }}
-          w={{ base: "full", xl: "1/3" }}
-          display={{ base: "none", md: "flex" }}
-        >
-          <LeadBoard />
-        </Flex>
-
-        <Flex
-          position="relative"
-          order={2}
-          w={{ base: "full", xl: "1/3" }}
-          direction="column"
-          align="center"
-          gap={{ base: 2, sm: 4 }}
-        >
-          <Flex direction="column" align="center" gap={2}>
-            <Board currentBoard={board} border="2px solid white" />
-            <Button
-              display={{ base: "none", md: "flex" }}
-              mb={32}
-              onClick={handleGameStart}
-            >
-              Start game
-            </Button>
-          </Flex>
+      <Flex direction="column" align="center" gap={2}>
+        <Title />
+        {isPlaying && <Text>Score: {score}</Text>}
+        <UpcomingBlocks upcomingBlocks={upcomingBlocks} />
+        <Flex w="full" position="relative" justify="center">
+          <Board currentBoard={board} border="2px solid white" />
           <Controller move={move} down={down} release={release} />
           <Button
             position="absolute"
@@ -315,19 +256,13 @@ const BgTetris = () => {
             <FaPlay />
           </Button>
         </Flex>
-
-        <Flex
-          order={{ base: 1, md: 2 }}
-          w={{ base: "full", xl: "1/3" }}
-          direction="column"
-          gap={{ base: 2, sm: 4 }}
+        <Button
+          display={{ base: "none", md: "flex" }}
+          mb={32}
+          onClick={handleGameStart}
         >
-          <Flex justify="center" gap={4}>
-            <Text>Best score: {bestScore}</Text>
-            {isPlaying && <Text>Score: {score}</Text>}
-          </Flex>
-          <UpcomingBlocks upcomingBlocks={upcomingBlocks} />
-        </Flex>
+          Start game
+        </Button>
       </Flex>
     </Flex>
   );

@@ -5,6 +5,7 @@ import { Button } from "@chakra-ui/react";
 
 import { GameType } from "@/enums";
 import useScore from "@/hooks/useScore";
+import LeaderBoard from "../LeaderBoard";
 import { Environment } from "./Environment";
 import { GameAssetsManager } from "./GameAssetsManager";
 import { GameController } from "./GameController";
@@ -132,6 +133,7 @@ const BgSpaceInvaders = () => {
 
   return (
     <div id="container">
+      <LeaderBoard type={GameType.SPACE_INVADERS} />
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
       <div id="ui" className="active">
         <div id="title-screen" className="active">

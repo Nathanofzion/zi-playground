@@ -62,28 +62,6 @@ a {
   }
 }
 
-.gridx {
-  background: linear-gradient(transparent 65%,
-      rgba(46, 38, 255, 0.4) 75%,
-      #7d41e6 80%,
-      rgba(46, 38, 255, 0.4) 85%,
-      transparent 95%),
-    linear-gradient(90deg,
-      transparent 65%,
-      rgba(46, 38, 255, 0.4) 75%,
-      #7d41e6 80%,
-      rgba(46, 38, 255, 0.4) 85%,
-      transparent 95%);
-  background-size: 30px 30px;
-  width: 200vw;
-  height: 300vh;
-  position: absolute;
-  bottom: -120vh;
-  transform: rotateX(-100deg);
-  mask-image: linear-gradient(rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 80%);
-  -webkit-mask-image: linear-gradient(rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 80%);
-}
-
 .tetris-title {
   text-transform: uppercase;
   text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
