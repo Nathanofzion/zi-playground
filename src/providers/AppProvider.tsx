@@ -1,6 +1,7 @@
 "use client";
-import { Signer } from "passkey-kit";
 import { createContext, FC, ReactNode, useState, useEffect } from "react";
+
+import { Signer } from "@stellar/stellar-sdk";
 
 import AirdropModal from "@/components/modals/AirdropModal";
 import BridgeModal from "@/components/modals/BridgeModal";
