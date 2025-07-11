@@ -11,7 +11,7 @@ const nativeTokens = [
   },
   {
     "network": "testnet",
-    "address": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+    "address": "CAMXFBBFDQVXZA5X3OM2RITCSPXGTU7S2OGFBQUNT6N62CYBEQY5PL5S",
   },
   {
     "network": "mainnet",
