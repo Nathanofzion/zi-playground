@@ -69,10 +69,6 @@
   display: block;
 }
 
-#intro button {
-  margin-top: 1.5em;
-}
-
 #intro select {
   font: inherit;
   background: transparent;

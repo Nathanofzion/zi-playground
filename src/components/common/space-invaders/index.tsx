@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Engine } from "@babylonjs/core";
-import { Button } from "@chakra-ui/react";
+import { Button, Flex } from "@chakra-ui/react";
 
 import { GameType } from "@/enums";
 import useScore from "@/hooks/useScore";
+import LeaderBoard from "../LeaderBoard";
 import { Environment } from "./Environment";
 import { GameAssetsManager } from "./GameAssetsManager";
 import { GameController } from "./GameController";
@@ -15,6 +16,23 @@ import spaceinvadersConfig from "./config";
 
 import "./index.css";
 
+const parseSelectedMode = () => {
+  const mode = parseInt(window.localStorage.getItem("mode") ?? "0");
+  document.body.classList.add(`mode${mode}`);
+  switch (mode) {
+    case 0:
+      break;
+    case 1:
+      spaceinvadersConfig.oldSchoolEffects.enabled = true;
+      break;
+    case 2:
+      spaceinvadersConfig.actionCam = true;
+      break;
+    default:
+      break;
+  }
+};
+
 const BgSpaceInvaders = () => {
   const { createScore } = useScore(GameType.SPACE_INVADERS);
   const canvasRef = useRef<any>(null);
@@ -22,11 +40,13 @@ const BgSpaceInvaders = () => {
   const gameControllerRef = useRef<any>(null);
   const lastRenderTimeRef = useRef(0);
   const FPSRef = useRef(60);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
     // Initialize game
+    parseSelectedMode();
     const canvas = canvasRef.current;
     const engine = new Engine(canvas, true);
     engineRef.current = engine;
@@ -104,25 +124,6 @@ const BgSpaceInvaders = () => {
     };
     window.addEventListener("resize", handleResize);
 
-    // Parse selected mode
-    const parseSelectedMode = () => {
-      const mode = parseInt(window.localStorage.getItem("mode") ?? "0");
-      document.body.classList.add(`mode${mode}`);
-      switch (mode) {
-        case 0:
-          break;
-        case 1:
-          spaceinvadersConfig.oldSchoolEffects.enabled = true;
-          break;
-        case 2:
-          spaceinvadersConfig.actionCam = true;
-          break;
-        default:
-          break;
-      }
-    };
-    parseSelectedMode();
-
     // Cleanup
     return () => {
       engine.stopRenderLoop(renderLoop);
@@ -133,6 +134,11 @@ const BgSpaceInvaders = () => {
 
   return (
     <div id="container">
+      <LeaderBoard
+        type={GameType.SPACE_INVADERS}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
       <div id="ui" className="active">
         <div id="title-screen" className="active">
@@ -195,7 +201,7 @@ const BgSpaceInvaders = () => {
             <option value="2">Action cam 3D</option>
           </select>
         </p>
-        <p>
+        <Flex direction="column" align="center" gap={4} mt={4}>
           <Button
             id="start-game"
             background="transparent"
@@ -207,7 +213,18 @@ const BgSpaceInvaders = () => {
           >
             START GAME
           </Button>
-        </p>
+          <Button
+            background="transparent"
+            color="#0f0"
+            border="2px solid #0f0"
+            padding="10px 10px 8px"
+            position="relative"
+            fontSize="1.2em"
+            onClick={() => setIsOpen(true)}
+          >
+            LEADERBOARD
+          </Button>
+        </Flex>
       </div>
       <div id="panel-play-again" className="">
         <Button
