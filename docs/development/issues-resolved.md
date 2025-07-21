@@ -387,3 +387,94 @@ The core infrastructure is now stable and ready for:
 ---
 
 *Last Updated: January 21, 2025*
+## 🎯 Issue #4: Git Branch Strategy - Complete Workflow
+**Date:** January 21, 2025  
+**Priority:** High  
+**Status:** ✅ RESOLVED  
+**Files Modified:** Git repository structure and workflow
+
+### Solution Implemented
+**Complete Git Workflow: Local → Dev → Main**
+1. ✅ Switched to existing `dev` branch
+2. ✅ Committed all local infrastructure changes to dev
+3. ✅ Pushed dev branch with all Issues #1-3 fixes to remote
+4. ✅ Replaced main branch content with dev branch using `git reset --hard origin/dev`
+5. ✅ Force-pushed updated main to remote with `--force-with-lease`
+
+### Verification Steps
+1. ✅ Dev branch contains all local changes (useAssets.tsx, passkey.ts, documentation)
+2. ✅ Remote dev branch successfully updated
+3. ✅ Main branch now identical to dev branch
+4. ✅ Remote main branch updated with all infrastructure improvements
+5. ✅ `git diff main dev` shows no differences
+
+### Impact & Metrics
+- ✅ **Code Preservation:** All local work safely pushed to remote
+- ✅ **Branch Synchronization:** Main and dev branches aligned
+- ✅ **Team Collaboration:** Clean git history for future development
+- ✅ **Deployment Ready:** Main branch contains all infrastructure fixes
+
+### Related Files
+- All project files now synchronized across branches
+- `docs/development/issues-resolved.md` - Complete documentation pushed
+- `src/hooks/useAssets.tsx` - Performance fixes on main branch
+- `src/lib/passkey.ts` - Authentication fixes on main branch
+- Database schema updates reflected in version control
+
+### Follow-up Items
+- [x] All local changes pushed to remote
+- [x] Main branch updated with infrastructure improvements
+- [ ] Set up branch protection rules for future development
+- [ ] Consider CI/CD pipeline for automated testing
+
+## 🎯 Issue #5: Installation & Environment Documentation
+**Date:** January 21, 2025  
+**Priority:** Medium  
+**Status:** ✅ RESOLVED  
+**Files Created:** `docs/setup/installation.md`, `docs/setup/environment.md`
+
+### Problem Description
+- No comprehensive installation guide for new developers
+- Missing environment variable documentation
+- Need step-by-step setup instructions for the complete development stack
+
+### Solution Implemented
+**Created Complete Installation Documentation:**
+1. ✅ **Installation Guide** (`docs/setup/installation.md`)
+   - Prerequisites and system requirements
+   - Step-by-step setup instructions
+   - Database schema setup with SQL commands
+   - Edge Functions deployment guide
+   - Performance verification steps
+   - Comprehensive troubleshooting section
+
+2. ✅ **Environment Configuration** (`docs/setup/environment.md`)
+   - All required environment variables
+   - Instructions for obtaining API keys
+   - Environment-specific configurations
+   - Security best practices
+
+### Verification Steps
+1. ✅ Installation guide covers all setup requirements
+2. ✅ Environment guide includes all necessary variables
+3. ✅ Troubleshooting section addresses known issues
+4. ✅ Documentation matches current system state
+5. ✅ References to resolved issues #1-3 included
+
+### Impact & Metrics
+- ✅ **Developer Onboarding:** Complete setup guide available
+- ✅ **Knowledge Sharing:** All setup steps documented
+- ✅ **Error Prevention:** Troubleshooting guide prevents common issues
+- ✅ **Team Collaboration:** Consistent development environment setup
+
+### Related Files
+- `docs/setup/installation.md` - Complete installation guide
+- `docs/setup/environment.md` - Environment variable documentation
+- `docs/README.md` - Updated navigation links
+- `docs/development/issues-resolved.md` - This documentation log
+
+### Follow-up Items
+- [x] Complete installation guide created
+- [x] Environment documentation added
+- [ ] Consider adding video walkthrough for setup
+- [ ] Add automated setup script for common steps
