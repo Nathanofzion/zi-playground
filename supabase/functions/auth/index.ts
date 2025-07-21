@@ -1,5 +1,4 @@
 // deno-lint-ignore-file no-explicit-any
-// Setup type definitions for built-in Supabase Runtime APIs
 import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
@@ -10,15 +9,60 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { Keypair, TransactionBuilder } from "npm:@stellar/stellar-sdk";
 import axios from "npm:axios";
 import jwt from "npm:jsonwebtoken";
-import {
-  BadRequestException,
-  handleException,
-  MethodNotAllowedException,
-  NotFoundException,
-} from "../exceptions.ts";
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-const supabasekey = Deno.env.get("SUPABASE_ANON_KEY")!;
+// Inline exceptions
+class BadRequestException extends Error {
+  constructor(message = "Bad Request") {
+    super(message);
+    this.name = "BadRequestException";
+  }
+}
+
+class NotFoundException extends Error {
+  constructor(message = "Not Found") {
+    super(message);
+    this.name = "NotFoundException";
+  }
+}
+
+class MethodNotAllowedException extends Error {
+  constructor(message = "Method Not Allowed") {
+    super(message);
+    this.name = "MethodNotAllowedException";
+  }
+}
+
+async function handleException(fn: () => Promise<any>) {
+  try {
+    const result = await fn();
+    return new Response(JSON.stringify(result), {
+      headers: { 
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      },
+      status: 200
+    });
+  } catch (error) {
+    let status = 500;
+    if (error instanceof BadRequestException) status = 400;
+    if (error instanceof NotFoundException) status = 404;
+    if (error instanceof MethodNotAllowedException) status = 405;
+    
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { 
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      },
+      status
+    });
+  }
+}
+
+// Updated environment variables
+const supabaseUrl = Deno.env.get("APP_SUPABASE_URL")!;
+const supabasekey = Deno.env.get("APP_SUPABASE_ANON_KEY")!;
 
 const supabase = createClient(supabaseUrl, supabasekey);
 
@@ -89,9 +133,7 @@ async function handleProfile(data: any) {
   return user;
 }
 
-// Registration Handler
 async function handleRegistration() {
-  // Generate registration options (challenge, etc.)
   const options = await generateRegistrationOptions({
     rpName,
     rpID,
@@ -109,7 +151,6 @@ async function handleRegistration() {
   return options;
 }
 
-// Registration Verification Handler
 async function handleRegistrationVerification(
   assertionResponse: any,
   user_id: string,
@@ -123,10 +164,8 @@ async function handleRegistrationVerification(
   if (!challenge) {
     throw new NotFoundException();
   }
-  // Delete the challenge after fetching it
   await supabase.from("challenges").delete().eq("user_id", user_id);
 
-  // Verify the response from the client-side
   const verification = await verifyRegistrationResponse({
     response: assertionResponse,
     expectedChallenge: challenge.challenge,
@@ -135,13 +174,11 @@ async function handleRegistrationVerification(
   });
 
   if (verification.verified) {
-    // Create stellar account
     const keypair = Keypair.random();
     await axios.get(
       `https://friendbot.stellar.org?addr=${keypair.publicKey()}`
     );
 
-    // Save the public key in the database
     const credential = verification.registrationInfo!.credential;
     const { error } = await supabase.from("users").insert({
       user_id: user_id,
@@ -195,9 +232,7 @@ async function handleRegistrationVerification(
   }
 }
 
-// Authentication Handler
 async function handleAuthentication(challenge_id: string) {
-  // Generate authentication options (challenge)
   const options = await generateAuthenticationOptions({
     rpID: rpID,
   });
@@ -210,16 +245,13 @@ async function handleAuthentication(challenge_id: string) {
     throw new Error(error.message);
   }
 
-  // Send authentication options (challenge) back to client
   return options;
 }
 
-// Authentication Verification Handler
 async function handleAuthenticationVerification(
   assertionResponse: any,
   challenge_id: string
 ) {
-  // Get the user details (including public key)
   const { data: challenge, error: challengeError } = await supabase
     .from("challenges")
     .select()
@@ -232,7 +264,6 @@ async function handleAuthenticationVerification(
   if (!challenge) {
     throw new NotFoundException("Challenge not found");
   }
-  // Delete the challenge after fetching it
   await supabase.from("challenges").delete().eq("challenge_id", challenge_id);
 
   const user_id = assertionResponse.response.userHandle;
@@ -250,7 +281,6 @@ async function handleAuthenticationVerification(
     throw new NotFoundException("User not found");
   }
 
-  // Verify the response from the client-side
   const verification = await verifyAuthenticationResponse({
     response: assertionResponse,
     expectedChallenge: challenge.challenge,

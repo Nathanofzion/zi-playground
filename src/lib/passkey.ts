@@ -9,7 +9,7 @@ export const handleRegister = async () => {
   const params = new URLSearchParams(window.location.search);
   const referrer = params.get("ref");
   const { data: options, error: generateError } = await supabase.functions.invoke("auth", {
-    method: "POST",
+    // Remove method: "POST" - it's default
     body: {
       action: "generate-registration-options",
     },
@@ -19,7 +19,7 @@ export const handleRegister = async () => {
   }
   const regResponse = await startRegistration({ optionsJSON: options });
   const { data: result, error: verifyError } = await supabase.functions.invoke("auth", {
-    method: "POST",
+    // Remove method: "POST" - it's default
     body: {
       action: "verify-registration",
       user_id: options.user.id,
@@ -36,7 +36,7 @@ export const handleRegister = async () => {
 export const handleLogin = async () => {
   const challenge_id = uuid();
   const { data: options, error: generateError } = await supabase.functions.invoke("auth", {
-    method: "POST",
+    // Remove method: "POST" - it's default
     body: {
       action: "generate-authentication-options",
       challenge_id,
@@ -47,7 +47,7 @@ export const handleLogin = async () => {
   }
   const authResponse = await startAuthentication(options);
   const { data: result, error: verifyError } = await supabase.functions.invoke("auth", {
-    method: "POST",
+    // Remove method: "POST" - it's default
     body: {
       action: "verify-authentication",
       challenge_id,
@@ -69,7 +69,7 @@ export const handleSign = async (
   }
 ) => {
   const { data, error: signError } = await supabase.functions.invoke("auth", {
-    method: "POST",
+    // Remove method: "POST" - it's default
     body: {
       action: "sign-transaction",
       data: {
