@@ -138,9 +138,6 @@ importers:
         specifier: ^3.24.4
         version: 3.24.4
     devDependencies:
-      '@playwright/test':
-        specifier: ^1.54.1
-        version: 1.54.1
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
@@ -4867,6 +4864,7 @@ snapshots:
   '@playwright/test@1.54.1':
     dependencies:
       playwright: 1.54.1
+    optional: true
 
   '@react-spring/animated@9.7.5(react@18.3.1)':
     dependencies:
@@ -7920,13 +7918,15 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  playwright-core@1.54.1: {}
+  playwright-core@1.54.1:
+    optional: true
 
   playwright@1.54.1:
     dependencies:
       playwright-core: 1.54.1
     optionalDependencies:
       fsevents: 2.3.2
+    optional: true
 
   possible-typed-array-names@1.0.0: {}
 
