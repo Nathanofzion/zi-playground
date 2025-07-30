@@ -595,3 +595,26 @@ curl -X POST "http://localhost:54321/functions/v1/auth" \
 
 For complete fix history, see [Issues Resolved](./issues-resolved.md).  
 For setup instructions, see [Installation Guide](../setup/installation.md).pnpm add --save-dev jest @testing-library/react @testing-library/jest-dom @testing-library/user-event jest-environment-jsdom @types/jest
+API Keys
+Configure API keys to securely control access to your project
+
+Legacy API Keys
+API Keys
+anonpublic
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndHZxbHVhZGRoam1sZmpwZHdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI2NjM0NzMsImV4cCI6MjA2ODIzOTQ3M30.RbKcrIKnPrUVvNovlJU1AXbw3oJQ3f_TTgiYf3yoiTM
+
+Copy
+This key is safe to use in a browser if you have enabled Row Level Security for your tables and configured policies. Prefer using Publishable API keys instead.
+Last request was a few seconds ago.
+service_rolesecret
+**** **** **** ****
+
+Reveal
+This key has the ability to bypass Row Level Security. Never share it publicly. If leaked, generate a new JWT secret immediately. Prefer using Secret API keys instead.
+No requests in the past 24 hours.
+Disable legacy API keys
+
+Make sure you are no longer using your legacy API keys before proceeding.
+
+
+Disable JWT-based API keys
