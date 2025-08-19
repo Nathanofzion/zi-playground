@@ -1,16 +1,23 @@
 # Edge Functions API Reference
 
 > **Complete documentation for ZI Playground Supabase Edge Functions**  
-> **Last Updated:** January 21, 2025
+> **Last Updated:** August 19, 2025
 
 ---
 
 ## 🎯 Overview
 
-ZI Playground uses Supabase Edge Functions for server-side logic, authentication, and blockchain integration. All functions are deployed as Deno-based serverless functions with proper CORS handling and error management.
+ZI Playground uses a **hybrid architecture** combining Supabase Edge Functions with **DeFi-compliant local storage**:
+
+- **Supabase Edge Functions** - Non-sensitive operations (challenges, metadata)
+- **Local Browser Storage** - **DeFi-compliant secret key storage (non-custodial)**
+- **PasskeyID + WebAuthn** - Secure authentication without remote key storage
+
+### 🔐 **CRITICAL DeFi Compliance Note**
+**ALL STELLAR SECRET KEYS ARE STORED LOCALLY ONLY**. Edge functions handle public operations, authentication challenges, and metadata - but **NEVER** store or process secret keys to maintain DeFi principles.
 
 ### Available Functions
-- **auth** - WebAuthn passkey authentication and Stellar account management
+- **auth** - WebAuthn challenges and public account management (NO SECRET KEYS)
 - **rewards** - User rewards and referral system management
 - **health** (planned) - System health checks and monitoring
 
@@ -24,7 +31,15 @@ POST /functions/v1/auth
 ```
 
 ### Purpose
-Handles complete passkey authentication flow including WebAuthn registration, login, and Stellar account creation/management.
+Handles **non-custodial** WebAuthn authentication flow for challenge generation and public account management. **Secret keys never touch the server**.
+
+### 🚨 **DeFi Architecture Notice**
+This function operates in **non-custodial mode**:
+- ✅ **Generates WebAuthn challenges** (temporary, public data)
+- ✅ **Stores public keys and metadata** (safe to store remotely)
+- ✅ **Verifies WebAuthn signatures** (public key cryptography)
+- 🚫 **NEVER handles secret keys** (stored locally in browser only)
+- 🚫 **NEVER signs transactions server-side** (client-side signing only)
 
 ### Actions Supported
 
@@ -74,18 +89,9 @@ Handles complete passkey authentication flow including WebAuthn registration, lo
 }
 ```
 
-**Error Response:**
-```json
-{
-  "success": false,
-  "error": "Failed to generate registration options",
-  "details": "Specific error message"
-}
-```
-
 #### 2. Verify Registration
 **Action:** `verify-registration`  
-**Purpose:** Verifies passkey registration and creates Stellar account
+**Purpose:** Verifies passkey registration and stores **public account data only**
 
 **Request:**
 ```json
@@ -99,9 +105,12 @@ Handles complete passkey authentication flow including WebAuthn registration, lo
       "clientDataJSON": "base64-encoded-client-data"
     },
     "type": "public-key"
-  }
+  },
+  "stellarPublicKey": "GCTZW4APT7AMBUYJ67PSOYG4T6STIFQW2VDRRTXPJXGZFGKQZEUHDDCO"
 }
 ```
+
+**🔐 DeFi Note:** Client sends **public key only** after generating the full keypair locally. Secret key never leaves the browser.
 
 **Response:**
 ```json
@@ -114,7 +123,8 @@ Handles complete passkey authentication flow including WebAuthn registration, lo
   },
   "stellar": {
     "publicKey": "GCTZW4APT7AMBUYJ67PSOYG4T6STIFQW2VDRRTXPJXGZFGKQZEUHDDCO",
-    "network": "testnet"
+    "network": "testnet",
+    "note": "Secret key stored locally only - not on server"
   }
 }
 ```
@@ -126,7 +136,8 @@ Handles complete passkey authentication flow including WebAuthn registration, lo
 **Request:**
 ```json
 {
-  "action": "generate-authentication-options"
+  "action": "generate-authentication-options",
+  "userHandle": "optional-user-identifier"
 }
 ```
 
@@ -138,14 +149,20 @@ Handles complete passkey authentication flow including WebAuthn registration, lo
     "challenge": "base64-encoded-challenge",
     "timeout": 60000,
     "rpId": "localhost",
-    "userVerification": "required"
+    "userVerification": "required",
+    "allowCredentials": [
+      {
+        "id": "credential-id",
+        "type": "public-key"
+      }
+    ]
   }
 }
 ```
 
 #### 4. Verify Authentication
 **Action:** `verify-authentication`  
-**Purpose:** Verifies passkey login and returns user session
+**Purpose:** Verifies passkey login and returns **public user session data**
 
 **Request:**
 ```json
@@ -176,41 +193,32 @@ Handles complete passkey authentication flow including WebAuthn registration, lo
   },
   "session": {
     "token": "jwt-session-token",
-    "expires": "2025-01-22T10:00:00Z"
-  }
+    "expires": "2025-08-20T10:00:00Z"
+  },
+  "defi_note": "Secret keys remain in your browser - server never sees them"
 }
 ```
 
-#### 5. Sign Transaction
-**Action:** `sign-transaction`  
-**Purpose:** Signs Stellar transactions using user's stored private key
+#### ~~5. Sign Transaction~~ 🚫 **REMOVED - DeFi Violation**
+**❌ REMOVED:** Server-side transaction signing violates DeFi principles.  
+**✅ REPLACED:** Client-side signing using locally stored secret keys.
 
-**Request:**
 ```json
 {
-  "action": "sign-transaction",
-  "user_id": "user-identifier",
-  "transaction": "base64-encoded-stellar-transaction"
+  "error": "Transaction signing removed for DeFi compliance",
+  "explanation": "Secret keys stored locally only - use client-side signing",
+  "alternative": "Use LocalKeyStorage and stellar-sdk for local signing"
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "signedTransaction": "base64-encoded-signed-transaction",
-  "transactionHash": "stellar-transaction-hash"
-}
-```
-
-### Implementation Details
+### DeFi-Compliant Implementation
 
 **File Location:** `supabase/functions/auth/index.ts`
 
 **Dependencies:**
-- `@simplewebauthn/server` - WebAuthn verification
-- `stellar-sdk` - Stellar blockchain integration
-- `supabase` - Database operations
+- `@simplewebauthn/server` - WebAuthn verification only
+- ~~`stellar-sdk`~~ - **Removed server-side signing** 
+- `supabase` - Public database operations only
 
 **Environment Variables:**
 ```env
@@ -219,24 +227,24 @@ APP_SUPABASE_ANON_KEY=your_anon_key
 RP_NAME=zi-playground
 RP_ID=localhost
 ORIGIN=http://localhost:3000
-SECRET_KEY=your_jwt_secret_key
+JWT_SECRET_KEY=your_jwt_secret_key
+# SECRET_KEY removed - no server-side signing
 ```
 
-**CORS Configuration:**
+**What's NOT in Edge Functions (DeFi Compliance):**
 ```typescript
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json"
-};
-```
+// 🚫 REMOVED - DeFi VIOLATIONS
+// - Secret key storage
+// - Server-side transaction signing
+// - Private key operations
+// - Custodial wallet functionality
 
-**Error Handling:**
-- Validates all input parameters
-- Handles WebAuthn verification failures gracefully
-- Manages database connection errors
-- Returns structured error responses
+// ✅ CURRENT - DeFi COMPLIANT
+// - WebAuthn challenge generation
+// - Public key storage
+// - Authentication verification
+// - Session management
+```
 
 ---
 
@@ -248,11 +256,16 @@ POST /functions/v1/rewards
 ```
 
 ### Purpose
-Manages user rewards, referral system, and token distribution.
+Manages user rewards, referral system, and **public reward metadata**. Does not handle fund distribution directly (done via client-side transactions).
+
+### DeFi Architecture Note
+- ✅ **Tracks reward eligibility** (public metadata)
+- ✅ **Manages referral relationships** (public data)
+- ✅ **Records reward history** (public transaction references)
+- 🚫 **Does NOT distribute funds** (client-side signing required)
 
 ### Current Status
-**Version:** Basic implementation (v1.0.0)  
-**Features:** CORS handling, basic structure ready for implementation
+**Version:** Basic implementation (v1.0.0) - DeFi compliant structure
 
 **Request:**
 ```json
@@ -262,35 +275,7 @@ Manages user rewards, referral system, and token distribution.
 }
 ```
 
-**Current Response:**
-```json
-{
-  "success": true,
-  "rewards": [],
-  "total": 0,
-  "message": "Rewards system in development"
-}
-```
-
-### Planned Actions
-
-#### 1. Get User Rewards
-**Action:** `get-user-rewards`  
-**Purpose:** Retrieve all rewards for a specific user
-
-**Planned Request:**
-```json
-{
-  "action": "get-user-rewards",
-  "user_id": "user-identifier",
-  "filters": {
-    "status": "processed",
-    "reward_type": "referral"
-  }
-}
-```
-
-**Planned Response:**
+**Response:**
 ```json
 {
   "success": true,
@@ -299,410 +284,278 @@ Manages user rewards, referral system, and token distribution.
       "id": "reward-uuid",
       "reward_type": "referral",
       "amount": "10.0000000",
-      "description": "Referral bonus for new user signup",
-      "status": "processed",
-      "transaction_hash": "stellar-tx-hash",
-      "created_at": "2025-01-21T10:00:00Z",
-      "processed_at": "2025-01-21T10:05:00Z"
+      "status": "eligible",
+      "stellar_public_key": "GCTZW4....",
+      "claim_instructions": "Use client-side signing to claim reward",
+      "defi_note": "Funds will be distributed via your local wallet"
     }
   ],
   "total": 1,
-  "total_amount": "10.0000000"
+  "message": "Rewards tracked publicly - claim via client-side transactions"
 }
-```
-
-#### 2. Process Referral
-**Action:** `process-referral`  
-**Purpose:** Award referral bonus when new user signs up
-
-**Planned Request:**
-```json
-{
-  "action": "process-referral",
-  "referrer_id": "referring-user-id",
-  "referee_id": "new-user-id",
-  "referral_code": "REF123456"
-}
-```
-
-#### 3. Distribute Rewards
-**Action:** `distribute-rewards`  
-**Purpose:** Process pending rewards and create Stellar transactions
-
-### Implementation Status
-
-**File Location:** `supabase/functions/rewards/index.ts`
-
-**Current Implementation:**
-```typescript
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json"
-};
-
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 200, headers: corsHeaders });
-  }
-
-  return new Response(
-    JSON.stringify({ 
-      success: true,
-      rewards: [], 
-      total: 0,
-      message: "Rewards system in development"
-    }),
-    { status: 200, headers: corsHeaders }
-  );
-});
 ```
 
 ---
 
-## 🏥 Health Function (Planned)
+## 🔧 DeFi-Compliant Deployment
 
-### Endpoint
-```
-GET /functions/v1/health
-```
-
-### Purpose
-System health monitoring and status checks.
-
-### Planned Features
-- Database connectivity check
-- Edge function status
-- Stellar network connectivity
-- Performance metrics
-
----
-
-## 🔧 Deployment
-
-### Deploy All Functions
+### Deploy Functions (Non-Custodial Mode)
 ```bash
-# Deploy authentication function
+# Deploy authentication function (WebAuthn only)
 supabase functions deploy auth
 
-# Deploy rewards function
+# Deploy rewards function (metadata only)  
 supabase functions deploy rewards
 
-# Deploy with environment variables
+# Environment variables (no secret keys)
 supabase secrets set RP_NAME=zi-playground
 supabase secrets set RP_ID=localhost
 supabase secrets set ORIGIN=http://localhost:3000
-supabase secrets set SECRET_KEY=your_secret_key
+supabase secrets set JWT_SECRET_KEY=your_session_secret
+# Note: No Stellar secret keys in environment
 ```
 
-### Environment Setup
+### DeFi Compliance Verification
 ```bash
-# Required secrets for Edge Functions
-supabase secrets set APP_SUPABASE_URL=your_supabase_url
-supabase secrets set APP_SUPABASE_ANON_KEY=your_anon_key
-supabase secrets set RP_NAME=zi-playground
-supabase secrets set RP_ID=localhost
-supabase secrets set ORIGIN=http://localhost:3000
-supabase secrets set SECRET_KEY=your_jwt_secret_key
+# Verify no secret keys in edge functions
+grep -r "secretKey\|privateKey\|secret" supabase/functions/
+# Should return no results
 
-# Verify secrets
-supabase secrets list
-```
-
-### Local Development
-```bash
-# Start functions locally
-supabase functions serve
-
-# Functions available at:
-# http://localhost:54321/functions/v1/auth
-# http://localhost:54321/functions/v1/rewards
+# Verify functions only handle public data
+grep -r "sign.*transaction\|private.*key" supabase/functions/
+# Should return no results
 ```
 
 ---
 
-## 🧪 Testing
+## 🧪 DeFi-Compliant Testing
 
-### Authentication Function Tests
-
-#### Test Registration Flow
+### Authentication Flow Test
 ```bash
-# Generate registration options
+# Test WebAuthn challenge generation (public data only)
 curl -X POST "http://localhost:54321/functions/v1/auth" \
   -H "Content-Type: application/json" \
   -d '{"action": "generate-registration-options"}'
 
-# Expected: WebAuthn registration options
+# Expected: WebAuthn options with no secret key references
 ```
 
-#### Test Authentication Flow
+### Verify DeFi Compliance
 ```bash
-# Generate authentication options
+# Test that transaction signing is removed
 curl -X POST "http://localhost:54321/functions/v1/auth" \
   -H "Content-Type: application/json" \
-  -d '{"action": "generate-authentication-options"}'
+  -d '{"action": "sign-transaction", "transaction": "test"}'
 
-# Expected: WebAuthn authentication challenge
-```
-
-### Rewards Function Tests
-
-#### Test Basic Response
-```bash
-# Test rewards endpoint
-curl -X POST "http://localhost:54321/functions/v1/rewards" \
-  -H "Content-Type: application/json" \
-  -d '{"action": "get-user-rewards", "user_id": "test"}'
-
-# Expected: Empty rewards array with success status
-```
-
-### CORS Tests
-
-#### Test Preflight Requests
-```bash
-# Test CORS preflight
-curl -X OPTIONS "http://localhost:54321/functions/v1/auth" \
-  -H "Access-Control-Request-Method: POST" \
-  -H "Access-Control-Request-Headers: content-type"
-
-# Expected: 200 status with CORS headers
+# Expected: Error message about DeFi compliance
 ```
 
 ---
 
-## 📊 Monitoring
+## 🔐 DeFi Security Model
 
-### Function Logs
-```bash
-# View auth function logs
-supabase functions logs auth
-
-# View rewards function logs
-supabase functions logs rewards
-
-# Follow logs in real-time
-supabase functions logs auth --follow
+### Current Architecture (Non-Custodial)
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   User Browser  │    │  Edge Functions  │    │  Stellar Network│
+│                 │    │                  │    │                 │
+│ 🔒 Secret Keys  │────│  WebAuthn Only   │    │  Public Ledger  │
+│ 🔒 Local Signing│    │  Public Data     │────│  Transactions   │
+│ 🔒 Self-Custody │    │  Challenges      │    │  Balances       │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
-### Performance Metrics
-```bash
-# Function execution stats
-supabase functions stats
+### Security Guarantees
+- ✅ **Secret keys never leave user's device**
+- ✅ **Server cannot access user funds**
+- ✅ **No central point of failure for user assets**
+- ✅ **Users maintain complete control of their wallets**
+- ✅ **Transactions signed client-side only**
 
-# Database connection monitoring
-supabase logs db
+### What Edge Functions DON'T Do (DeFi Compliance)
+```typescript
+// 🚫 DeFi VIOLATIONS - NOT IMPLEMENTED
+interface ViolationExamples {
+  storeSecretKeys: false;      // Never store secret keys
+  signTransactions: false;     // Never sign transactions server-side
+  controlUserFunds: false;     // Never have access to user funds
+  custodialStorage: false;     // Never act as custodian
+  centralizedSigning: false;   // Never centralize signing operations
+}
 ```
 
 ---
 
-## 🚨 Error Handling
+## 📈 Migration from Custodial to Non-Custodial
 
-### Common Error Patterns
+### Previous Architecture (❌ Custodial - DeFi Violation)
+```typescript
+// ❌ REMOVED - DeFi VIOLATION
+const signTransaction = async (user_id: string, transaction: string) => {
+  const { secretKey } = await supabase
+    .from('users')
+    .select('secretKey')  // 🚫 Secret keys in database
+    .eq('user_id', user_id);
+    
+  return stellar.signTransaction(transaction, secretKey); // 🚫 Server-side signing
+};
+```
 
-#### Authentication Errors
+### Current Architecture (✅ Non-Custodial - DeFi Compliant)
+```typescript
+// ✅ CURRENT - DeFi COMPLIANT
+const generateChallenge = async () => {
+  return {
+    challenge: generateRandomChallenge(),    // ✅ Public challenge
+    expires: Date.now() + 5 * 60 * 1000    // ✅ Temporary data
+    // No secret keys involved                ✅ No custodial operations
+  };
+};
+
+// Client-side signing happens in browser:
+// const signedTx = transaction.sign(localSecretKey); ✅
+```
+
+---
+
+## 🚨 Error Handling (DeFi-Aware)
+
+### DeFi Compliance Errors
 ```json
 {
   "success": false,
-  "error": "WebAuthn verification failed",
-  "details": "Invalid signature",
-  "code": "WEBAUTHN_INVALID_SIGNATURE"
+  "error": "Operation violates DeFi principles",
+  "details": "Secret keys must remain on user's device",
+  "code": "DEFI_VIOLATION_SECRET_KEY_REQUEST",
+  "solution": "Use client-side signing with LocalKeyStorage"
 }
 ```
 
-#### Database Errors
 ```json
 {
   "success": false,
-  "error": "Database operation failed",
-  "details": "Could not find user",
-  "code": "USER_NOT_FOUND"
-}
-```
-
-#### Network Errors
-```json
-{
-  "success": false,
-  "error": "Stellar network error",
-  "details": "Transaction submission failed",
-  "code": "STELLAR_NETWORK_ERROR"
+  "error": "Server-side signing disabled",
+  "details": "Transaction signing moved to client for self-custody",
+  "code": "CUSTODIAL_OPERATION_DISABLED",
+  "alternative": "Use @stellar/stellar-sdk client-side signing"
 }
 ```
 
 ### Error Codes Reference
 
-| Code | Description | Action |
-|------|-------------|---------|
-| `WEBAUTHN_INVALID_SIGNATURE` | WebAuthn signature verification failed | Re-authenticate |
-| `USER_NOT_FOUND` | User doesn't exist in database | Register new user |
-| `CHALLENGE_EXPIRED` | Authentication challenge expired | Generate new challenge |
-| `STELLAR_NETWORK_ERROR` | Stellar blockchain error | Retry transaction |
-| `INVALID_ACTION` | Unknown action parameter | Check API documentation |
-| `MISSING_PARAMETERS` | Required parameters missing | Validate request body |
+| Code | Description | DeFi Impact | Solution |
+|------|-------------|-------------|----------|
+| `DEFI_VIOLATION_SECRET_KEY_REQUEST` | Request for secret key storage/access | 🚫 Violates self-custody | Use local storage |
+| `CUSTODIAL_OPERATION_DISABLED` | Attempt to use custodial features | 🚫 Violates decentralization | Client-side operations |
+| `WEBAUTHN_INVALID_SIGNATURE` | WebAuthn signature verification failed | ✅ DeFi-compliant auth | Re-authenticate |
+| `PUBLIC_KEY_VALIDATION_FAILED` | Invalid Stellar public key format | ✅ Public data validation | Check key format |
 
 ---
 
-## 🔐 Security Considerations
+## 📚 DeFi Integration Examples
 
-### Authentication Security
-- **Challenge Validation:** All WebAuthn challenges expire after 5 minutes
-- **Signature Verification:** Full cryptographic verification of passkey signatures
-- **Replay Protection:** Counter-based replay attack prevention
-- **Database Security:** Row Level Security (RLS) on all user data
-
-### API Security
-- **CORS Policies:** Strict origin validation for production
-- **Rate Limiting:** (Planned) Request rate limiting per user
-- **Input Validation:** All inputs validated and sanitized
-- **Error Handling:** No sensitive information in error responses
-
-### Stellar Integration Security
-- **Private Key Storage:** Encrypted storage of Stellar private keys
-- **Transaction Signing:** Server-side signing with user authorization
-- **Network Validation:** Transaction validation before submission
-- **Audit Trail:** All transactions logged with user identification
-
----
-
-## 📈 Performance Optimization
-
-### Response Time Targets
-- **Authentication Flow:** < 2 seconds end-to-end
-- **Registration Flow:** < 3 seconds including Stellar account creation
-- **Reward Queries:** < 500ms for user reward history
-- **Health Checks:** < 100ms for status responses
-
-### Optimization Strategies
-- **Database Indexing:** Optimized queries with proper indexes
-- **Connection Pooling:** Efficient database connection management
-- **Caching:** (Planned) Redis caching for frequent queries
-- **Async Processing:** Background processing for non-critical operations
-
----
-
-## 🔄 Version History
-
-### Version 1.0.0 - Current
-- ✅ **auth** function with complete WebAuthn flow
-- ✅ **rewards** function with basic structure
-- ✅ Proper CORS handling for all functions
-- ✅ Error handling and validation
-- ✅ Stellar blockchain integration
-
-### Version 1.1.0 - Planned
-- 🚧 Full rewards system implementation
-- 🚧 Health monitoring function
-- 🚧 Rate limiting and enhanced security
-- 🚧 Performance optimization and caching
-- 🚧 Comprehensive testing suite
-
----
-
-## 📚 Integration Examples
-
-### Frontend Integration
-
-#### Registration Flow
+### Non-Custodial Registration Flow
 ```typescript
+import { handleRegister } from '@/lib/passkey';
 import { supabase } from '@/lib/supabase';
 
-// Generate registration options
-const { data: options } = await supabase.functions.invoke('auth', {
-  body: { action: 'generate-registration-options' }
-});
-
-// Complete WebAuthn registration
-const credential = await startRegistration({ optionsJSON: options });
-
-// Verify registration
-const { data: result } = await supabase.functions.invoke('auth', {
-  body: { 
-    action: 'verify-registration',
-    credential 
-  }
-});
-```
-
-#### Authentication Flow
-```typescript
-// Generate authentication options
-const { data: options } = await supabase.functions.invoke('auth', {
-  body: { action: 'generate-authentication-options' }
-});
-
-// Complete WebAuthn authentication
-const credential = await startAuthentication(options);
-
-// Verify authentication
-const { data: result } = await supabase.functions.invoke('auth', {
-  body: { 
-    action: 'verify-authentication',
-    credential 
-  }
-});
-```
-
-### React Hook Integration
-```typescript
-const usePasskeyAuth = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const register = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Registration flow using auth function
-      const { data: options } = await supabase.functions.invoke('auth', {
-        body: { action: 'generate-registration-options' }
-      });
-
-      const credential = await startRegistration({ optionsJSON: options });
-      
-      const { data: result } = await supabase.functions.invoke('auth', {
-        body: { action: 'verify-registration', credential }
-      });
-
-      return result;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
+const registerNonCustodial = async () => {
+  // 1. Generate account locally (DeFi compliant)
+  const { token, publicKey } = await handleRegister();
+  // Secret key stored in localStorage only!
+  
+  // 2. Get WebAuthn challenge from server (public data)
+  const { data: options } = await supabase.functions.invoke('auth', {
+    body: { action: 'generate-registration-options' }
+  });
+  
+  // 3. Complete WebAuthn registration
+  const credential = await startRegistration({ optionsJSON: options });
+  
+  // 4. Send public data only to server
+  const { data: result } = await supabase.functions.invoke('auth', {
+    body: { 
+      action: 'verify-registration',
+      credential,
+      stellarPublicKey: publicKey  // ✅ Public key only
+      // secretKey never sent!      // ✅ DeFi compliant
     }
-  };
+  });
+  
+  return result;
+};
+```
 
-  return { register, loading, error };
+### Non-Custodial Transaction Signing
+```typescript
+import { handleSign } from '@/lib/passkey';
+import { TransactionBuilder } from '@stellar/stellar-sdk';
+
+const signTransactionLocally = async (xdr: string) => {
+  // ✅ DeFi COMPLIANT: Client-side signing only
+  const signedXdr = await handleSign(xdr);
+  
+  // ❌ NOT THIS: Server-side signing (DeFi violation)
+  // const signed = await supabase.functions.invoke('auth', {
+  //   body: { action: 'sign-transaction', transaction: xdr }
+  // });
+  
+  return signedXdr;
 };
 ```
 
 ---
 
-## ✅ Current Status
+## ✅ Current Status (DeFi Compliant)
 
-### ✅ Production Ready
-- **auth** function - Complete WebAuthn and Stellar integration
-- **CORS handling** - All functions properly configured
-- **Error handling** - Comprehensive error management
-- **Security** - WebAuthn and database security implemented
-- **Documentation** - Complete API reference available
+### ✅ Production Ready (Non-Custodial)
+- **auth** function - WebAuthn challenges and public data only
+- **Local secret storage** - All secret keys in browser localStorage
+- **Client-side signing** - Transaction signing happens locally
+- **Public metadata** - Only non-sensitive data on server
+- **DeFi compliance** - True self-custody achieved
 
-### 🚧 In Development
-- **rewards** function - Full implementation pending
-- **health** function - Monitoring and status checks
-- **rate limiting** - API usage limits and throttling
-- **caching** - Performance optimization with Redis
-- **testing** - Automated test suite for all functions
+### 🚧 DeFi-Compliant Features In Development
+- **rewards** function - Public reward tracking (no fund distribution)
+- **health** function - Public system monitoring
+- **audit trails** - Public transaction references
+- **backup tools** - Client-side key export/import
+
+### 🚫 Custodial Features Removed (DeFi Compliance)
+- ❌ **Server-side secret key storage** - Moved to local storage
+- ❌ **Server-side transaction signing** - Moved to client-side
+- ❌ **Custodial fund management** - Users control their funds
+- ❌ **Centralized key recovery** - Users manage their own backups
 
 ---
 
-**Last Updated:** January 21, 2025  
-**Version:** 1.0.0  
-**Status:** Authentication function production ready, rewards system in development ✅
+## 🎯 DeFi Compliance Summary
 
-For setup instructions, see [Installation Guide](../setup/installation.md).  
-For database schema, see [Database Schema](./database-schema.md).  
-For troubleshooting, see [Issues Resolved](../development/issues-resolved.md).
+### Core Principles Achieved ✅
+- [x] **Self-Custody**: Users control their secret keys
+- [x] **Non-Custodial**: No server access to user funds  
+- [x] **Decentralized**: No central authority over user assets
+- [x] **Trustless**: No need to trust server with funds
+- [x] **Permissionless**: Users can create accounts independently
+- [x] **Transparent**: All operations visible and verifiable
+
+### Architecture Guarantees ✅
+- [x] **Secret keys never transmitted** to any server
+- [x] **Transaction signing** happens in user's browser only
+- [x] **Fund access** controlled exclusively by user
+- [x] **Server compromise** cannot affect user funds
+- [x] **User sovereignty** maintained at all times
+
+---
+
+**Last Updated:** August 19, 2025  
+**Version:** 2.0.0 - DeFi Compliant Architecture ✅  
+**Status:** Fully non-custodial, secret keys stored locally only
+
+**Key Achievement**: Successfully migrated from custodial edge functions to DeFi-compliant architecture where server handles only public data and WebAuthn challenges, while all secret keys and transaction signing remain on the user's device.
+
+**DeFi Principle**: "Not your keys, not your crypto" - Now fully upheld ✅
+
+For DeFi compliance details, see [DeFi Keys Stored Locally - Resolved](../development/DefiKeysStoredLocally-Resolved.md).  
+For database schema (public data only), see [Database Schema](./database-schema.md).  
+For local storage implementation, see [LocalKeyStorage Reference](../lib/localkeyStorage.md).

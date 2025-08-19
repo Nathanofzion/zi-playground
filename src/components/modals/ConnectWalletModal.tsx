@@ -1,7 +1,5 @@
 import { FC } from "react";
-
 import { Flex, For, Link, Text } from "@chakra-ui/react";
-
 import useWallets from "@/hooks/useWallets";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
