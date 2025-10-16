@@ -3,7 +3,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { Heading, Text, VStack } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
-import { xdr } from "@stellar/stellar-sdk";
+// ❌ REMOVED: import { xdr } from "@stellar/stellar-sdk";
 
 import useAssets from "@/hooks/useAssets";
 import useSwap from "@/hooks/useSwap";
@@ -15,8 +15,26 @@ import Input from "../common/Input";
 import { ModalProps } from "../common/Modal";
 import { toaster } from "../ui/toaster";
 
-export function strToScVal(base64Xdr: string): xdr.ScVal {
-  return xdr.ScVal.fromXDR(Buffer.from(base64Xdr, "base64"));
+// ✅ NEW: Server-side XDR parsing function
+export async function strToScVal(base64Xdr: string): Promise<any> {
+  try {
+    const response = await fetch('/api/stellar/parse-xdr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64Xdr })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'XDR parsing failed');
+    }
+
+    const result = await response.json();
+    return result.data;
+  } catch (error) {
+    console.error('strToScVal error:', error);
+    throw error;
+  }
 }
 
 const SwapModal: FC<ModalProps> = (props) => {
@@ -42,8 +60,12 @@ const SwapModal: FC<ModalProps> = (props) => {
 
   const refetchAmount = async () => {
     if (!address || !asset1 || !asset2) return;
-    const lpAmount = await calculateAmount(amount1);
-    setAmount2(formatBalance(lpAmount, asset2!.decimals));
+    try {
+      const lpAmount = await calculateAmount(amount1);
+      setAmount2(formatBalance(lpAmount, asset2!.decimals));
+    } catch (error) {
+      console.error('Amount calculation failed:', error);
+    }
   };
 
   useEffect(() => {
@@ -64,6 +86,7 @@ const SwapModal: FC<ModalProps> = (props) => {
         type: "success",
       });
     } catch (err) {
+      console.error('Swap error:', err);
       toaster.create({
         title: err instanceof Error ? err.message : (err as string),
         type: "error",

@@ -263,177 +263,205 @@ Edge Functions (auth, rewards) need comprehensive integration testing to ensure 
 - Rate limiting verification
 - Database integration testing
 
-### Proposed Solution
-**Jest API Integration Tests:**
-```typescript
-// __tests__/api/auth.test.ts
-describe('Auth Edge Function', () => {
-  test('should generate registration options', async () => {
-    // Test WebAuthn challenge generation
-  });
-  
-  test('should verify passkey registration', async () => {
-    // Test complete registration flow
-  });
-  
-  test('should handle CORS properly', async () => {
-    // Test CORS headers and preflight requests
-  });
-});
 
-// __tests__/api/rewards.test.ts
-describe('Rewards Edge Function', () => {
-  test('should return user rewards', async () => {
-    // Test rewards retrieval
-  });
-  
-  test('should handle missing users', async () => {
-    // Test error handling
-  });
-});
-```
 
-### Tasks
-- [ ] Create Auth Edge Function integration tests
-- [ ] Create Rewards Edge Function integration tests
-- [ ] Add CORS handling verification
-- [ ] Test error responses and status codes
-- [ ] Add database integration testing
-- [ ] Create mock data utilities for testing
-- [ ] Add rate limiting tests
-- [ ] Integration with CI/CD pipeline
+=============================================================
 
-### Files to Create/Modify
-- `__tests__/api/auth.test.ts` - Auth function tests
-- `__tests__/api/rewards.test.ts` - Rewards function tests
-- `__tests__/utils/api-helpers.ts` - API testing utilities
-- `__tests__/utils/mock-data.ts` - Test data generation
-- `jest.setup.js` - API testing configuration
 
----
 
-## 🛠️ Issue #5: Test Utilities and Common Workflows
-**Priority:** Low  
-**Status:** ❌ NOT STARTED  
-**Source:** Follow-up from Issue #9 - Testing Infrastructure
-
-### Problem Description
-Need reusable test utilities and helpers for common testing workflows to reduce code duplication and improve test maintainability.
-
-### Requirements
-- Common authentication test utilities
-- Stellar account testing helpers
-- API mocking utilities
-- Database seeding for tests
-- Performance testing helpers
 
 ### Proposed Solution
-**Comprehensive Test Utilities:**
-```typescript
-// __tests__/utils/auth-helpers.ts
-export const createMockPasskey = () => {
-  // Mock PasskeyID registration for testing
-};
 
-export const authenticateUser = async (mockCredentials: any) => {
-  // Common authentication flow for tests
-};
 
-// __tests__/utils/stellar-helpers.ts
-export const createTestAccount = () => {
-  // Generate test Stellar account
-};
+Perfect! Let's use **Option 2** to analyze the Kale site repository and resolve your remaining issues. Here's the step-by-step approach:
 
-export const mockFriendbotResponse = () => {
-  // Mock friendbot funding for tests
-};
+## **Step 1: Create Analysis Branch & Clone Kale Repo**
 
-// __tests__/utils/database-helpers.ts
-export const seedTestData = () => {
-  // Seed database with test data
-};
+````bash
+# Navigate to your zi-playground project
+cd /Users/nathanieldenny/Desktop/zi-airdrop/zi-playground
 
-export const cleanupTestData = () => {
-  // Clean up test data after tests
-};
-```
+# Create analysis branch
+git checkout -b analyze-kale-passkey-implementation
 
-### Tasks
-- [ ] Create authentication testing utilities
-- [ ] Add Stellar account testing helpers
-- [ ] Create API mocking utilities
-- [ ] Add database testing helpers
-- [ ] Add performance testing helpers
-- [ ] Create test data factories
-- [ ] Documentation for test utilities
+# Create temporary analysis directory
+mkdir temp-kale-analysis
+cd temp-kale-analysis
 
-### Files to Create/Modify
-- `__tests__/utils/auth-helpers.ts` - Authentication test utilities
-- `__tests__/utils/stellar-helpers.ts` - Stellar testing helpers
-- `__tests__/utils/api-helpers.ts` - API testing utilities
-- `__tests__/utils/database-helpers.ts` - Database test helpers
-- `__tests__/utils/performance-helpers.ts` - Performance testing
-- `docs/testing/test-utilities.md` - Test utilities documentation
+# Clone the Kale repo
+git clone https://github.com/Nathanofzion/kale-site.git .
 
----
+# Analyze the passkey implementation
+echo "🔍 Analyzing Kale's passkey implementation..."
+````
 
-## 📊 Current Issues Summary
+## **Step 2: Scan Kale's Codebase Structure**
 
-### 🔴 Critical (2)
-1. **React Hooks Order Violation** - WalletConnectButton causing unstable renders
-2. **Airdrop API Edge Function Failure** - 500 errors preventing airdrops
+````bash
+# Find passkey-related files
+find . -name "*passkey*" -type f
+find . -name "*transaction*" -type f  
+find . -name "*sign*" -type f
+find . -name "*stellar*" -type f
 
-### ✅ Resolved (1)
-3. **PasskeyID Multiple Account Generation** - ✅ Fixed authentication flow and account persistence
+# Check their package.json for dependencies
+cat package.json | grep -i passkey
+cat package.json | grep -i stellar
+cat package.json | grep -i soroban
 
-### 🚧 In Progress (1)
-4. **Automated Deployment Pipeline** - CI/CD setup for production deployment
+# Look at their src structure
+tree src/ -I node_modules
+````
 
-### ❌ Not Started (3)
-5. **Production Branch Protection Rules** - Code review and quality gates
-6. **API Integration Testing** - Edge Function testing
-7. **Test Utilities and Common Workflows** - Testing infrastructure improvements
+## **Step 3: Identify Key Files to Extract**
 
-### 🎯 Priority Order
-1. **🔴 CRITICAL:** React Hooks Order Violation (app stability)
-2. **🔴 CRITICAL:** Airdrop API Edge Function Failure (core functionality)
-3. **HIGH:** Automated Deployment Pipeline (production readiness)
-4. **MEDIUM:** Production Branch Protection Rules (code quality)
-5. **MEDIUM:** API Integration Testing (backend reliability)
-6. **LOW:** Test Utilities and Common Workflows (developer experience)
+Based on what we need to fix, let's look for:
 
-### 📈 Expected Impact
-- ✅ **Account Persistence:** One stable account per device - RESOLVED
-- ✅ **User Experience:** Reliable WebAuthn authentication - RESOLVED  
-- **App Stability:** Fix React hooks violations to prevent crashes
-- **Airdrop Functionality:** Restore working airdrop distribution
-- **Deployment Automation:** Faster, more reliable releases
-- **Code Quality:** Protected main branch with review process
-- **Backend Reliability:** Comprehensive API testing
-- **Developer Experience:** Improved testing tools and workflows
+````bash
+# Transaction signing implementation
+find . -path "*/node_modules" -prune -o -name "*.ts" -o -name "*.tsx" | xargs grep -l "signTransaction\|sign.*transaction" 2>/dev/null
 
-### 🚀 Next Steps
-1. **🔴 URGENT:** Fix React Hooks order violation in WalletConnectButton
-2. **🔴 URGENT:** Fix Airdrop API Edge Function failure  
-3. **HIGH:** Complete Automated Deployment Pipeline
-4. **MEDIUM:** Implement Branch Protection Rules
-5. **MEDIUM:** Add API Integration Testing
-6. **LOW:** Enhance testing infrastructure
+# Passkey transaction handlers
+find . -path "*/node_modules" -prune -o -name "*.ts" -o -name "*.tsx" | xargs grep -l "passkey.*transaction\|transaction.*passkey" 2>/dev/null
 
----
+# Stellar integration patterns
+find . -path "*/node_modules" -prune -o -name "*.ts" -o -name "*.tsx" | xargs grep -l "stellar.*sdk\|soroban" 2>/dev/null
 
-## 🎉 Recent Achievements
+# XDR handling
+find . -path "*/node_modules" -prune -o -name "*.ts" -o -name "*.tsx" | xargs grep -l "xdr\|scVal" 2>/dev/null
+````
 
-### ✅ PasskeyID Multiple Account Generation - RESOLVED
-- **Fixed authentication flow** - Always requires WebAuthn biometric prompt
-- **Improved account persistence** - One device = One account, with automatic refunding
-- **Enhanced validation logic** - Only rejects actual mock keys, not real keys with X
-- **Better user experience** - Consistent account across sessions with proper authentication
+## **Step 4: Extract and Analyze Core Implementation**
 
-**Impact:** Users now have a reliable, secure authentication experience with persistent accounts.
+Let's examine their key files:
 
----
+````bash
+# Check their passkey client implementation
+ls -la src/lib/*passkey* 2>/dev/null || echo "No passkey files found in src/lib"
+ls -la src/components/*passkey* 2>/dev/null || echo "No passkey components found"
 
-*Last Updated: August 19, 2025*  
-*Status: 6 active issues (2 critical), 1 resolved*  
-*Priority: Fix critical React hooks and airdrop API issues immediately*
+# Look for transaction handling
+ls -la src/lib/*transaction* 2>/dev/null
+ls -la src/lib/*stellar* 2>/dev/null
+ls -la src/lib/*contract* 2>/dev/null
+
+# Check their wallet integration
+ls -la src/lib/*wallet* 2>/dev/null
+````
+
+## **Step 5: Create Integration Plan**
+
+Once we analyze their code, we'll create these files in your project:
+
+````typescript
+// Files we'll create/update based on Kale's implementation:
+
+// 1. Enhanced transaction signing
+// filepath: src/lib/passkey/transaction-signer.ts
+// (Extracted from Kale's implementation)
+
+// 2. Fixed XDR handling  
+// filepath: src/lib/stellar/xdr-utils.ts
+// (Their XDR conversion patterns)
+
+// 3. Complete passkey-stellar integration
+// filepath: src/lib/passkey/stellar-integration.ts
+// (Their passkey + Stellar SDK integration)
+
+// 4. Transaction completion handlers
+// filepath: src/lib/contracts/transaction-handler.ts
+// (Their contract interaction patterns)
+````
+
+## **Step 6: Execute the Analysis**
+
+Run this complete analysis script:
+
+````bash
+#!/bin/bash
+# filepath: analyze-kale.sh
+
+echo "🚀 Starting Kale Repository Analysis..."
+
+# Navigate to zi-playground
+cd /Users/nathanieldenny/Desktop/zi-airdrop/zi-playground
+
+# Create analysis branch
+git checkout -b analyze-kale-passkey-implementation 2>/dev/null || git checkout analyze-kale-passkey-implementation
+
+# Create temp directory
+mkdir -p temp-kale-analysis
+cd temp-kale-analysis
+
+# Clone Kale repo
+echo "📥 Cloning Kale repository..."
+git clone https://github.com/Nathanofzion/kale-site.git . --depth 1
+
+echo "🔍 Analyzing file structure..."
+
+# Key directories to examine
+echo "📁 Source structure:"
+ls -la src/ 2>/dev/null || echo "No src directory found"
+
+echo "📋 Passkey-related files:"
+find . -path "*/node_modules" -prune -o -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -exec grep -l -i "passkey\|webauthn" {} \; 2>/dev/null
+
+echo "💼 Transaction-related files:"
+find . -path "*/node_modules" -prune -o -type f \( -name "*.ts" -o -name "*.tsx" \) -exec grep -l "signTransaction\|submitTransaction" {} \; 2>/dev/null
+
+echo "🌟 Stellar SDK integration:"
+find . -path "*/node_modules" -prune -o -type f \( -name "*.ts" -o -name "*.tsx" \) -exec grep -l "@stellar/stellar-sdk\|soroban" {} \; 2>/dev/null
+
+echo "🔧 XDR handling patterns:"
+find . -path "*/node_modules" -prune -o -type f \( -name "*.ts" -o -name "*.tsx" \) -exec grep -l "xdr\|scVal\|nativeToScVal" {} \; 2>/dev/null
+
+echo "✅ Analysis complete. Check the files above for implementation patterns."
+````
+
+## **Step 7: Run the Analysis**
+
+````bash
+# Make the script executable and run it
+chmod +x analyze-kale.sh
+./analyze-kale.sh
+````
+
+## **Step 8: Integration Strategy**
+
+Based on what we find, we'll:
+
+1. **Extract Transaction Signing Logic**
+   - Copy their passkey transaction signing implementation
+   - Adapt to your existing `PasskeyClient` class
+
+2. **Fix XDR Conversion Issues** 
+   - Use their XDR handling patterns
+   - Resolve the "union name undefined" errors
+
+3. **Complete Stellar Integration**
+   - Implement proper contract interaction
+   - Fix token balance and airdrop status calls
+
+4. **Update Your Status Documentation**
+   - Mark transaction signing as ✅ resolved
+   - Update current status with completed features
+
+## **Let's Start the Analysis!**
+
+**Run this command now:**
+
+````bash
+cd /Users/nathanieldenny/Desktop/zi-airdrop/zi-playground
+git checkout -b analyze-kale-passkey-implementation
+mkdir temp-kale-analysis && cd temp-kale-analysis
+git clone https://github.com/Nathanofzion/kale-site.git .
+````
+
+Then share the output of:
+````bash
+find . -path "*/node_modules" -prune -o -name "*.ts" -o -name "*.tsx" | xargs grep -l "passkey\|signTransaction" 2>/dev/null
+````
+
+This will show us exactly what files contain the passkey transaction handling we need to extract! 🎯
+
+**Ready to run the analysis and fix those remaining issues?**
