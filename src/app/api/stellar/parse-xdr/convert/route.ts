@@ -47,10 +47,10 @@ function deserializeScVal(data: any): any {
 export async function POST(req: NextRequest) {
   try {
     const { operation, value, scVal, options } = await req.json();
-    
+
     if (!operation) {
       return NextResponse.json(
-        { error: 'Missing operation parameter' }, 
+        { error: 'Missing operation parameter' },
         { status: 400 }
       );
     }
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         // Handle type options for specialized conversions
         if (options?.type === 'u32') {
           result = await stellarServer.nativeToScValU32(value);
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         // Pass scVal directly - server methods can handle both XDR strings and ScVal objects
         const deserializedScVal = deserializeScVal(scVal);
         result = await stellarServer.scValToNative(deserializedScVal);
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         const deserializedScValBigInt = deserializeScVal(scVal);
         result = await stellarServer.scValToBigInt(deserializedScValBigInt);
         break;
@@ -141,19 +141,19 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-        
+
         const objectToConvert = value || scVal;
         result = await stellarServer.nativeToScVal(objectToConvert);
         break;
 
       default:
         return NextResponse.json(
-          { 
+          {
             error: 'Invalid operation',
             message: 'Supported operations: nativeToScVal, scValToNative, scValToBigInt, addressToScVal, stringToScVal, numberToScVal, objectToScVal',
             supportedOperations: [
               'nativeToScVal',
-              'scValToNative', 
+              'scValToNative',
               'scValToBigInt',
               'addressToScVal',
               'stringToScVal',
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ Stellar conversion error:', error);
-    
+
     return NextResponse.json({
       error: 'Conversion failed',
       message: error.message || 'An unexpected error occurred during conversion',

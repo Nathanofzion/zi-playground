@@ -24,6 +24,8 @@ const useAssets = () => {
         );
         return data.assets.map((asset: any) => ({ ...asset, id: uuid() }));
       } else {
+        console.log("Network : ", activeChain.network);
+
         const { data } = await axios.get<
           { network: string; assets: IAsset[] }[]
         >("https://api.soroswap.finance/api/tokens");
@@ -44,6 +46,8 @@ const useAssets = () => {
       queryKey: ["balance", address, asset.contract],
       queryFn: async () => {
         try {
+          console.log("Asset : ", asset, " Contract : ", asset.contract);
+
           const balance = await tokenBalance(sorobanContext, asset.contract);
           return balance / Math.pow(10, asset.decimals);
         } catch (err: any) {
@@ -52,17 +56,17 @@ const useAssets = () => {
             console.warn(`No trustline for ${asset.name || asset.contract}:`, err.message);
             return 0;
           }
-          
+
           if (err?.message?.includes("MissingValue") || err?.message?.includes("contract instance")) {
             console.warn(`Contract not found for ${asset.name || asset.contract}:`, err.message);
             return 0;
           }
-          
+
           if (err?.message?.includes("Contract, #13")) {
             console.warn(`Trustline missing for ${asset.name || asset.contract}:`, err.message);
             return 0;
           }
-          
+
           // Log other errors but don't crash
           console.warn(`Balance fetch failed for ${asset.name || asset.contract}:`, err.message || err);
           return 0;
@@ -74,9 +78,9 @@ const useAssets = () => {
       // Add retry configuration to prevent excessive retries
       retry: (failureCount, error: any) => {
         // Don't retry for trustline/contract errors
-        if (error?.message?.includes("trustline") || 
-            error?.message?.includes("MissingValue") ||
-            error?.message?.includes("Contract, #13")) {
+        if (error?.message?.includes("trustline") ||
+          error?.message?.includes("MissingValue") ||
+          error?.message?.includes("Contract, #13")) {
           return false;
         }
         // Only retry network errors, max 2 times

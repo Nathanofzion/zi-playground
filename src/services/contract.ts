@@ -13,10 +13,10 @@ async function nativeToScVal(value: any, options?: { type?: string }) {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'nativeToScVal', 
+      body: JSON.stringify({
+        operation: 'nativeToScVal',
         value,
-        options 
+        options
       })
     });
 
@@ -38,9 +38,9 @@ async function scValToNative(scVal: any) {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'scValToNative', 
-        scVal 
+      body: JSON.stringify({
+        operation: 'scValToNative',
+        scVal
       })
     });
 
@@ -62,8 +62,8 @@ async function createScValU32(value: number) {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'nativeToScVal', 
+      body: JSON.stringify({
+        operation: 'nativeToScVal',
         value,
         options: { type: 'u32' }
       })
@@ -93,8 +93,9 @@ export async function tokenBalance(
   }
 
   try {
+    console.log("Fetching token balance for address:", address, "and token:", tokenAddress);
     const accountScVal = await accountToScVal(address);
-
+    console.log("Account ScVal:", accountScVal);
     const response = await contractInvoke({
       contractAddress: tokenAddress,
       method: "balance",
@@ -167,7 +168,7 @@ export const sendAsset = async (
     const senderScVal = await accountToScVal(address);
     const recipientScVal = await accountToScVal(recipient);
     const amountScVal = await nativeToScVal(
-      amount * Math.pow(10, asset.decimals), 
+      amount * Math.pow(10, asset.decimals),
       { type: "i128" }
     );
 

@@ -6,9 +6,9 @@ export async function accountToScVal(account: string): Promise<any> {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'nativeToScVal', 
-        value: account 
+      body: JSON.stringify({
+        operation: 'nativeToScVal',
+        value: account
       })
     });
 
@@ -31,9 +31,9 @@ export async function scValToNumber(scVal: any): Promise<number> {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'scValToBigInt', 
-        scVal 
+      body: JSON.stringify({
+        operation: 'scValToBigInt',
+        scVal
       })
     });
 
@@ -68,9 +68,9 @@ export async function nativeToScVal(value: any): Promise<any> {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'nativeToScVal', 
-        value 
+      body: JSON.stringify({
+        operation: 'nativeToScVal',
+        value
       })
     });
 
@@ -92,9 +92,9 @@ export async function scValToNative(scVal: any): Promise<any> {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'scValToNative', 
-        scVal 
+      body: JSON.stringify({
+        operation: 'scValToNative',
+        scVal
       })
     });
 
