@@ -17,8 +17,10 @@ export const connect = async (connector: Connector) => {
       // For other wallets (Freighter, Lobstr), open download URLs
       const userAgent = navigator.userAgent;
       if (/android/i.test(userAgent)) {
+        console.log("Android Download Called!!!");
         window.open(connector.downloadUrls?.android, "_blank");
       } else if (/iPad|iPhone|iPod/i.test(userAgent)) {
+        console.log("Ios Download Called!!!");
         window.open(connector.downloadUrls?.ios, "_blank");
       } else {
         window.open(connector.downloadUrls?.browserExtension, "_blank");

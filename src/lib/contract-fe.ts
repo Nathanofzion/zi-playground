@@ -44,39 +44,66 @@ export async function contractInvoke({
       source = new StellarSdk.Account(defaultAddress, "0");
     }
   }
-
+  
   const contract = new StellarSdk.Contract(contractAddress);
   //Builds the transaction
+  // NOTE: Soroban transactions (Protocol 23+) do NOT support memos
+  // Adding a memo to a Soroban transaction will cause: "non-source auth Soroban tx uses memo or mixed source account"
   let tx = new StellarSdk.TransactionBuilder(source, {
     fee: "100",
     networkPassphrase,
   })
     .addOperation(contract.call(method, ...args))
     .setTimeout(StellarSdk.TimeoutInfinite);
-  if (memo) tx = tx.addMemo(StellarSdk.Memo.text(memo));
+  // Do NOT add memo to Soroban transactions - Protocol 23 prohibits it
   const txn = tx.build();
 
   const simulated = await server.simulateTransaction(txn);
   if (Api.isSimulationError(simulated)) {
+    console.error('❌ Simulation error:', simulated.error);
     throw new Error(simulated.error);
   } else if (!simulated.result) {
+    console.error('❌ Simulation returned no result:', simulated);
     throw new Error(`invalid simulation: no result in ${simulated}`);
   }
+  
+  console.log('✅ Simulation successful:', {
+    cost: simulated.result.cost,
+    hasRetval: !!simulated.result.retval,
+    hasEvents: !!simulated.result.events
+  });
+  
   if (!signAndSend && simulated) {
     return simulated.result.retval;
   } else {
     // If signAndSend
-    const res = await signAndSendTransaction({
-      txn,
-      skipAddingFootprint,
-      secretKey,
-      sorobanContext,
-      timeoutSeconds,
-    });
+    console.log('📝 Signing and sending transaction...');
+    try {
+      const res = await signAndSendTransaction({
+        txn,
+        skipAddingFootprint,
+        secretKey,
+        sorobanContext,
+        timeoutSeconds,
+      });
 
-    if (reconnectAfterTx) {
-      sorobanContext.connect();
+      console.log('✅ Transaction signed and sent:', {
+        hasHash: !!res?.hash,
+        hasResponse: !!res,
+        responseType: typeof res
+      });
+
+      if (reconnectAfterTx) {
+        sorobanContext.connect();
+      }
+      return res;
+    } catch (error: any) {
+      console.error('❌ Transaction signing/sending failed:', {
+        message: error.message,
+        stack: error.stack,
+        error: error
+      });
+      throw error;
     }
-    return res;
   }
 }

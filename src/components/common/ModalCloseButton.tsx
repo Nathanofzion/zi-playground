@@ -6,7 +6,13 @@ import { CloseButton } from "../ui/close-button";
 
 const ModalCloseButton: FC<DialogCloseTriggerProps> = (props) => {
   return (
-    <Dialog.CloseTrigger position="absolute" right={4} top={4} {...props}>
+    <Dialog.CloseTrigger 
+      position="absolute" 
+      right={4} 
+      top={4} 
+      {...props}
+      asChild
+    >
       <CloseButton size="sm" />
     </Dialog.CloseTrigger>
   );

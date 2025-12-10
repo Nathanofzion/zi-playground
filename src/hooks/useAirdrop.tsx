@@ -28,11 +28,22 @@ const useAirdrop = () => {
       queryKey: ["airdrop-status", address, action],
       queryFn: async () => {
         if (!address || action === Action.Unknown) return false;
-        return getAirdropStatus(sorobanContext, address, +action);
+        try {
+          const result = await getAirdropStatus(sorobanContext, address, +action);
+          // Ensure boolean return
+          return Boolean(result);
+        } catch (err: any) {
+          // Handle errors gracefully - return false (not claimed)
+          console.warn(`Airdrop status check failed for action ${action}:`, err.message);
+          return false;
+        }
       },
       enabled: !!address,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
+      retry: 1, // Only retry once
+      retryDelay: 1000,
+      staleTime: 60000, // Cache for 1 minute
     })),
   });
 

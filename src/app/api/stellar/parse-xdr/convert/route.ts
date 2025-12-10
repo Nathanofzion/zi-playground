@@ -6,6 +6,11 @@ export const dynamic = 'force-dynamic';
 
 // Helper function to serialize ScVal objects to XDR strings
 function serializeScVal(scVal: any): any {
+  // Handle BigInt - convert to string for JSON serialization
+  if (typeof scVal === 'bigint') {
+    return scVal.toString();
+  }
+  
   if (!scVal || typeof scVal !== 'object') {
     return scVal;
   }
@@ -37,20 +42,72 @@ function serializeScVal(scVal: any): any {
   return scVal;
 }
 
-// Simplified deserialize function - just pass through data
-function deserializeScVal(data: any): any {
-  // Let the server-side methods handle ScVal objects directly
-  // The stellarServer methods can handle both XDR strings and ScVal objects
-  return data;
+// Robust deserialize function: reconstruct ScVal from base64 XDR or pass-through valid ScVal
+async function deserializeScVal(data: any): Promise<any> {
+  if (!data) {
+    throw new Error('ScVal data is required');
+  }
+
+  // If already a proper ScVal (has switch & toXDR), pass through
+  if (
+    data &&
+    typeof data.switch === 'function' &&
+    typeof data.toXDR === 'function'
+  ) {
+    return data;
+  }
+
+  // If base64 XDR string, parse to ScVal
+  if (typeof data === 'string' && data.length > 0) {
+    // Basic base64 validation
+    if (!/^[A-Za-z0-9+/=]+$/.test(data)) {
+      throw new Error('Invalid base64 format for ScVal');
+    }
+
+    await stellarServer.initialize();
+    const sdk = (stellarServer as any).sdk;
+
+    try {
+      const buffer = Buffer.from(data, 'base64');
+      const scVal = sdk.xdr.ScVal.fromXDR(buffer);
+
+      if (!scVal || typeof scVal.switch !== 'function') {
+        throw new Error('Parsed object is not a valid ScVal instance');
+      }
+
+      return scVal;
+    } catch (error: any) {
+      if (error.message?.includes('XDR')) {
+        throw new Error(`Failed to parse ScVal from XDR: ${error.message}`);
+      }
+      throw new Error(`ScVal deserialization failed: ${error.message}`);
+    }
+  }
+
+  throw new Error(
+    `Invalid ScVal format. Expected base64 XDR string or ScVal instance; received ${typeof data}${
+      data?.constructor ? ` (${data.constructor.name})` : ''
+    }`
+  );
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { operation, value, scVal, options } = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch (parseError) {
+      return NextResponse.json(
+        { error: 'Invalid or empty JSON body', details: `${parseError}` },
+        { status: 400 }
+      );
+    }
 
+    const { operation, value, scVal, options } = body || {};
+    
     if (!operation) {
       return NextResponse.json(
-        { error: 'Missing operation parameter' },
+        { error: 'Missing operation parameter' }, 
         { status: 400 }
       );
     }
@@ -65,7 +122,7 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-
+        
         // Handle type options for specialized conversions
         if (options?.type === 'u32') {
           result = await stellarServer.nativeToScValU32(value);
@@ -85,9 +142,9 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-
-        // Pass scVal directly - server methods can handle both XDR strings and ScVal objects
-        const deserializedScVal = deserializeScVal(scVal);
+        
+        // Deserialize ScVal (base64 XDR or valid ScVal instance)
+        const deserializedScVal = await deserializeScVal(scVal);
         result = await stellarServer.scValToNative(deserializedScVal);
         break;
 
@@ -98,8 +155,8 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-
-        const deserializedScValBigInt = deserializeScVal(scVal);
+        
+        const deserializedScValBigInt = await deserializeScVal(scVal);
         result = await stellarServer.scValToBigInt(deserializedScValBigInt);
         break;
 
@@ -141,19 +198,19 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-
+        
         const objectToConvert = value || scVal;
         result = await stellarServer.nativeToScVal(objectToConvert);
         break;
 
       default:
         return NextResponse.json(
-          {
+          { 
             error: 'Invalid operation',
             message: 'Supported operations: nativeToScVal, scValToNative, scValToBigInt, addressToScVal, stringToScVal, numberToScVal, objectToScVal',
             supportedOperations: [
               'nativeToScVal',
-              'scValToNative',
+              'scValToNative', 
               'scValToBigInt',
               'addressToScVal',
               'stringToScVal',
@@ -178,7 +235,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ Stellar conversion error:', error);
-
+    
     return NextResponse.json({
       error: 'Conversion failed',
       message: error.message || 'An unexpected error occurred during conversion',

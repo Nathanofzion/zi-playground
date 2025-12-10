@@ -15,19 +15,59 @@ const useRewards = () => {
     queryFn: async () => {
       if (!address) return null;
 
-      const { data, error } = await supabase.functions.invoke("rewards", {
-        method: "POST",
-        body: {
-          action: "get-rewards",
-          token: localStorage.getItem("token"),
-        },
-      });
+      const token = localStorage.getItem("token");
+      if (!token) {
+        // Return default values if no token
+        return {
+          referral_count: 0,
+          total_rewards: 0,
+          claimed_rewards: 0,
+          remaining_rewards: 0,
+          history: [],
+        };
+      }
 
-      if (error) throw new Error(error.message);
+      try {
+        const { data, error } = await supabase.functions.invoke("rewards", {
+          method: "POST",
+          body: {
+            action: "get-rewards",
+            token,
+          },
+        });
 
-      return data;
+        if (error) {
+          // Don't throw on 500/546 errors - return default values
+          if (error.message?.includes("546") || error.message?.includes("500")) {
+            console.warn("Rewards service unavailable, returning defaults");
+            return {
+              referral_count: 0,
+              total_rewards: 0,
+              claimed_rewards: 0,
+              remaining_rewards: 0,
+              history: [],
+            };
+          }
+          throw new Error(error.message);
+        }
+
+        return data;
+      } catch (err: any) {
+        // Return defaults instead of crashing
+        console.warn("Failed to fetch rewards:", err.message);
+        return {
+          referral_count: 0,
+          total_rewards: 0,
+          claimed_rewards: 0,
+          remaining_rewards: 0,
+          history: [],
+        };
+      }
     },
     enabled: !!address,
+    retry: 1, // Only retry once
+    retryDelay: 1000,
+    staleTime: 30000, // Cache for 30 seconds
   });
 
   const { mutate: claimRewards, isPending } = useMutation({

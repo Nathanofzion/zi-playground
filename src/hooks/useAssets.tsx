@@ -8,6 +8,8 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import zionToken from "@/constants/zionToken";
 import { IAsset } from "@/interfaces";
 import { tokenBalance } from "@/services/contract";
+import * as StellarSdk from "@stellar/stellar-sdk";
+import { log } from "util";
 
 const useAssets = () => {
   const sorobanContext = useSorobanReact();
@@ -24,13 +26,18 @@ const useAssets = () => {
         );
         return data.assets.map((asset: any) => ({ ...asset, id: uuid() }));
       } else {
-        console.log("Network : ", activeChain.network);
-
         const { data } = await axios.get<
           { network: string; assets: IAsset[] }[]
         >("https://api.soroswap.finance/api/tokens");
         return [
           zionToken,
+//           {
+// "name": "Stellar Lumens",
+// "contract": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+// "code": "XLM",
+// "icon": "https://assets.coingecko.com/coins/images/100/standard/Stellar_symbol_black_RGB.png",
+// "decimals": 7
+// }
           ...(data.find((list) => list.network == activeChain.network)
             ?.assets ?? []),
         ].map((asset: any) => ({ ...asset, id: uuid() }));
@@ -46,27 +53,27 @@ const useAssets = () => {
       queryKey: ["balance", address, asset.contract],
       queryFn: async () => {
         try {
-          console.log("Asset : ", asset, " Contract : ", asset.contract);
-
           const balance = await tokenBalance(sorobanContext, asset.contract);
-          return balance / Math.pow(10, asset.decimals);
+          console.log("Parsed Balance : ",balance);
+          
+          return (balance ?? 0) / Math.pow(10, asset.decimals);
         } catch (err: any) {
           // Handle specific error types gracefully
           if (err?.message?.includes("trustline")) {
             console.warn(`No trustline for ${asset.name || asset.contract}:`, err.message);
             return 0;
           }
-
+          
           if (err?.message?.includes("MissingValue") || err?.message?.includes("contract instance")) {
             console.warn(`Contract not found for ${asset.name || asset.contract}:`, err.message);
             return 0;
           }
-
+          
           if (err?.message?.includes("Contract, #13")) {
             console.warn(`Trustline missing for ${asset.name || asset.contract}:`, err.message);
             return 0;
           }
-
+          
           // Log other errors but don't crash
           console.warn(`Balance fetch failed for ${asset.name || asset.contract}:`, err.message || err);
           return 0;
@@ -78,9 +85,9 @@ const useAssets = () => {
       // Add retry configuration to prevent excessive retries
       retry: (failureCount, error: any) => {
         // Don't retry for trustline/contract errors
-        if (error?.message?.includes("trustline") ||
-          error?.message?.includes("MissingValue") ||
-          error?.message?.includes("Contract, #13")) {
+        if (error?.message?.includes("trustline") || 
+            error?.message?.includes("MissingValue") ||
+            error?.message?.includes("Contract, #13")) {
           return false;
         }
         // Only retry network errors, max 2 times

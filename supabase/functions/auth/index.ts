@@ -60,9 +60,17 @@ async function handleException(fn: () => Promise<any>) {
   }
 }
 
-// Updated environment variables
-const supabaseUrl = Deno.env.get("APP_SUPABASE_URL")!;
-const supabasekey = Deno.env.get("APP_SUPABASE_ANON_KEY")!;
+// Updated environment variables (fallback to standard SUPABASE_* if APP_* not present)
+const supabaseUrl =
+  Deno.env.get("APP_SUPABASE_URL") ?? Deno.env.get("SUPABASE_URL");
+const supabasekey =
+  Deno.env.get("APP_SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY");
+
+if (!supabaseUrl || !supabasekey) {
+  throw new Error(
+    "Missing Supabase URL or anon key. Set APP_SUPABASE_URL/APP_SUPABASE_ANON_KEY (or SUPABASE_URL/SUPABASE_ANON_KEY)."
+  );
+}
 
 const supabase = createClient(supabaseUrl, supabasekey);
 
@@ -88,6 +96,18 @@ function generateToken(payload: any) {
   return jwt.sign(payload, secretKey, options);
 }
 
+// Timeout wrapper to prevent CPU time limit errors
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number = 25000,
+  errorMessage: string = "Operation timed out"
+): Promise<T> {
+  const timeout = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+  });
+  return Promise.race([promise, timeout]);
+}
+
 Deno.serve((req) =>
   handleException(async () => {
     if (req.method === "OPTIONS") return null;
@@ -96,21 +116,29 @@ Deno.serve((req) =>
       const { action, user_id, referrer, challenge_id, data } =
         await req.json();
 
+      // Wrap all handlers with timeout protection
       switch (action) {
         case "profile":
-          return handleProfile(data);
+          // Fast validation before expensive operations
+          if (!data || typeof data !== "object") {
+            throw new BadRequestException("Data is required");
+          }
+          if (!data.token || typeof data.token !== "string" || data.token.length < 10) {
+            throw new BadRequestException("Valid token is required");
+          }
+          return await withTimeout(handleProfile(data), 5000, "Profile fetch timed out");
         case "update-profile":
-          return handleUpdateProfile(data);
+          return await withTimeout(handleUpdateProfile(data), 10000, "Profile update timed out");
         case "generate-registration-options":
-          return handleRegistration();
+          return await withTimeout(handleRegistration(), 10000, "Registration options generation timed out");
         case "verify-registration":
-          return handleRegistrationVerification(data, user_id, referrer);
+          return await withTimeout(handleRegistrationVerification(data, user_id, referrer), 15000, "Registration verification timed out");
         case "generate-authentication-options":
-          return handleAuthentication(challenge_id);
+          return await withTimeout(handleAuthentication(challenge_id), 10000, "Authentication options generation timed out");
         case "verify-authentication":
-          return handleAuthenticationVerification(data, challenge_id);
+          return await withTimeout(handleAuthenticationVerification(data, challenge_id), 15000, "Authentication verification timed out");
         case "sign-transaction":
-          return handleSignTransaction(data);
+          return await withTimeout(handleSignTransaction(data), 20000, "Transaction signing timed out");
         default:
           throw new BadRequestException();
       }
@@ -120,15 +148,43 @@ Deno.serve((req) =>
 );
 
 async function handleProfile(data: any) {
+  if (!data || !data.token) {
+    throw new BadRequestException("Token is required");
+  }
+  
   const { token } = data;
-  const decoded = jwt.verify(token, secretKey);
+  
+  // Fast JWT format validation before expensive jwt.verify
+  if (typeof token !== "string") {
+    throw new BadRequestException("Token must be a string");
+  }
+  
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    throw new BadRequestException("Invalid JWT format");
+  }
+  
+  let decoded: any;
+  
+  // jwt.verify is synchronous, so we need to catch errors immediately
+  try {
+    decoded = jwt.verify(token, secretKey);
+  } catch (error: any) {
+    // Fail fast on invalid tokens
+    throw new BadRequestException(`Invalid or expired token: ${error.message}`);
+  }
+  
+  if (!decoded || !decoded.id) {
+    throw new BadRequestException("Invalid token payload");
+  }
+  
   const { data: user, error } = await supabase
     .from("users")
     .select("id, publicKey, email, role")
     .eq("user_id", decoded.id)
     .single();
   if (error) {
-    throw new Error(error.message);
+    throw new NotFoundException(`User not found: ${error.message}`);
   }
   return user;
 }

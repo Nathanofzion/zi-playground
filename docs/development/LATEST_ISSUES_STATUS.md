@@ -11,38 +11,26 @@
 ### 1. React Hooks & Systemic Crashes
 **Severity:** 🔴 CRITICAL  
 **Module:** Frontend (Hooks), Backend (API)  
-**Status:** ❌ BROKEN
+**Status:** ⚠️ PARTIALLY RESOLVED / IN PROGRESS
 
-The reported "Hooks Crash" is not an isolated frontend bug but a symptom of multiple systemic failures:
-*   **Root Cause:** Hooks are failing because they are dependent on backend services and database structures that are either missing, broken, or incomplete. The frontend attempts to fetch data that doesn't exist, causing unhandled exceptions.
-*   **Rendering Issues:** Basic rendering optimizations are missing. Conditional rendering logic is flawed, leading to crashes when data is missing instead of failing gracefully.
-*   **Infinite Retry Loops:** When a request fails (e.g., due to the broken backend), the application attempts to retry infinitely without any fail-safe checks. This floods the network and contributes to the CPU overload described below.
+*   **Status Update:** Significant progress has been made in stabilizing the frontend hooks. The "Nested button hydration warning" has been fixed by properly using the `asChild` prop in components.
+*   **Infinite Retry Loops:** The application still requires fail-safe checks to prevent infinite retry loops when backend requests fail.
+*   **3D Canvas Performance:** The interactive 3D background on the home screen remains a source of instability (excessive resource usage) and requires optimization (object pooling, particle limits).
 
-### 2. 3D Canvas Performance & Crash
-**Severity:** 🔴 CRITICAL  
-**Module:** Frontend (UI/UX)  
-**Status:** ⚠️ UNSTABLE
-
-The interactive 3D background on the home screen is a major source of instability:
-*   **Resource Leak:** Clicking on the canvas spawns new 3D polygon instances without limit.
-*   **Impact:** This causes rapid and excessive CPU and memory consumption, directly leading to browser freezes and application crashes.
-*   **Recommendation:** Implement object pooling, limit the maximum number of particles, and optimize the WebGL rendering context.
-
-### 3. Supabase Edge Function Timeouts
+### 2. Supabase Edge Function Stability
 **Severity:** 🔴 CRITICAL  
 **Module:** Backend (Supabase)  
 **Status:** ❌ BROKEN
 
-Backend functions are consistently failing with "CPU time limit reached" errors:
-*   **Root Cause:** The functions (`auth`, `rewards`, etc.) are incorrectly using `Deno.serve`, which starts a persistent web server inside a serverless environment.
-*   **Infinite Requests:** The frontend's lack of fail-safes (mentioned in Issue #1) exacerbates this by bombarding these struggling functions with infinite requests.
-*   **Result:** The serverless functions time out and are forcibly terminated by the supervisor.
+*   **Status Update:** Backend functions (`auth`, `rewards`) are still returning 546/500 errors.
+*   **Root Cause:** The functions are likely crashing or timing out ("CPU time limit reached") because the local Supabase Edge Runtime is not running or the functions are still using the incorrect `Deno.serve` architecture.
+*   **Impact:** User authentication and reward claiming remain unreliable until the Edge Functions are properly running and refactored.
 
 ---
 
 ## 🔐 Security & Authentication
 
-### 4. Passkey Implementation Security Flaws
+### 3. Passkey Implementation Security Flaws
 **Severity:** 🔴 CRITICAL (SECURITY RISK)  
 **Module:** Authentication (`src/lib/passkey.ts`)  
 **Status:** 🚧 30% IMPLEMENTED / INSECURE
@@ -56,26 +44,51 @@ The current Passkey implementation is a functional prototype but is fundamentall
 
 ## 💸 Blockchain & Token Integration Status
 
+### 4. Send/Receive & Data Conversion (MAJOR UPDATES)
+**Severity:** 🟢 RESOLVED (Mostly)  
+**Module:** Frontend/Blockchain (`src/services/contract.ts`)  
+**Status:** ✅ FIXED / TESTED
+
+*   **XDR & Balance Fetching:**
+    *   **Fixed:** XDR encoding issues caused by invalid balance fetching have been resolved.
+    *   **Fixed:** The `tokenBalance` function in `src/services/contract.ts` has been refactored to use Stellar SDK conversion functions directly, removing unnecessary API calls for simple string-to-contract-data conversions.
+    *   **Fixed:** Trustline checks have been added, allowing for successful balance fetching and transfers for both **ZION** and **XLM**.
+*   **Send Modal UI:**
+    *   **Fixed:** The "Send" modal now correctly displays the ZION and XLM tokens along with their balances (previously empty). Users can successfully send/transfer both tokens.
+*   **Receive Functionality:**
+    *   **Verified:** Receive functionality has been tested and confirmed working.
+    *   **Verified:** The QR code scanner is now working as expected (directing to the correct address).
+*   **Data Serialization:**
+    *   **Fixed:** ScVal serialization/deserialization (Client Base64 <-> Server ScVal) is fully in place.
+    *   **Fixed:** `accountScVal` and `actionScVal` are correctly parsed before `contractInvoke`.
+    *   **Fixed:** `BigInt` JSON serialization is now handled correctly.
+    *   **Fixed:** The Convert API now returns a 400 error for malformed/empty JSON instead of crashing the server.
+
 ### 5. Smart Contract Integration & Testing
 **Severity:** 🔴 BLOCKER  
 **Module:** Blockchain / Integration  
-**Status:** ⚠️ DEPLOYED BUT PENDING INTEGRATION
+**Status:** ⚠️ INTEGRATION IN PROGRESS
 
-*   **Status Update:** The **Airdrop Contract**, **Classic Asset (ZIG)**, and **Classic Asset Wrapper** have been successfully developed and deployed to the Stellar Testnet as standalone components.
-*   **Integration Gap:** These contracts are **newly deployed** and have not yet been integrated into the `zi-playground` application code.
-*   **Required Actions:**
-    *   Update environment variables with the new contract addresses.
-    *   Refactor frontend hooks (`useAirdrop`, `useSwap`, etc.) to communicate with these live contracts.
-    *   **Flow Testing:** Rigorous testing is required to verify the end-to-end flow (Frontend -> API -> Smart Contract) now that the contracts exist. We anticipate potential issues with XDR encoding, trustline verification, and data type conversions surfacing during this phase.
+*   **Status Update:** The **Classic Asset (ZIG)** and **Classic Asset Wrapper** contract are **now being used** for critical features:
+    *   Sending tokens.
+    *   Fetching balances.
+    *   Establishing trustlines.
+*   **Airdrop Contract:** The dedicated Airdrop contract has been deployed to Testnet but remains pending full integration with the application logic (backend rewards system).
+*   **Flow Testing:** Rigorous testing is still required to verify the end-to-end flow (Frontend -> API -> Smart Contract) now that the contracts are partially active. We anticipate potential issues with XDR encoding and complex trustline verification surfacing during this phase.
 
-### 6. Send/Receive & Data Conversion
-**Severity:** 🟠 HIGH  
-**Module:** Frontend/Blockchain  
-**Status:** ⚠️ BUGGY
+### 6. Wallet Connection Stability
+**Severity:** 🟠 HIGH
+**Module:** Frontend / Wallet (`@soroban-react`)
+**Status:** ⚠️ UNSTABLE
 
-*   **Data Type Issues:** Significant issues found in converting between native JavaScript types and Stellar XDR/ScVal formats.
-*   **Missing References:** Some functions referenced in the code for token fetching and validation do not exist or are imported incorrectly.
-*   **QR Code Failure:** The QR code scanner works but directs users to a random or incorrect wallet address, failing to generate a meaningful unsigned transaction or payment request.
+*   **Connection Loops:** Users are redirected to the extension download page even when the wallet is installed.
+*   **First-Click Failure:** The "Connect" button often fails on the first click, requiring a full application reload (Hot Reload) to work.
+*   **No Popup:** On the first connection attempt, the wallet popup often fails to appear.
+*   **Technical Issues:**
+    *   Inconsistent behavior from the integrated `@soroban-react` library.
+    *   The variable indicating wallet presence often returns `true` even when false or disconnected.
+    *   Inconsistent state values lead to the "Download Wallet" redirection error.
+    *   Connection usually fails if the wallet is not already unlocked/connected within the browser extension itself before loading the app.
 
 ### 7. Airdrop & Rewards System
 **Severity:** 🔴 BLOCKER  
@@ -84,17 +97,17 @@ The current Passkey implementation is a functional prototype but is fundamentall
 
 *   **Backend Inconsistency:** Game scores are being saved to Supabase, but backend communication is inconsistent and requires debugging.
 *   **Reward Distribution:** The logic to save or send rewards (Airdropping) is currently non-functional. It is blocked pending the full integration and flow testing of the newly deployed Airdrop Contract.
-*   **Blocked Features:** We are currently unable to proceed with testing Soroswap integration, Sending, Receiving, and Liquidity provision until the foundational Airdrop and Token flows are stabilized.
+*   **Blocked Features:** We are currently unable to proceed with testing Soroswap integration and Liquidity provision until the foundational Airdrop and Token flows are stabilized.
 
 ---
 
 ## 📝 Summary & Next Steps
 
-The project has reached a critical milestone with the deployment of the necessary smart contracts. The focus now shifts from "development" to "integration and stabilization."
+The project has reached a critical milestone with the resolution of core XDR and Send/Receive issues. The frontend can now reliably fetch balances and sign transactions for ZION and XLM using the wrapper contract. However, instability in wallet connections and the backend API remain significant hurdles.
 
 **Immediate Priorities:**
-1.  **Integrate Contracts:** Connect the frontend and backend to the newly deployed Testnet contracts.
-2.  **Refactor Backend:** Rewrite Supabase functions to fix the `Deno.serve` timeout issue.
-3.  **Secure Passkeys:** Re-architect the authentication flow to remove secret keys from `localStorage`.
-4.  **Stabilize Frontend:** Implement error handling to stop infinite loops and fix the 3D canvas performance issues.
-5.  **End-to-End Testing:** Begin rigorous testing of the Airdrop and Token flows to identify and fix hidden conversion or logic bugs.
+1.  **Fix Wallet Connection:** Debug the `@soroban-react` integration to ensure reliable, first-click wallet connections without reloads.
+2.  **Integrate Airdrop Contract:** Connect the backend reward logic to the newly deployed Airdrop contract.
+3.  **Refactor Backend:** Rewrite Supabase functions to fix the `Deno.serve` timeout issue causing 500 errors.
+4.  **Secure Passkeys:** Re-architect the authentication flow to remove secret keys from `localStorage`.
+5.  **Stabilize Frontend:** Implement error handling to stop infinite loops and fix the 3D canvas performance issues.

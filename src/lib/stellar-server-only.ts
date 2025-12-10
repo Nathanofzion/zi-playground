@@ -163,7 +163,45 @@ export class ServerStellarService {
 
   async nativeToScValI128(value: number | string | bigint) {
     await this.initialize();
-    return this.sdk.nativeToScVal(value, { type: this.sdk.xdr.ScValType.scvI128() });
+    
+    // Convert to BigInt to handle large numbers properly
+    let bigIntValue: bigint;
+    if (typeof value === 'string') {
+      bigIntValue = BigInt(value);
+    } else if (typeof value === 'bigint') {
+      bigIntValue = value;
+    } else {
+      // For numbers, convert to string first to avoid precision loss, then to BigInt
+      bigIntValue = BigInt(Math.floor(value).toString());
+    }
+    
+    // Construct i128 ScVal directly (SDK's nativeToScVal with type option has issues)
+    // Split BigInt into high and low 64-bit parts
+    const mask64 = 0xFFFFFFFFFFFFFFFFn; // 64-bit mask (2^64 - 1)
+    
+    // Handle negative numbers using two's complement
+    let workingValue = bigIntValue;
+    if (bigIntValue < 0n) {
+      // For negative, convert to two's complement: (2^128 + value)
+      workingValue = (1n << 128n) + bigIntValue;
+    }
+    
+    const lo = workingValue & mask64;
+    const hi = (workingValue >> 64n) & mask64;
+    
+    // Convert to Int64 (signed) and Uint64 (unsigned)
+    // Int64 can handle negative values, Uint64 is always positive
+    const int64Hi = this.sdk.xdr.Int64.fromString(hi.toString());
+    const uint64Lo = this.sdk.xdr.Uint64.fromString(lo.toString());
+    
+    // Create Int128Parts
+    const parts = new this.sdk.xdr.Int128Parts({
+      hi: int64Hi,
+      lo: uint64Lo
+    });
+    
+    // Create ScVal with i128 type
+    return this.sdk.xdr.ScVal.scvI128(parts);
   }
 
   async nativeToScValAddress(address: string) {
