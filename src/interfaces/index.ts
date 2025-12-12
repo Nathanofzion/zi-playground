@@ -22,6 +22,7 @@ export interface IWallet {
   iconUrl: string;
   isConnected: boolean;
   connect: () => Promise<void>;
+  installed: boolean;
 }
 
 export interface IAsset {

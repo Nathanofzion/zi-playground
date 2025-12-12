@@ -31,11 +31,6 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
     }
   };
 
-  console.log("Frieghter ChecK : ",(window as any).freighterApi);
-  console.log("Wallet/Connector At Wallet Connect : ",wallet);
-  
-  
-
   return (
     <Flex
       p="16px"
@@ -63,7 +58,7 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
             {wallet?.sname == "Passkey" ? "Available" : "Detected"}
           </Text>
         ) : (
-          <Text color="#F66B3C">{(window as any).freighterApi ? "Connect" : " Install"}</Text>
+          <Text color="#F66B3C">Install</Text>
         )}
       </HStack>
     </Flex>

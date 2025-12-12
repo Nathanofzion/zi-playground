@@ -362,7 +362,7 @@ export const handleLogin = async () => {
 
 export const handleSign = async (
   xdr: string,
-  _opts?: {
+  opts?: {
     network?: string;
     networkPassphrase?: string;
     accountToSign?: string;
@@ -388,8 +388,13 @@ export const handleSign = async (
 
       console.log('🔐 Signing transaction with real Stellar keypair...');
       
-      // Parse transaction from XDR
-      const transaction = TransactionBuilder.fromXDR(xdr, STELLAR_NETWORK) as Transaction;
+      // Use provided network passphrase or fallback to default
+      // This is critical for multi-network support (testnet, mainnet, futurenet)
+      const networkPassphrase = opts?.networkPassphrase || STELLAR_NETWORK;
+      console.log('🌐 Using network passphrase:', networkPassphrase === STELLAR_NETWORK ? 'TESTNET (default)' : 'Custom');
+      
+      // Parse transaction from XDR with correct network passphrase
+      const transaction = TransactionBuilder.fromXDR(xdr, networkPassphrase) as Transaction;
       
       // Create keypair from stored secret
       const signerKeypair = Keypair.fromSecret(currentPasskey.secretKey);

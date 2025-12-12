@@ -103,85 +103,163 @@ export async function tokenBalance(
   }
 
   const walletName = activeConnector?.name?.toLowerCase() || '';
-
   const networkPassphrase = activeChain.networkPassphrase!;
+  const isZionToken = tokenAddress === zionToken.contract;
 
   try {
-    
     // Convert the user's address to proper ScVal format
     const accountScVal = new StellarSdk.Address(address).toScVal();
 
-    const server = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
-    const account = await server.loadAccount(address)
-    // Check if the account has a trustline for ZITOKEN
-    const trustline = account.balances.find(balance =>
-        balance.asset_type !== 'native' &&
-        'asset_code' in balance &&
-        balance.asset_code === CONFIG.TOKEN_CODE &&
-        balance.asset_issuer === zionToken.issuer
-    )
-    if (trustline) {
-        console.log('✅ Trustline exists!');
-
-        const response = await contractInvoke({
-          contractAddress: tokenAddress,
-          method: "balance",
-          args: [accountScVal],
-          sorobanContext,
-        });
-
-        console.log("Response From Get Balance : ",response);
-
-        return scValToNumber(response);
-    } else {
-
-      const asset = new StellarSdk.Asset(CONFIG.TOKEN_CODE,zionToken.issuer);
-
-      const tx = new StellarSdk.TransactionBuilder(account, {
-        fee: StellarSdk.BASE_FEE,
-        networkPassphrase: networkPassphrase
-      })
-        .addOperation(
-          StellarSdk.Operation.changeTrust({
-            asset: asset,
-            limit: "1000000000" 
-          })
-        )
-        .setTimeout(StellarSdk.TimeoutInfinite)
-        .build();
-
-      let signedTransaction: StellarSdk.Transaction;
-
-      if(walletName.includes('freighter')){
-        const signedResponse = await signTransaction(tx.toXDR(), {
-          networkPassphrase: networkPassphrase,
-          address: address
-        });
-
-        signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
-          signedResponse.signedTxXdr,
-          networkPassphrase
-        ) as StellarSdk.Transaction;
-      } else {
-        throw new Error("Unsupported wallet connector. Only Freighter is currently supported.");
-      }
-
-      console.log('Submitting transaction to network...');
-      const result = await server.submitTransaction(signedTransaction);
-
-      console.log('✅ Trustline created successfully!');
-      console.log('Transaction hash:', result.hash);
-
+    // First, try to get balance directly
+    try {
       const response = await contractInvoke({
-          contractAddress: tokenAddress,
-          method: "balance",
-          args: [accountScVal],
-          sorobanContext,
-        });
+        contractAddress: tokenAddress,
+        method: "balance",
+        args: [accountScVal],
+        sorobanContext,
+      });
 
-        console.log("Response From Get Balance : ",response);
+      console.log("Response From Get Balance : ",response);
+      return scValToNumber(response);
+    } catch (balanceError: any) {
+      // If balance call fails with trustline error and it's ZITOKEN, create trustline
+      const isTrustlineError = balanceError?.message?.includes("trustline") || 
+                                balanceError?.message?.includes("Contract, #13") ||
+                                balanceError?.message?.includes("trustline entry is missing");
+      
+      if (isTrustlineError && isZionToken) {
+        console.log('⚠️ Trustline missing for ZITOKEN, creating trustline...');
+        
+        const server = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
+        const account = await server.loadAccount(address);
+        
+        // Check if trustline already exists in Horizon (might be a contract trustline issue)
+        const trustline = account.balances.find(balance =>
+          balance.asset_type !== 'native' &&
+          'asset_code' in balance &&
+          balance.asset_code === CONFIG.TOKEN_CODE &&
+          balance.asset_issuer === zionToken.issuer
+        );
 
-        return scValToNumber(response);
+        if (!trustline) {
+          // Create Horizon trustline for ZITOKEN
+          const asset = new StellarSdk.Asset(CONFIG.TOKEN_CODE, zionToken.issuer);
+
+          const tx = new StellarSdk.TransactionBuilder(account, {
+            fee: StellarSdk.BASE_FEE,
+            networkPassphrase: networkPassphrase
+          })
+            .addOperation(
+              StellarSdk.Operation.changeTrust({
+                asset: asset,
+                limit: "1000000000" 
+              })
+            )
+            .setTimeout(StellarSdk.TimeoutInfinite)
+            .build();
+
+          let signedTransaction: StellarSdk.Transaction;
+
+          // Check for Passkey wallet first (by ID or name)
+          const isPasskey = activeConnector?.id === 'passkey' || 
+                            walletName.includes('passkey') || 
+                            walletName.includes('passkeyid');
+          
+          if (isPasskey) {
+            // Support Passkey wallet for trustline creation
+            console.log('🔐 Signing trustline transaction with Passkey...');
+            
+            if (!activeConnector?.signTransaction) {
+              throw new Error("Passkey connector does not support transaction signing. Please reconnect your wallet.");
+            }
+
+            try {
+              const signedResult = await activeConnector.signTransaction(tx.toXDR(), {
+                networkPassphrase: networkPassphrase,
+                accountToSign: address
+              });
+
+              // Handle different return formats from Passkey
+              let signedXdrString: string;
+              
+              if (typeof signedResult === 'string') {
+                signedXdrString = signedResult;
+              } else if (signedResult && typeof signedResult === 'object') {
+                // Check for common property names
+                if ('signedTxXdr' in signedResult) {
+                  signedXdrString = (signedResult as any).signedTxXdr;
+                } else if ('xdr' in signedResult) {
+                  signedXdrString = (signedResult as any).xdr;
+                } else if ('signedXdr' in signedResult) {
+                  signedXdrString = (signedResult as any).signedXdr;
+                } else {
+                  throw new Error(`Passkey signTransaction returned unexpected object format: ${JSON.stringify(Object.keys(signedResult))}`);
+                }
+              } else {
+                throw new Error(`Passkey signTransaction returned invalid format: ${typeof signedResult}`);
+              }
+
+              // Parse the signed XDR
+              try {
+                signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
+                  signedXdrString,
+                  networkPassphrase
+                ) as StellarSdk.Transaction;
+                console.log('✅ Trustline transaction signed with Passkey');
+              } catch (xdrError: any) {
+                console.error('❌ XDR parsing error:', xdrError);
+                console.error('XDR string length:', signedXdrString.length);
+                console.error('XDR preview:', signedXdrString.substring(0, 100));
+                throw new Error(`Failed to parse signed XDR from Passkey: ${xdrError.message || xdrError}. This might indicate the transaction was not signed correctly.`);
+              }
+            } catch (error: any) {
+              console.error('❌ Passkey trustline signing failed:', error);
+              throw new Error(`Failed to sign trustline transaction with Passkey: ${error.message || error}`);
+            }
+          } else if (walletName.includes('freighter')) {
+            // Freighter wallet support
+            const signedResponse = await signTransaction(tx.toXDR(), {
+              networkPassphrase: networkPassphrase,
+              address: address
+            });
+
+            signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
+              signedResponse.signedTxXdr,
+              networkPassphrase
+            ) as StellarSdk.Transaction;
+            console.log('✅ Trustline transaction signed with Freighter');
+          } else {
+            throw new Error(`Unsupported wallet connector: ${walletName || activeConnector?.id || 'unknown'}. Only Freighter and Passkey are currently supported for trustline creation.`);
+          }
+
+          console.log('Submitting trustline transaction to network...');
+          const result = await server.submitTransaction(signedTransaction);
+
+          console.log('✅ Trustline created successfully!');
+          console.log('Transaction hash:', result.hash);
+
+          // Wait a moment for trustline to be processed
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Retry balance call
+          const response = await contractInvoke({
+            contractAddress: tokenAddress,
+            method: "balance",
+            args: [accountScVal],
+            sorobanContext,
+          });
+
+          console.log("Response From Get Balance After Trustline : ",response);
+          return scValToNumber(response);
+        } else {
+          // Trustline exists in Horizon but contract says it doesn't - might be contract trustline issue
+          console.warn('⚠️ Horizon trustline exists but contract reports missing trustline. This might be a contract-level trustline issue.');
+          throw balanceError; // Re-throw the original error
+        }
+      } else {
+        // Not a trustline error or not ZITOKEN - re-throw the error
+        throw balanceError;
+      }
     }
   } catch (error) {
     console.error('Token balance error:', error);
@@ -324,7 +402,7 @@ export const sendAsset = async (
       hasResult: !!result,
       resultType: typeof result,
       resultKeys: result ? Object.keys(result) : [],
-      hash: result?.hash || result?.transactionHash || 'no hash found'
+      hash: (result && 'hash' in result) ? result.hash : ((result && 'transactionHash' in result) ? (result as any).transactionHash : 'no hash found')
     });
 
     return result;

@@ -1,8 +1,25 @@
 import { Connector } from "@soroban-react/types";
+import { isConnected as freighterInstalled } from "@stellar/freighter-api";
 
 export const connect = async (connector: Connector) => {
-  const isConnected = await connector.isConnected();
-  if (!isConnected) {
+  // const isConnected = await connector.isConnected();
+
+  let isConnected = false;
+  try {
+    if(connector.id == "freighter"){
+      const response = await fetch(`chrome-extension://bcacfldlkkdogcmkkibnjlakofdplcbk/index.html`);
+      isConnected = response.ok;
+    }else if(connector.id == "lobstr"){
+      const response = await fetch(`chrome-extension://ldiagbjmlmjiieclmdkagofdjcgodjle/index.html`);
+      isConnected = response.ok;
+    }else if(connector.id == "passkey"){
+      isConnected = true;
+    }
+  } catch (error) {
+    console.log("Error Checking Extension : ",error);
+  }
+
+  if (isConnected == false) {
     // Check if this is a passkey connector
     if (connector.id === 'passkey') {
       // For passkeys, we need to call getPublicKey to trigger the connection flow

@@ -38,8 +38,8 @@ const useAssets = () => {
 // "icon": "https://assets.coingecko.com/coins/images/100/standard/Stellar_symbol_black_RGB.png",
 // "decimals": 7
 // }
-          ...(data.find((list) => list.network == activeChain.network)
-            ?.assets ?? []),
+          // ...(data.find((list) => list.network == activeChain.network)
+          //   ?.assets ?? []),
         ].map((asset: any) => ({ ...asset, id: uuid() }));
       }
     },
