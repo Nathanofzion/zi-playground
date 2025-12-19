@@ -1,4 +1,3 @@
-import { Tx } from "@soroban-react/contracts";
 import {
   BASE_FEE,
   Contract,
@@ -8,10 +7,11 @@ import {
 } from "@stellar/stellar-sdk";
 import { Api, Server } from "@stellar/stellar-sdk/rpc";
 import { activeChain } from "./chain";
+import { SorobanRpc , Transaction , sign} from "@stellar/stellar-sdk";
 
 export const server = new Server(activeChain.sorobanRpcUrl!);
 
-export async function sendTx(tx: Tx) {
+export async function sendTx(tx: Transaction) {
   const sendTransactionResponse = await server.sendTransaction(tx);
 
   let waitTime = 1000;
@@ -59,8 +59,89 @@ export const contractInvoke = async ({
     .setTimeout(30)
     .build();
 
-  const preparedTx = await server.prepareTransaction(tx);
-  preparedTx.sign(sourceKeypair);
+    // const simulated = await server.simulateTransaction(tx);
 
-  return sendTx(preparedTx);
+    // console.log("Full simulation response:", JSON.stringify(simulated, null, 2));
+    // console.log("Simulation status:", (simulated as any).status);
+    // console.log("Simulation results:", (simulated as any).results);
+    // console.log("Simulation transactionData:", (simulated as any).transactionData);
+
+    // if ((simulated as any).error) {
+    //   throw new Error((simulated as any).error);
+    // }
+
+    // Try One
+    // // ✅ Assemble tx using simulation result
+    // const assembledTx = SorobanRpc.assembleTransaction(tx, simulated);
+
+    // // 🔑 THIS IS THE MISSING STEP
+    // // const assembledTx = assembledBuilder.build();    
+
+    // // ✅ Sign
+    // (assembledTx as any).sign(sourceKeypair);
+
+    // // ✅ Send + wait
+    // return await sendTx(assembledTx as any);
+    // Try One
+
+    // ✅ Assemble returns TransactionBuilder
+    //  const assembledTxBuilder = SorobanRpc.assembleTransaction(tx, simulated);
+     
+    //   console.log("Assembled Transaction : ",assembledTxBuilder);
+      
+
+    //  // ✅ Build to get Transaction
+    //  const assembledTx = assembledTxBuilder.build();
+    //  // ✅ Sign using the Transaction's sign method
+    //  assembledTx.sign(sourceKeypair);
+    //  // ✅ Send + wait
+    //   return await sendTx(assembledTx);
+    
+
+  // const preparedTx = await server.prepareTransaction(tx);
+  // console.log("Prepared TX : ",preparedTx);
+  
+  // preparedTx.sign(sourceKeypair);
+
+  // return sendTx(preparedTx);
+
+   try {
+    const preparedTx = await server.prepareTransaction(tx);
+    
+    console.log("Prepared TX type:", preparedTx.constructor.name);
+    console.log("Has sign method:", typeof preparedTx.sign);
+    console.log("Envelope type:", (preparedTx as any)._envelopeType);
+    
+    // Try to inspect the transaction structure
+    console.log("TX structure:", {
+      fee: (preparedTx as any)._fee,
+      source: (preparedTx as any)._source,
+      operations: (preparedTx as any)._operations?.length,
+      networkPassphrase: (preparedTx as any)._networkPassphrase
+    });
+
+    // ✅ Try signing with error handling
+    try {
+      preparedTx.sign(sourceKeypair);
+      console.log("✅ Signing successful");
+    } catch (signError) {
+      console.error("❌ Signing failed:", signError);
+      console.error("Sign error stack:", (signError as Error).stack);
+      
+      // Try alternative: convert to XDR and back
+      console.log("Attempting XDR workaround...");
+      const txXdr = preparedTx.toXDR();
+      console.log("TX XDR:", txXdr);
+      
+      const rebuiltTx = new Transaction(txXdr, activeChain.networkPassphrase);
+      rebuiltTx.sign(sourceKeypair);
+      return await sendTx(rebuiltTx);
+    }
+
+    return await sendTx(preparedTx);
+  }catch(error){
+    console.log("Error : ",error);
+    
+  }
+    
 };

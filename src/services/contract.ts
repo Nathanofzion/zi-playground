@@ -164,6 +164,9 @@ export async function tokenBalance(
           const isPasskey = activeConnector?.id === 'passkey' || 
                             walletName.includes('passkey') || 
                             walletName.includes('passkeyid');
+
+          console.log("Active Connector At Trustline : ",activeConnector);
+          
           
           if (isPasskey) {
             // Support Passkey wallet for trustline creation
@@ -228,7 +231,59 @@ export async function tokenBalance(
               networkPassphrase
             ) as StellarSdk.Transaction;
             console.log('✅ Trustline transaction signed with Freighter');
-          } else {
+          } else if(walletName.includes('lobstr')){
+            // Support Lobstr wallet for trustline creation
+            console.log('🔐 Signing trustline transaction with Lobstr...');
+            
+            if (!activeConnector?.signTransaction) {
+              throw new Error("Lobstr connector does not support transaction signing. Please reconnect your wallet.");
+            }
+
+            try {
+              const signedResult = await activeConnector.signTransaction(tx.toXDR(), {
+                networkPassphrase: networkPassphrase,
+                accountToSign: address
+              });
+
+              // Handle different return formats from Lobstr
+              let signedXdrString: string;
+              
+              if (typeof signedResult === 'string') {
+                signedXdrString = signedResult;
+              } else if (signedResult && typeof signedResult === 'object') {
+                // Check for common property names
+                if ('signedTxXdr' in signedResult) {
+                  signedXdrString = (signedResult as any).signedTxXdr;
+                } else if ('xdr' in signedResult) {
+                  signedXdrString = (signedResult as any).xdr;
+                } else if ('signedXdr' in signedResult) {
+                  signedXdrString = (signedResult as any).signedXdr;
+                } else {
+                  throw new Error(`Lobstr signTransaction returned unexpected object format: ${JSON.stringify(Object.keys(signedResult))}`);
+                }
+              } else {
+                throw new Error(`Lobstr signTransaction returned invalid format: ${typeof signedResult}`);
+              }
+
+              // Parse the signed XDR
+              try {
+                signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
+                  signedXdrString,
+                  networkPassphrase
+                ) as StellarSdk.Transaction;
+                console.log('✅ Trustline transaction signed with Lobstr');
+              } catch (xdrError: any) {
+                console.error('❌ XDR parsing error:', xdrError);
+                console.error('XDR string length:', signedXdrString.length);
+                console.error('XDR preview:', signedXdrString.substring(0, 100));
+                throw new Error(`Failed to parse signed XDR from Lobstr: ${xdrError.message || xdrError}. This might indicate the transaction was not signed correctly.`);
+              }
+            } catch (error: any) {
+              console.error('❌ Lobstr trustline signing failed:', error);
+              throw new Error(`Failed to sign trustline transaction with Lobstr: ${error.message || error}`);
+            }
+          }
+          else{
             throw new Error(`Unsupported wallet connector: ${walletName || activeConnector?.id || 'unknown'}. Only Freighter and Passkey are currently supported for trustline creation.`);
           }
 
@@ -375,14 +430,27 @@ export const sendAsset = async (
       throw new Error('Invalid ScVal: amount ScVal is not properly constructed');
     }
 
+    // Check if recipient is a C-address (smart contract wallet)
+    const isRecipientCAddress = recipient.startsWith('C');
+    const walletType = sorobanContext.activeConnector?.id || '';
+    const isSenderPasskey = walletType === 'passkey';
+    
     console.log('📤 Sending transfer transaction:', {
       contract: asset.contract,
       sender: address.substring(0, 8) + '...',
       recipient: recipient.substring(0, 8) + '...',
       amount: amount,
       amountInSmallestUnit: amountString,
-      decimals: asset.decimals
+      decimals: asset.decimals,
+      isRecipientCAddress,
+      isSenderPasskey
     });
+
+    // ⚠️ IMPORTANT: For C-address recipients, they need to have initialized their balance storage
+    // This is typically done automatically on first receive, but we should handle errors gracefully
+    if (isRecipientCAddress && !isSenderPasskey) {
+      console.log('ℹ️ Sending to C-address (smart contract wallet). Recipient will automatically initialize balance storage on first receive.');
+    }
 
     const result = await contractInvoke({
       contractAddress: asset.contract,
@@ -412,6 +480,33 @@ export const sendAsset = async (
       stack: error.stack,
       error: error
     });
+    
+    // Provide more helpful error messages for common issues
+    const errorMsg = error?.message || error?.error || JSON.stringify(error);
+    
+    // Check for trustline/authorization errors for C-address recipients
+    if (recipient.startsWith('C') && (
+      errorMsg.includes('trustline') || 
+      errorMsg.includes('authorization') ||
+      errorMsg.includes('MissingValue') ||
+      errorMsg.includes('not authorized') ||
+      errorMsg.includes('Storage, MissingValue')
+    )) {
+      throw new Error(
+        `Failed to send token to C-address recipient. The recipient may need to initialize their balance storage for this token first. ` +
+        `This typically happens automatically, but if this error persists, the recipient should interact with the token contract first. ` +
+        `Original error: ${errorMsg}`
+      );
+    }
+    
+    // Check for timebounds errors
+    if (errorMsg.includes('timeBounds') || errorMsg.includes('maxTime') || errorMsg.includes('too far')) {
+      throw new Error(
+        `Transaction timebounds error. This may be a temporary issue. Please try again. ` +
+        `Original error: ${errorMsg}`
+      );
+    }
+    
     throw error;
   }
 };

@@ -3,11 +3,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSorobanReact } from "@soroban-react/core";
 
 import { IWallet } from "@/interfaces";
+import { toast } from "react-toastify";
+import { useColorMode } from "@/components/ui/color-mode";
 
 const useWallets = () => {
   const { address, connectors, setActiveConnectorAndConnect, activeConnector , connect } = useSorobanReact();
   const addressRef = useRef<string>();
   const [wallets, setWallets] = useState<IWallet[]>([]);
+  const {colorMode} = useColorMode();
 
   useEffect(() => {
     addressRef.current = address;
@@ -39,6 +42,9 @@ const useWallets = () => {
         try {
           if(activeConnector?.id == connector.id){
             // await connect()
+            // if(connector.id == "lobstr"){
+            //   await setActiveConnectorAndConnect?.(connector);
+            // }
             await connectWithTimeout(connect, 30000);
           }else{
             await setActiveConnectorAndConnect?.(connector);
@@ -49,7 +55,19 @@ const useWallets = () => {
         } catch (error) {
           console.log("Error Connecting Wallet : ",error);
 
-          if(error == "The user rejected this request." || error == "User declined access" || error == "Error: Lobstr is not connected"){
+          if(error == "The user rejected this request." || error == "User declined access"){
+            toast.info(error as string,{
+              autoClose: 1500,
+              theme: colorMode
+            });
+            return;
+          }
+
+          if(error == "Error: Lobstr is not connected"){
+            toast.info("Install Extension or Open Wallet in mobile",{
+              autoClose: 1500,
+              theme: colorMode
+            });
             return;
           }
 
