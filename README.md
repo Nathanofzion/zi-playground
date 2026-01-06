@@ -74,7 +74,8 @@
 - [SendGrid](https://sendgrid.com/en-us) account
 - [Docker Desktop](https://docs.docker.com/desktop/) installed and running
 - [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) installed globally
-- [Launchtube](https://github.com/Nathanofzion/launchtube) API keys required
+- [Launchtube](https://github.com/Nathanofzion/launchtube) API keys required UPDATE ALERT: <@&1070407193343557693> The time to switch to the OpenZeppelin Relayer service is now! If you're using Launchtube please migrate over to Relayer ASAP!
+https://docs.openzeppelin.com/relayer/1.3.x/plugins/channels
 - [Mercury](https://main.mercurydata.app/) API keys required
 - [Soroswap](https://github.com/soroswap) API keys required
 
