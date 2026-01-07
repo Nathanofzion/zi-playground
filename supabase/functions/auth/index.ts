@@ -36,7 +36,7 @@ async function handleException(fn: () => Promise<any>) {
   try {
     const result = await fn();
     return new Response(JSON.stringify(result), {
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -48,9 +48,9 @@ async function handleException(fn: () => Promise<any>) {
     if (error instanceof BadRequestException) status = 400;
     if (error instanceof NotFoundException) status = 404;
     if (error instanceof MethodNotAllowedException) status = 405;
-    
+
     return new Response(JSON.stringify({ error: error.message }), {
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -151,21 +151,21 @@ async function handleProfile(data: any) {
   if (!data || !data.token) {
     throw new BadRequestException("Token is required");
   }
-  
+
   const { token } = data;
-  
+
   // Fast JWT format validation before expensive jwt.verify
   if (typeof token !== "string") {
     throw new BadRequestException("Token must be a string");
   }
-  
+
   const parts = token.split(".");
   if (parts.length !== 3) {
     throw new BadRequestException("Invalid JWT format");
   }
-  
+
   let decoded: any;
-  
+
   // jwt.verify is synchronous, so we need to catch errors immediately
   try {
     decoded = jwt.verify(token, secretKey);
@@ -173,11 +173,11 @@ async function handleProfile(data: any) {
     // Fail fast on invalid tokens
     throw new BadRequestException(`Invalid or expired token: ${error.message}`);
   }
-  
+
   if (!decoded || !decoded.id) {
     throw new BadRequestException("Invalid token payload");
   }
-  
+
   const { data: user, error } = await supabase
     .from("users")
     .select("id, publicKey, email, role")

@@ -1,7 +1,7 @@
 # Latest Issues Status Report
 
 > **Status:** Active Integration & Stabilization Phase
-> **Last Updated:** December 19, 2025
+> **Last Updated:** January 6, 2026
 > **Context:** This document outlines the critical issues, integration gaps, and architectural flaws identified and resolved during the latest round of comprehensive development for the `zi-playground` application.
 
 ---
@@ -14,7 +14,7 @@ The codebase has been updated to fully utilize the Airdrop contracts, Soroban wr
 
 ---
 
-## 🛠️ SPECIFIC TECHNICAL FIXES (Dec 19, 2025)
+## 🛠️ SPECIFIC TECHNICAL FIXES (Jan 6, 2026)
 
 *The following specific issues have been resolved to stabilize the application.*
 
@@ -79,7 +79,13 @@ The codebase has been updated to fully utilize the Airdrop contracts, Soroban wr
     *   Updated parsing for both the parameters, scValAddress for address and scVal for game number.
     *   Updated the code to consume only server side library to execute transaction smoothly.
     *   Converted the transaction to XDR format, so that it can be added to the block after successful simulation.
-*   **File updated:** `src/app/api/airdrop/route.ts`, `src/lib/contract.ts`
+    *   Utilized a package alias (`stellar-sdk-v14`) to use Stellar SDK v14 for the airdrop functionality, while maintaining backward compatibility with v12 in the rest of the application.
+*   **File updated:** `src/app/api/airdrop/route.ts`, `src/lib/contract.ts`, `package.json`
+
+### 12. 🗝️ Passkey Recovery from Password Managers
+*   **Problem:** If `localStorage` was cleared, there was no way to reconnect to an existing passkey wallet, forcing users to create a new one.
+*   **Fix:** Implemented a factory contract pattern. The application now leverages the browser's native WebAuthn API to discover and recover passkeys stored in password managers (like Google Password Manager, iCloud Keychain, etc.), linking them back to the user's on-chain wallet.
+*   **Files:** `src/lib/passkeyClient.ts`, `.env.development`
 
 ---
 
@@ -115,12 +121,12 @@ The recursive crashes caused by malformed XDR and trustline failures have been r
 ### 2. Airdrop & Rewards System
 **Severity:** 🟢 STABLE
 **Status:** ✅ FUNCTIONAL
-The backend correctly simulates, signs, and submits airdrop transactions.
+The backend correctly simulates, signs, and submits airdrop transactions. The system correctly utilizes different versions of the Stellar SDK for modern and legacy code, ensuring compatibility.
 
 ### 3. Passkey Security
 **Severity:** 🟢 SECURE
 **Status:** ✅ IMPLEMENTED
-The security risk of storing secret keys in `localStorage` has been mitigated by enforcing WebAuthn protocols and proper wallet initialization.
+The system now enforces WebAuthn protocols for all operations and supports secure wallet recovery from password managers (e.g., Google Password Manager), eliminating the need for users to store session data locally.
 
 ---
 

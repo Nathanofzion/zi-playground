@@ -173,6 +173,7 @@ export class LocalKeyStorage {
   // Passkey-specific storage keys
   private static readonly PASSKEY_KEYID_KEY = 'zi_passkey_keyId';
   private static readonly PASSKEY_CONTRACT_ID_KEY = 'zi_passkey_contractId';
+  private static readonly PASSKEY_STATUS_KEY = 'zi_passkey_status';
 
   // Passkey storage methods
   static storePasskeyKeyId(keyId: string): void {
@@ -211,6 +212,40 @@ export class LocalKeyStorage {
     }
   }
 
+  private static emitPasskeyStatus(status: string | null): void {
+    if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') {
+      return;
+    }
+    window.dispatchEvent(new CustomEvent('passkey-status', { detail: status }));
+  }
+
+  static storePasskeyStatus(status: string): void {
+    try {
+      localStorage.setItem(this.PASSKEY_STATUS_KEY, status);
+      this.emitPasskeyStatus(status);
+    } catch (error) {
+      console.error('Failed to store passkey status:', error);
+    }
+  }
+
+  static getPasskeyStatus(): string | null {
+    try {
+      return localStorage.getItem(this.PASSKEY_STATUS_KEY);
+    } catch (error) {
+      console.error('Failed to get passkey status:', error);
+      return null;
+    }
+  }
+
+  static clearPasskeyStatus(): void {
+    try {
+      localStorage.removeItem(this.PASSKEY_STATUS_KEY);
+      this.emitPasskeyStatus(null);
+    } catch (error) {
+      console.error('Failed to clear passkey status:', error);
+    }
+  }
+
   static getWalletType(): 'passkey' | 'freighter' | 'lobstr' | null {
     try {
       const wallet = this.getWallet();
@@ -234,6 +269,7 @@ export class LocalKeyStorage {
       // Clear passkey-specific data
       localStorage.removeItem(this.PASSKEY_KEYID_KEY);
       localStorage.removeItem(this.PASSKEY_CONTRACT_ID_KEY);
+      this.clearPasskeyStatus();
       
       // Clear all passkey data
       this.clearPasskeyData();

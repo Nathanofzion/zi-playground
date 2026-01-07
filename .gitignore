@@ -2,7 +2,8 @@
 node_modules/
 .pnpm-debug.log*
 .yarn-integrity
-
+.netlify/
+netlify/
 # Next.js
 .next/
 out/

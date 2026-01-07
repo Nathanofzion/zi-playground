@@ -4,6 +4,82 @@ import { Api } from "@stellar/stellar-sdk/rpc";
 import { LocalKeyStorage } from "./localKeyStorage";
 import { account, server, initializeWallet } from "./passkey-kit";
 
+/**
+ * Alternative server send that bypasses LaunchTube when it fails with network errors
+ * (e.g. net::ERR_QUIC_PROTOCOL_ERROR)
+ */
+const sendToRpcDirectly = async (signedTx: any, rpcUrl: string) => {
+  // Get XDR from AssembledTransaction or Transaction
+  let xdr: string;
+  if (signedTx && typeof signedTx === 'object' && 'built' in signedTx) {
+    xdr = (signedTx as any).built?.toXDR() || (signedTx as any).toXDR?.() || '';
+  } else if (typeof signedTx === 'string') {
+    xdr = signedTx;
+  } else {
+    xdr = (signedTx as any).toXDR?.() || '';
+  }
+
+  const response = await fetch(rpcUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'sendTransaction',
+      params: {
+        transaction: xdr,
+      },
+    }),
+  });
+
+  const result = await response.json();
+
+  if (result.error) {
+    throw new Error(result.error.message || 'Transaction submission failed');
+  }
+
+  return result.result;
+};
+
+/**
+ * Polling function to wait for transaction confirmation on-chain
+ */
+const waitForConfirmation = async (hash: string, rpcUrl: string, maxAttempts = 10) => {
+  console.log(`⏳ Waiting for transaction confirmation: ${hash.substring(0, 8)}...`);
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const response = await fetch(rpcUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getTransaction',
+        params: { hash },
+      }),
+    });
+
+    const result = await response.json();
+    const status = result.result?.status;
+
+    if (status === 'SUCCESS') {
+      console.log('✅ Transaction confirmed on-chain');
+      // Small extra delay to ensure node state consistency
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return result.result;
+    } else if (status === 'FAILED') {
+      throw new Error(`Transaction failed on-chain: ${JSON.stringify(result.result?.resultXdr)}`);
+    }
+
+    // Wait 2 seconds before next poll
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+
+  throw new Error('Transaction confirmation timeout. The transaction may still succeed, but we stopped waiting.');
+};
+
 const defaultAddress =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
@@ -21,14 +97,14 @@ export async function contractInvoke({
   timeoutSeconds = 20,
 }: InvokeArgs & { memo?: string }) {
   const { server: sorobanServer, address, activeChain, activeConnector } = sorobanContext;
-  
+
   // ⚠️ CRITICAL: Detect wallet type based on active connector, not localStorage
   // This ensures we use the correct signing method for the currently connected wallet
   const activeConnectorId = activeConnector?.id;
   const isPasskeyWallet = activeConnectorId === 'passkey';
   const isFreighterWallet = activeConnectorId === 'freighter';
   const isLobstrWallet = activeConnectorId === 'lobstr';
-  
+
   console.log('🔍 Wallet detection:', {
     activeConnectorId,
     isPasskeyWallet,
@@ -39,7 +115,7 @@ export async function contractInvoke({
     willUsePasskey: isPasskeyWallet,
     willUseTraditional: !isPasskeyWallet && (isFreighterWallet || isLobstrWallet || !!secretKey)
   });
-  
+
   if (!activeChain) {
     throw new Error("No active Chain");
   }
@@ -53,7 +129,7 @@ export async function contractInvoke({
   }
   const networkPassphrase = activeChain.networkPassphrase!;
   let source = null;
-  
+
   // ⚠️ CRITICAL: Handle source account differently for passkey (C-address) vs traditional (G-address)
   if (isPasskeyWallet) {
     // For passkey wallets, use contractId (C-address) as source
@@ -88,7 +164,7 @@ export async function contractInvoke({
       source = new StellarSdk.Account(defaultAddress, "0");
     }
   }
-  
+
   const contract = new StellarSdk.Contract(contractAddress);
   //Builds the transaction
   // NOTE: Soroban transactions (Protocol 23+) do NOT support memos
@@ -114,12 +190,12 @@ export async function contractInvoke({
     console.error('❌ Simulation returned no result:', simulated);
     throw new Error(`invalid simulation: no result in ${simulated}`);
   }
-  
+
   console.log('✅ Simulation successful:', {
     hasRetval: !!simulated.result?.retval,
     resultType: typeof simulated.result
   });
-  
+
   if (!signAndSend && simulated) {
     return simulated.result?.retval;
   } else {
@@ -129,12 +205,12 @@ export async function contractInvoke({
       // Traditional wallet signing path (Freighter/Lobstr)
       const walletName = isFreighterWallet ? 'Freighter' : 'Lobstr';
       console.log(`📝 Signing and sending transaction with ${walletName} wallet...`);
-      
+
       // ⚠️ CRITICAL: Ensure we're not using PasskeyID when Freighter/Lobstr is active
       if (isPasskeyWallet) {
         console.warn('⚠️ WARNING: isPasskeyWallet is true but Freighter/Lobstr is active. Using traditional signing.');
       }
-      
+
       try {
         const res = await signAndSendTransaction({
           txn,
@@ -153,6 +229,14 @@ export async function contractInvoke({
         if (reconnectAfterTx) {
           sorobanContext.connect();
         }
+
+        // ⏳ Poll for confirmation if we have a hash
+        const hash = (res as any)?.hash || (res as any)?.txHash || (res as any)?.transactionHash;
+        if (hash) {
+          const rpcUrl = activeChain.sorobanRpcUrl || process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
+          await waitForConfirmation(hash, rpcUrl);
+        }
+
         return res;
       } catch (error: any) {
         console.error('❌ Transaction signing/sending failed:', {
@@ -170,58 +254,97 @@ export async function contractInvoke({
           `This indicates a detection error. Please reconnect your wallet.`
         );
       }
-      
+
       // Passkey signing path
       console.log('🔐 Signing with PasskeyID (C-address)...');
       const keyId = LocalKeyStorage.getPasskeyKeyId();
       if (!keyId) {
         throw new Error("Passkey keyId not found");
       }
-      
+
       const contractId = LocalKeyStorage.getPasskeyContractId();
       if (!contractId) {
         throw new Error("Passkey contractId not found");
       }
-      
+
       // ⚠️ CRITICAL: Initialize account.wallet before signing
       // This is required because account.wallet is only set during createWallet() or connectWallet()
       // When reconnecting, we need to manually initialize it
       initializeWallet(contractId);
-      
+
       // Prepare transaction (adds contract footprint)
       const preparedTx = await sorobanServer.prepareTransaction(txn);
-      
+
       // Sign with passkey (triggers WebAuthn authentication)
       // Note: passkey-kit's sign expects AssembledTransaction format
       // The preparedTx should be compatible, but we may need to cast
       console.log('🔑 Prompting for passkey authentication (biometric/PIN)...');
       const signedTx = await account.sign(preparedTx as any, { keyId });
-      
+
       // Send via PasskeyServer (handles LaunchTube if configured)
       console.log('📤 Sending transaction via PasskeyServer...');
       try {
         const result = await server.send(signedTx);
-        
+
+        // ⏳ Poll for confirmation if we have a hash
+        const hash = result.hash || result.transactionHash;
+        if (hash) {
+          const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
+          await waitForConfirmation(hash, rpcUrl);
+        }
+
         if (reconnectAfterTx) {
           sorobanContext.connect();
         }
-        
+
         console.log('✅ Passkey transaction signed and sent successfully');
         return result;
       } catch (launchtubeError: any) {
         // Handle LaunchTube errors with better error messages
         const errorMsg = launchtubeError?.error || launchtubeError?.message || JSON.stringify(launchtubeError);
-        const isTimeBoundsError = errorMsg.includes('timeBounds') || 
-                                  errorMsg.includes('maxTime') || 
-                                  errorMsg.includes('too far') ||
-                                  errorMsg.includes('timeout');
-        
+
+        // 🧪 REDUNDANCY FALLBACK: If LaunchTube fails with a network error, try direct RPC
+        const isNetworkError = errorMsg.includes('Failed to fetch') ||
+          errorMsg.includes('NetworkError') ||
+          errorMsg.includes('QUIC');
+        const isNotFoundError = errorMsg.includes('NOT_FOUND') ||
+          errorMsg.includes('not found');
+
+        if (isNetworkError || isNotFoundError) {
+          console.warn('⚠️ LaunchTube error detected, falling back to direct RPC submission...');
+          try {
+            const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
+            const result = await sendToRpcDirectly(signedTx, rpcUrl);
+
+            // ⏳ Poll for confirmation if we have a hash
+            const hash = result.hash || result.transactionHash;
+            if (hash) {
+              await waitForConfirmation(hash, rpcUrl);
+            }
+
+            console.log('✅ Fallback: Transaction submitted via direct RPC');
+
+            if (reconnectAfterTx) {
+              sorobanContext.connect();
+            }
+            return result;
+          } catch (rpcError: any) {
+            console.error('❌ Direct RPC fallback also failed:', rpcError);
+            throw new Error(`Transaction failed: ${errorMsg} (and direct RPC fallback failed: ${rpcError.message})`);
+          }
+        }
+
+        const isTimeBoundsError = errorMsg.includes('timeBounds') ||
+          errorMsg.includes('maxTime') ||
+          errorMsg.includes('too far') ||
+          errorMsg.includes('timeout');
+
         console.error('❌ LaunchTube submission failed:', {
           error: errorMsg,
           isTimeBoundsError,
           fullError: launchtubeError
         });
-        
+
         if (isTimeBoundsError) {
           throw new Error(
             'Transaction timebounds are invalid. LaunchTube requires maxTime within 30 seconds. ' +
@@ -229,13 +352,13 @@ export async function contractInvoke({
             'the transaction may need to be rebuilt with fresh timebounds.'
           );
         }
-        
+
         // Check for trustline/authorization errors
-        const isTrustlineError = errorMsg.includes('trustline') || 
-                                 errorMsg.includes('authorization') ||
-                                 errorMsg.includes('MissingValue') ||
-                                 errorMsg.includes('not authorized');
-        
+        const isTrustlineError = errorMsg.includes('trustline') ||
+          errorMsg.includes('authorization') ||
+          errorMsg.includes('MissingValue') ||
+          errorMsg.includes('not authorized');
+
         if (isTrustlineError) {
           throw new Error(
             'Recipient may not have authorized receiving this token. ' +
@@ -243,7 +366,7 @@ export async function contractInvoke({
             'Please ensure the recipient has interacted with this token contract before sending.'
           );
         }
-        
+
         // Generic error
         throw new Error(`Transaction submission failed: ${errorMsg}`);
       }
@@ -251,7 +374,7 @@ export async function contractInvoke({
       // Fallback: Traditional wallet signing path for other wallets or when no specific wallet is detected
       const walletName = secretKey ? 'SecretKey' : activeConnectorId || 'Unknown';
       console.log(`📝 Signing and sending transaction with ${walletName} wallet (fallback path)...`);
-      
+
       try {
         const res = await signAndSendTransaction({
           txn,
@@ -282,3 +405,4 @@ export async function contractInvoke({
     }
   }
 }
+

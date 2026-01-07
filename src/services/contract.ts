@@ -1,5 +1,5 @@
 import { SorobanContextType } from "@soroban-react/core";
-// ❌ REMOVED: import { nativeToScVal, scValToNative, xdr } from "@stellar/stellar-sdk";
+// Γ¥î REMOVED: import { nativeToScVal, scValToNative, xdr } from "@stellar/stellar-sdk";
 
 import { IAsset } from "@/interfaces";
 import { contractInvoke } from "@/lib/contract-fe";
@@ -17,7 +17,7 @@ const CONFIG = {
     TOKEN_CODE: 'ZITOKEN',
 };
 
-// ✅ API-based conversion functions
+// Γ£à API-based conversion functions
 async function nativeToScVal(value: any, options?: { type?: string }) {
   try {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
@@ -128,7 +128,7 @@ export async function tokenBalance(
                                 balanceError?.message?.includes("trustline entry is missing");
       
       if (isTrustlineError && isZionToken) {
-        console.log('⚠️ Trustline missing for ZITOKEN, creating trustline...');
+        console.log('ΓÜá∩╕Å Trustline missing for ZITOKEN, creating trustline...');
         
         const server = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
         const account = await server.loadAccount(address);
@@ -170,7 +170,7 @@ export async function tokenBalance(
           
           if (isPasskey) {
             // Support Passkey wallet for trustline creation
-            console.log('🔐 Signing trustline transaction with Passkey...');
+            console.log('≡ƒöÉ Signing trustline transaction with Passkey...');
             
             if (!activeConnector?.signTransaction) {
               throw new Error("Passkey connector does not support transaction signing. Please reconnect your wallet.");
@@ -208,15 +208,15 @@ export async function tokenBalance(
                   signedXdrString,
                   networkPassphrase
                 ) as StellarSdk.Transaction;
-                console.log('✅ Trustline transaction signed with Passkey');
+                console.log('Γ£à Trustline transaction signed with Passkey');
               } catch (xdrError: any) {
-                console.error('❌ XDR parsing error:', xdrError);
+                console.error('Γ¥î XDR parsing error:', xdrError);
                 console.error('XDR string length:', signedXdrString.length);
                 console.error('XDR preview:', signedXdrString.substring(0, 100));
                 throw new Error(`Failed to parse signed XDR from Passkey: ${xdrError.message || xdrError}. This might indicate the transaction was not signed correctly.`);
               }
             } catch (error: any) {
-              console.error('❌ Passkey trustline signing failed:', error);
+              console.error('Γ¥î Passkey trustline signing failed:', error);
               throw new Error(`Failed to sign trustline transaction with Passkey: ${error.message || error}`);
             }
           } else if (walletName.includes('freighter')) {
@@ -230,20 +230,24 @@ export async function tokenBalance(
               signedResponse.signedTxXdr,
               networkPassphrase
             ) as StellarSdk.Transaction;
-            console.log('✅ Trustline transaction signed with Freighter');
+            console.log('Γ£à Trustline transaction signed with Freighter');
           } else if(walletName.includes('lobstr')){
             // Support Lobstr wallet for trustline creation
-            console.log('🔐 Signing trustline transaction with Lobstr...');
+            console.log('≡ƒöÉ Signing trustline transaction with Lobstr...');
             
             if (!activeConnector?.signTransaction) {
               throw new Error("Lobstr connector does not support transaction signing. Please reconnect your wallet.");
             }
 
             try {
-              const signedResult = await activeConnector.signTransaction(tx.toXDR(), {
-                networkPassphrase: networkPassphrase,
-                accountToSign: address
-              });
+              const signedResult = await activeConnector.signTransaction(
+                tx.toXDR(),
+                {
+                  networkPassphrase: networkPassphrase,
+                  accountToSign: address,
+                  submitToLaunchTube: false
+                } as any
+              );
 
               // Handle different return formats from Lobstr
               let signedXdrString: string;
@@ -271,15 +275,15 @@ export async function tokenBalance(
                   signedXdrString,
                   networkPassphrase
                 ) as StellarSdk.Transaction;
-                console.log('✅ Trustline transaction signed with Lobstr');
+                console.log('Γ£à Trustline transaction signed with Lobstr');
               } catch (xdrError: any) {
-                console.error('❌ XDR parsing error:', xdrError);
+                console.error('Γ¥î XDR parsing error:', xdrError);
                 console.error('XDR string length:', signedXdrString.length);
                 console.error('XDR preview:', signedXdrString.substring(0, 100));
                 throw new Error(`Failed to parse signed XDR from Lobstr: ${xdrError.message || xdrError}. This might indicate the transaction was not signed correctly.`);
               }
             } catch (error: any) {
-              console.error('❌ Lobstr trustline signing failed:', error);
+              console.error('Γ¥î Lobstr trustline signing failed:', error);
               throw new Error(`Failed to sign trustline transaction with Lobstr: ${error.message || error}`);
             }
           }
@@ -290,7 +294,7 @@ export async function tokenBalance(
           console.log('Submitting trustline transaction to network...');
           const result = await server.submitTransaction(signedTransaction);
 
-          console.log('✅ Trustline created successfully!');
+          console.log('Γ£à Trustline created successfully!');
           console.log('Transaction hash:', result.hash);
 
           // Wait a moment for trustline to be processed
@@ -308,7 +312,7 @@ export async function tokenBalance(
           return scValToNumber(response);
         } else {
           // Trustline exists in Horizon but contract says it doesn't - might be contract trustline issue
-          console.warn('⚠️ Horizon trustline exists but contract reports missing trustline. This might be a contract-level trustline issue.');
+          console.warn('ΓÜá∩╕Å Horizon trustline exists but contract reports missing trustline. This might be a contract-level trustline issue.');
           throw balanceError; // Re-throw the original error
         }
       } else {
@@ -435,7 +439,7 @@ export const sendAsset = async (
     const walletType = sorobanContext.activeConnector?.id || '';
     const isSenderPasskey = walletType === 'passkey';
     
-    console.log('📤 Sending transfer transaction:', {
+    console.log('≡ƒôñ Sending transfer transaction:', {
       contract: asset.contract,
       sender: address.substring(0, 8) + '...',
       recipient: recipient.substring(0, 8) + '...',
@@ -446,10 +450,10 @@ export const sendAsset = async (
       isSenderPasskey
     });
 
-    // ⚠️ IMPORTANT: For C-address recipients, they need to have initialized their balance storage
+    // ΓÜá∩╕Å IMPORTANT: For C-address recipients, they need to have initialized their balance storage
     // This is typically done automatically on first receive, but we should handle errors gracefully
     if (isRecipientCAddress && !isSenderPasskey) {
-      console.log('ℹ️ Sending to C-address (smart contract wallet). Recipient will automatically initialize balance storage on first receive.');
+      console.log('Γä╣∩╕Å Sending to C-address (smart contract wallet). Recipient will automatically initialize balance storage on first receive.');
     }
 
     const result = await contractInvoke({
@@ -466,7 +470,7 @@ export const sendAsset = async (
       reconnectAfterTx: false,
     });
 
-    console.log('✅ Transfer transaction result:', {
+    console.log('Γ£à Transfer transaction result:', {
       hasResult: !!result,
       resultType: typeof result,
       resultKeys: result ? Object.keys(result) : [],
@@ -475,7 +479,7 @@ export const sendAsset = async (
 
     return result;
   } catch (error: any) {
-    console.error('❌ Send asset error:', {
+    console.error('Γ¥î Send asset error:', {
       message: error.message,
       stack: error.stack,
       error: error
@@ -511,7 +515,7 @@ export const sendAsset = async (
   }
 };
 
-// ✅ Additional utility functions for contract interactions
+// Γ£à Additional utility functions for contract interactions
 export const getTokenName = async (
   sorobanContext: SorobanContextType,
   tokenAddress: string

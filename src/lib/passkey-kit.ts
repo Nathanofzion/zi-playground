@@ -10,14 +10,15 @@ const passkeyKitOptions: any = {
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
   networkPassphrase: process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "Test SDF Network ; September 2015",
   walletWasmHash: process.env.NEXT_PUBLIC_WALLET_WASM_HASH || "",
-  timeoutInSeconds: 30, // LaunchTube requires maxTime within 30 seconds, so use 25 for safety
+  // LaunchTube requires maxTime within 30 seconds, so use 25 for safety
+  timeoutInSeconds: 25,
 };
 
 export const account = new PasskeyKit(passkeyKitOptions);
 
 // Verify timeoutInSeconds was set
 if ((account as any).timeoutInSeconds !== 25) {
-  console.warn('⚠️ timeoutInSeconds not set correctly, attempting to set directly...');
+  console.warn('timeoutInSeconds not set correctly, attempting to set directly...');
   (account as any).timeoutInSeconds = 25;
 }
 
@@ -56,7 +57,6 @@ export function initializeWallet(contractId: string) {
       rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
       networkPassphrase: process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "Test SDF Network ; September 2015",
     });
-    console.log('✅ PasskeyKit wallet initialized:', contractId.substring(0, 8) + '...');
+    console.log('PasskeyKit wallet initialized:', contractId.substring(0, 8) + '...');
   }
 }
-

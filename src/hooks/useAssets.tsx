@@ -31,15 +31,15 @@ const useAssets = () => {
         >("https://api.soroswap.finance/api/tokens");
         return [
           zionToken,
-//           {
-// "name": "Stellar Lumens",
-// "contract": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-// "code": "XLM",
-// "icon": "https://assets.coingecko.com/coins/images/100/standard/Stellar_symbol_black_RGB.png",
-// "decimals": 7
-// }
-          ...(data.find((list) => list.network == activeChain.network)
-            ?.assets ?? []),
+          {
+"name": "Stellar Lumens",
+"contract": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+"code": "XLM",
+"icon": "https://assets.coingecko.com/coins/images/100/standard/Stellar_symbol_black_RGB.png",
+"decimals": 7
+}
+          // ...(data.find((list) => list.network == activeChain.network)
+          //   ?.assets ?? []),
         ].map((asset: any) => ({ ...asset, id: uuid() }));
       }
     },

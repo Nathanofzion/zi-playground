@@ -26,6 +26,10 @@ const Header = () => {
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
+  const menuBg = useColorModeValue(
+    "linear-gradient(#F8F8F8, #F8F8F8) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;",
+    "linear-gradient(#13141E, #13141E) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;"
+  );
 
   const handleClickRewards = async () => {
     if (!address) {
@@ -93,10 +97,7 @@ const Header = () => {
                   </MenuTrigger>
                   <MenuContent
                     py={2}
-                    bg={useColorModeValue(
-                      "linear-gradient(#F8F8F8, #F8F8F8) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;",
-                      "linear-gradient(#13141E, #13141E) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;"
-                    )}
+                    bg={menuBg}
                     border="2px solid transparent"
                     rounded="xl"
                   >

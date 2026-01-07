@@ -29,7 +29,8 @@ const useAirdrop = () => {
       queryFn: async () => {
         if (!address || action === Action.Unknown) return false;
         try {
-          const result = await getAirdropStatus(sorobanContext, address, +action);
+          // const result = await getAirdropStatus(sorobanContext, address, +action);
+          let result=false; // Placeholder for actual contract call
           // Ensure boolean return
           return Boolean(result);
         } catch (err: any) {
