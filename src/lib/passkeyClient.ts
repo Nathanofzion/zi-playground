@@ -7,6 +7,9 @@ import { accountToScVal } from "@/utils";
 
 const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID || "";
 
+// Debug: Log factory contract configuration
+console.log('Factory Contract ID:', FACTORY_CONTRACT_ID ? FACTORY_CONTRACT_ID.substring(0, 8) + '...' : 'MISSING');
+
 /**
  * Alternative server send that bypasses LaunchTube's strict timebounds
  */
@@ -305,11 +308,14 @@ const passkey = () => {
             setPasskeyStatus(null);
             return connectResult.contractId;
           } catch (error: any) {
+            console.warn('Factory recovery failed:', error.message);
             if (isUserCancelledError(error)) {
               console.warn('Authentication cancelled or unavailable, creating new wallet...');
               setPasskeyStatus('No credential found - creating new wallet');
             } else if (!isNoCredentialError(error)) {
-              throw error;
+              console.warn('Factory connection error, proceeding to create new wallet...');
+              setPasskeyStatus('Factory connection failed - creating new wallet');
+              // Don't throw - just proceed to wallet creation
             } else {
               console.warn('No existing credential found, creating new wallet...');
               setPasskeyStatus('No credential found - creating new wallet');

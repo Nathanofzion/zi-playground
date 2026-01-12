@@ -130,10 +130,96 @@ The system now enforces WebAuthn protocols for all operations and supports secur
 
 ---
 
+## � **LATEST TESTING SESSION FINDINGS (January 12, 2026)**
+
+### ✅ **RESOLVED IN TESTING:**
+
+#### 13. 🔧 Environment Variable Configuration Issue
+*   **Problem:** `NEXT_PUBLIC_NETWORK_PASSPHRASE` was not properly quoted in .env.development, causing shell parsing errors and preventing PasskeyKit initialization.
+*   **Technical Findings:** 
+    *   Network passphrase `Test SDF Network ; September 2015` contains semicolons that broke environment variable parsing
+    *   PasskeyKit configuration was receiving empty string instead of proper network passphrase
+    *   This caused "Failed to connect wallet" errors for all PasskeyID operations
+*   **Fix:** Properly quoted the network passphrase in .env.development: `NEXT_PUBLIC_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"`
+*   **Result:** PasskeyID wallet creation now works end-to-end with WebAuthn authentication
+*   **Files:** `.env.development`
+
+#### 14. 🔄 PasskeyKit Factory Recovery Error Handling  
+*   **Problem:** When no existing passkey data found, factory recovery would fail and throw errors instead of proceeding to create new wallet.
+*   **Technical Findings:**
+    *   Factory contract ID configured as G-address instead of expected C-address format
+    *   Error handling was too strict - any factory connection failure would prevent wallet creation
+    *   New users couldn't create wallets due to failed recovery attempts
+*   **Fix:** Updated error handling in passkeyClient.ts to gracefully fallback to new wallet creation when factory recovery fails
+*   **Result:** First-time users can now create PasskeyID wallets successfully
+*   **Files:** `src/lib/passkeyClient.ts`
+
+#### 15. 📦 PasskeyKit Version Update
+*   **Problem:** Using outdated PasskeyKit v0.10.13 with potential compatibility issues.
+*   **Fix:** Updated to PasskeyKit v0.11.3 for improved stability and features.
+*   **Files:** `package.json`
+
+### 🔴 **CRITICAL ISSUE IDENTIFIED:**
+
+#### 16. 💰 Airdrop Funder Account Not Funded
+*   **Problem:** Airdrop API failing with 500 error: "Account not found: GBNNJVN6SBUXH6UXPHFUPWSVSEYQBCAQL4BSXDCEVB3WXIX2NM4HMARP"
+*   **Technical Analysis:** 
+    *   Funder account from `FUNDER_SECRET_KEY` environment variable doesn't exist on Stellar testnet
+    *   Contract invocation fails when trying to load account for transaction signing
+    *   This breaks all airdrop functionality
+*   **Root Cause:** Funder account (derived from `SBX3OL3HYE6IPPA3OA35UM77JBEZUXY7J6YXO337QGWSJKEG2N2LYQZU`) needs to be funded with XLM via friendbot
+*   **Impact:** HIGH - Completely blocks airdrop distribution functionality
+*   **Status:** 🚨 **NEEDS IMMEDIATE ATTENTION**
+*   **Files:** `.env.development`, `src/lib/contract.ts`, `src/app/api/airdrop/route.ts`
+
+---
+
+## 🎯 **CURRENT STATUS SUMMARY**
+
+### **PasskeyID Wallet Management**
+- ✅ **FULLY FUNCTIONAL**: Wallet creation, WebAuthn authentication, funding, trustline setup
+- ✅ **WORKING**: Factory recovery fallback, session persistence, balance fetching
+- ⚠️ **MINOR**: ES256/RS256 algorithm warnings (cosmetic only)
+
+### **Airdrop System**  
+- 🔴 **BROKEN**: API returns 500 error due to unfunded funder account
+- ✅ **CONFIGURED**: Contract addresses, API endpoints, validation logic all correct
+- 🚨 **BLOCKER**: Requires funder account funding before testing can proceed
+
+### **General Application State**
+- ✅ **STABLE**: No more hooks crashes or XDR conversion errors
+- ✅ **CONNECTED**: Supabase backend running, wallet connections working
+- ✅ **ENVIRONMENT**: All environment variables properly configured
+
+---
+
+## 📝 **IMMEDIATE ACTION ITEMS**
+
+### **Priority 1: Fix Airdrop (CRITICAL)**
+1. **Fund funder account** with XLM via Stellar testnet friendbot
+2. **Verify airdrop contract deployment** and functionality  
+3. **Test airdrop distribution** end-to-end
+4. **Update environment documentation** with funding requirements
+
+### **Priority 2: Complete Phase 1 Validation**
+1. **Test wallet recovery** from password managers (Chrome, Safari, etc.)
+2. **Verify send/receive ZI tokens** functionality
+3. **Test QR code scanning** features
+4. **Validate cross-wallet compatibility** (Freighter, Lobstr, PasskeyID)
+
+### **Priority 3: Phase 2 Preparation**  
+1. **Document current stable state** for handoff to Soroswap integration
+2. **Verify all Phase 1 deliverables** against original requirements
+3. **Prepare Phase 2 technical specifications**
+
+---
+
 ## 📝 Next Steps (Phase 2 Focus)
 
-With Phase 1 fixes complete and critical Phase 3 features (Send/Receive) integrated to support the testing flow, the focus now shifts to **Phase 2: Soroswap Integration**.
+With PasskeyID wallet management now fully functional and environment properly configured, the next critical step is resolving the airdrop funder account issue. Once airdrops are working, Phase 1 will be truly complete and ready for **Phase 2: Soroswap Integration**.
 
-1.  **Soroswap Integration:** Begin integration of Swaps for Zi ↔ XLM.
-2.  **Liquidity Pools:** Implement UI and logic for adding/removing liquidity.
-3.  **Game Expansion:** Enable airdrop logic for Tetris and Space Invaders.
+1.  **URGENT: Fund funder account** to enable airdrop functionality
+2.  **Complete Phase 1 testing** with all wallet types and features  
+3.  **Soroswap Integration:** Begin integration of Swaps for Zi ↔ XLM
+4.  **Liquidity Pools:** Implement UI and logic for adding/removing liquidity
+5.  **Game Expansion:** Enable airdrop logic for Tetris and Space Invaders

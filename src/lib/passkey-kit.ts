@@ -14,6 +14,14 @@ const passkeyKitOptions: any = {
   timeoutInSeconds: 25,
 };
 
+// Debug: Log the actual configuration values
+console.log('PasskeyKit configuration:', {
+  rpcUrl: passkeyKitOptions.rpcUrl,
+  networkPassphrase: passkeyKitOptions.networkPassphrase,
+  walletWasmHash: passkeyKitOptions.walletWasmHash ? passkeyKitOptions.walletWasmHash.substring(0, 16) + '...' : 'MISSING',
+  timeoutInSeconds: passkeyKitOptions.timeoutInSeconds,
+});
+
 export const account = new PasskeyKit(passkeyKitOptions);
 
 // Verify timeoutInSeconds was set
