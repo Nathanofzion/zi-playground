@@ -11,6 +11,7 @@ import {
 
 import { IWallet } from "@/interfaces";
 import { LocalKeyStorage } from "@/lib/localKeyStorage";
+import SimpleWalletModal from "./SimpleWalletModal";
 
 import { useColorModeValue } from "../ui/color-mode";
 
@@ -22,6 +23,7 @@ interface Props extends FlexProps {
 const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [passkeyStatus, setPasskeyStatus] = useState<string | null>(null);
+  const [showWalletModal, setShowWalletModal] = useState(false);
   const walletId = wallet?.id ?? "";
   const walletShortName = wallet?.sname ?? "";
   const cardBg = useColorModeValue("#F8F8F8", "#0F1016");
@@ -48,13 +50,25 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
   }, [walletId, walletShortName]);
 
   const handleConnect = async () => {
-    try {
-      setIsConnecting(true);
-      await wallet.connect?.();
-      onConnect?.();
-    } finally {
-      setIsConnecting(false);
+    const isPasskey = walletId === "passkey" || walletShortName === "Passkey";
+    
+    if (isPasskey) {
+      setShowWalletModal(true);
+    } else {
+      // For other wallets, connect directly
+      try {
+        setIsConnecting(true);
+        await wallet?.connect?.();
+        onConnect?.();
+      } finally {
+        setIsConnecting(false);
+      }
     }
+  };
+
+  const handleWalletModalSuccess = () => {
+    setShowWalletModal(false);
+    onConnect?.();
   };
 
   if (!wallet) {
@@ -100,6 +114,12 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
             {passkeyStatus}
           </Text>
         )}
+      
+      <SimpleWalletModal
+        isOpen={showWalletModal}
+        onClose={() => setShowWalletModal(false)}
+        onSuccess={handleWalletModalSuccess}
+      />
     </Flex>
   );
 };

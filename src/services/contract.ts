@@ -1,11 +1,11 @@
 import { SorobanContextType } from "@soroban-react/core";
-// Γ¥î REMOVED: import { nativeToScVal, scValToNative, xdr } from "@stellar/stellar-sdk";
 
 import { IAsset } from "@/interfaces";
 import { contractInvoke } from "@/lib/contract-fe";
 import { accountToScVal, scValToNumber } from "@/utils";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import zionToken from "@/constants/zionToken";
+import nativeToken from "@/constants/nativeToken";
 import { signTransaction } from '@stellar/freighter-api';
 
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
@@ -105,10 +105,60 @@ export async function tokenBalance(
   const walletName = activeConnector?.name?.toLowerCase() || '';
   const networkPassphrase = activeChain.networkPassphrase!;
   const isZionToken = tokenAddress === zionToken.contract;
+  const isPasskeyWallet = walletName.includes('passkey') || activeConnector?.id === 'passkey';
+  
+  console.log('🔍 Balance check:', {
+    tokenAddress: tokenAddress.substring(0, 8) + '...',
+    userAddress: address.substring(0, 8) + '...',
+    wallet: walletName,
+    isPasskey: isPasskeyWallet,
+    isZionToken
+  });
 
   try {
     // Convert the user's address to proper ScVal format
     const accountScVal = new StellarSdk.Address(address).toScVal();
+
+    // For PasskeyKit wallets checking native XLM, we need to check the underlying Stellar account
+    // instead of the contract address
+    if (isPasskeyWallet && tokenAddress === nativeToken.contract) {
+      console.log('🔑 PasskeyKit wallet detected - getting underlying Stellar account for balance check');
+      
+      // Try to get the underlying G-address from the PasskeyKit wallet
+      let stellarAccount = address; // Default to contract address
+      
+      try {
+        // Check if we can get the underlying account from PasskeyKit
+        const { account } = await import('../lib/passkey-kit');
+        if (account.wallet) {
+          const underlyingAccount = await account.wallet.getPublicKey();
+          if (underlyingAccount && underlyingAccount.startsWith('G')) {
+            stellarAccount = underlyingAccount;
+            console.log('🎯 Found underlying Stellar account:', stellarAccount.substring(0, 8) + '...');
+          }
+        }
+      } catch (e) {
+        console.log('📝 Using contract address (could not get underlying account)');
+      }
+      
+      try {
+        // Wait a moment for account funding if it's very new
+        console.log('⏳ Checking if wallet needs time for funding...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Check the native XLM balance of the underlying Stellar account
+        const server = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
+        console.log('🔍 Loading account from Horizon:', stellarAccount.substring(0, 8) + '...');
+        const accountData = await server.loadAccount(stellarAccount);
+        const nativeBalance = accountData.balances.find(b => b.asset_type === 'native');
+        const balance = nativeBalance ? parseFloat(nativeBalance.balance) : 0;
+        console.log('💰 Native XLM balance from Horizon:', balance, 'XLM');
+        return balance * Math.pow(10, 7); // Convert to stroops
+      } catch (horizonError: any) {
+        console.warn('⚠️ Horizon balance check failed, falling back to contract method:', horizonError.message);
+        // Fall through to standard contract method
+      }
+    }
 
     // First, try to get balance directly
     try {
@@ -386,6 +436,77 @@ export const getAirdropStatus = async (
   }
 };
 
+/**
+ * Creates a Stellar account by sending native XLM (minimum 1 XLM required)
+ * @param sorobanContext - The soroban context containing wallet details
+ * @param destinationId - The public key of the account to create
+ * @param startingBalance - The initial XLM balance (default 2 XLM)
+ */
+export const createStellarAccount = async (
+  sorobanContext: SorobanContextType,
+  destinationId: string,
+  startingBalance: string = "2"
+) => {
+  const { address } = sorobanContext;
+
+  if (!address) {
+    throw new Error("Wallet is not connected yet.");
+  }
+
+  console.log(`Creating account for ${destinationId} with ${startingBalance} XLM`);
+
+  try {
+    // Create Horizon server using the same pattern as other functions
+    const server = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
+    
+    // Load source account
+    const sourceAccount = await server.loadAccount(address);
+    
+    // Create the account creation transaction
+    const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
+      fee: StellarSdk.BASE_FEE,
+      networkPassphrase: CONFIG.NETWORK_PASSPHRASE
+    })
+      .addOperation(StellarSdk.Operation.createAccount({
+        destination: destinationId,
+        startingBalance: startingBalance
+      }))
+      .setTimeout(300)
+      .build();
+
+    console.log('Account creation transaction created, signing and sending...');
+    
+    // Use the existing signing pattern from the codebase
+    const activeConnectorId = sorobanContext.activeConnector?.id;
+    const isPasskeyWallet = activeConnectorId === 'passkey';
+    
+    if (isPasskeyWallet) {
+      // For PasskeyKit wallets, we need to use their signing method
+      const { account } = await import('@/lib/passkey-kit');
+      const signedTransaction = await account.signTransaction(transaction);
+      
+      // Submit the signed transaction
+      const result = await server.submitTransaction(signedTransaction);
+      console.log('✅ Account creation successful:', result);
+      return result;
+    } else {
+      // For other wallet types (Freighter, etc.)
+      const signedTransaction = await signTransaction(transaction.toXDR(), {
+        networkPassphrase: CONFIG.NETWORK_PASSPHRASE,
+        accountToSign: address,
+      });
+      
+      const txFromXdr = StellarSdk.TransactionBuilder.fromXDR(signedTransaction, CONFIG.NETWORK_PASSPHRASE);
+      const result = await server.submitTransaction(txFromXdr);
+      console.log('✅ Account creation successful:', result);
+      return result;
+    }
+  } catch (error: any) {
+    console.error('❌ Account creation failed:', error);
+    throw error;
+  }
+};
+
 export const sendAsset = async (
   sorobanContext: SorobanContextType,
   asset: IAsset,
@@ -449,7 +570,31 @@ export const sendAsset = async (
       isRecipientCAddress,
       isSenderPasskey
     });
-
+    // 🔧 Check if recipient account exists (for G-addresses)
+    console.log(`🔍 Checking recipient type - starts with G: ${recipient.startsWith('G')}, recipient: ${recipient.substring(0, 8)}...`);
+    
+    if (recipient.startsWith('G')) {
+      console.log('🔍 Checking if recipient account exists...');
+      try {
+        const horizonResponse = await fetch(`https://horizon-testnet.stellar.org/accounts/${recipient}`);
+        console.log(`🌐 Horizon response status: ${horizonResponse.status}`);
+        
+        if (horizonResponse.status === 404) {
+          console.log('❌ Recipient account does not exist - creating account first');
+          
+          // Create account with minimum 2 XLM
+          await createStellarAccount(sorobanContext, recipient);
+          
+          console.log('✅ Account created successfully');
+        } else if (horizonResponse.ok) {
+          console.log('✅ Recipient account already exists');
+        } else {
+          console.warn('⚠️ Could not verify account existence, proceeding with transfer');
+        }
+      } catch (checkError) {
+        console.warn('⚠️ Account existence check failed, proceeding with transfer:', checkError);
+      }
+    }
     // ΓÜá∩╕Å IMPORTANT: For C-address recipients, they need to have initialized their balance storage
     // This is typically done automatically on first receive, but we should handle errors gracefully
     if (isRecipientCAddress && !isSenderPasskey) {

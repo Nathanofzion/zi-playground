@@ -1,52 +1,63 @@
 # Latest Issues Status Report
 
-> **Status:** Active Integration & Stabilization Phase
-> **Last Updated:** January 6, 2026
-> **Context:** This document outlines the critical issues, integration gaps, and architectural flaws identified and resolved during the latest round of comprehensive development for the `zi-playground` application.
+> **Status:** Major Discovery & Core Fixes Complete
+> **Last Updated:** January 23, 2026
+> **Context:** PasskeyKit shared pool architecture discovered - major implications for airdrop fraud prevention and wallet functionality restored.
 
 ---
 
 ## 🚀 PROJECT STATUS OVERVIEW
 
-**Phase 1 (Fixes) & Phase 3 (Core Features) Integration Complete**
+**MAJOR DISCOVERY: PasskeyKit Shared Architecture**
 
-The codebase has been updated to fully utilize the Airdrop contracts, Soroban wrapper contract, and the zi-classic-asset token, as phase 1 suggested that we need to fix airdrop api, trustline/xdr issues and hooks crash. Airdrop contract correctly deployed and integrated to the backend and now the mechanism working as intended for Zi tokens. XDR and trustline issues were caused because there wasn't proper XDR conversion methods in place, so we added those and now we're hitting a contract call for every new wallet to create a trustline for zi-tokens successfully. As for hooks crash, most of the hooks crash have been fixed successfully, and hooks crash wasn't some 1 thing in general, it was a collection of a bunch of stuff including XDR Conversions, Balance Fetching, Trustline creations, passkey Implementation, Sending/Recieving Zi-Tokens(which were part of phase3 basically) were all broken/crashing So it wasn't just phase1 that we had to fix and work on. We successfully added the trustline creation, Sending/Recieving Zi-tokens also QR Scanning support working, balance fetching mechanism, dropping airdrop successfully upon particles airdrop etc, functionality have been added. Meaning in order to fix phase1 fixes we couldn't really do these without meddling with upcoming Phases like Phase3 includes send/recieve + qr support. Passkey ID Implementation has also been fixed and now it's truly secure and it isn't really at a security risk anymore.
+**Critical Finding:** All PasskeyKit wallets share the same underlying Stellar G-address (`GC2C7AWLS2FMFTQAHW3IBUB4ZXVP4E37XNLEF2IK7IVXBB6CMEPCSXFO`). This is PERFECT for airdrop fraud prevention as users cannot generate new addresses by deleting/recreating wallets.
+
+**Phase Status:** Core wallet functionality restored, authentication security implemented, automatic account creation added, UX improvements complete.
 
 ---
 
-## 🛠️ SPECIFIC TECHNICAL FIXES (Jan 6, 2026)
+## ✅ RECENTLY RESOLVED ISSUES (Jan 23, 2026)
 
-*The following specific issues have been resolved to stabilize the application.*
+### 1. 🏷️ Wallet Naming System
+*   **Problem:** PasskeyKit wallet creation failed due to incorrect parameter order in `createNamedWallet`
+*   **Fix:** Corrected parameter sequence and added proper wallet metadata storage
+*   **Status:** ✅ RESOLVED
+*   **Files:** `src/lib/walletManager.ts`
 
-### 1. 🔌 Wallet Detection and Signing Priority
-*   **Problem:** Transactions were signed with PasskeyID even when Freighter/Lobstr was active, because detection relied on localStorage instead of the active connector.
-*   **Fix:** Detects wallet type from activeConnector?.id with priority: Freighter/Lobstr → PasskeyID → fallback. Ensures each wallet uses its own signing method.
-*   **Files:** `src/lib/contract-fe.ts`
+### 2. 🔐 TouchID/FaceID Authentication Bypass  
+*   **Problem:** Users could reconnect to existing wallets without biometric verification
+*   **Fix:** Enforced WebAuthn authentication with `userVerification: "required"` for all wallet connections
+*   **Status:** ✅ RESOLVED
+*   **Files:** `src/lib/walletManager.ts`, `src/lib/passkeyClient.ts`
 
-### 2. 🔐 WebAuthn Authentication on Reconnection
-*   **Problem:** Reconnection bypassed WebAuthn authentication, allowing wallet access without PIN/biometric verification.
-*   **Fix:** Requires WebAuthn authentication with userVerification: "required" before reconnecting. Users must complete PIN/biometric verification.
-*   **Files:** `src/lib/passkeyClient.ts`
+### 3. 📱 Loading State UX
+*   **Problem:** No visual feedback during wallet connection process
+*   **Fix:** Added individual wallet loading spinners with "Connecting with TouchID/FaceID..." messages
+*   **Status:** ✅ RESOLVED
+*   **Files:** `src/components/wallet/SimpleWalletModal.tsx`
 
-### 3. 🛡️ WebAuthn Registration on Wallet Creation
-*   **Problem:** Wallet creation didn't explicitly require PIN/biometric verification; passkey-kit's createWallet() may not enforce it.
-*   **Fix:** Added explicit WebAuthn registration with userVerification: "required" before wallet creation, ensuring PIN/biometric is always required.
-*   **Files:** `src/lib/passkeyClient.ts`
+### 4. 💸 Send Transaction Account Creation
+*   **Problem:** Token transfers to non-existent Stellar accounts failed with "account entry is missing"
+*   **Fix:** Implemented automatic account creation with 2 XLM funding before token transfers
+*   **Status:** ✅ RESOLVED
+*   **Files:** `src/services/contract.ts`
 
-### 4. ✅ C-address (Smart Contract) Validation
-*   **Problem:** Airdrop route only validated G-addresses, rejecting C-addresses (smart contract wallets).
-*   **Fix:** Added validation for both G-addresses (traditional) and C-addresses (contract wallets). Separate handling for C-address vs G-address in transaction building.
-*   **Files:** `src/app/api/airdrop/route.ts`, `src/lib/contract-fe.ts`
+### 5. 🔍 PasskeyKit Architecture Understanding
+*   **Problem:** Unclear how PasskeyKit manages multiple wallets and underlying accounts
+*   **Discovery:** All wallets share one G-address - prevents airdrop fraud, simplifies management
+*   **Status:** ✅ UNDERSTOOD & DOCUMENTED
+*   **Files:** Multiple, documented in `PASSKEY_WALLET_MAJOR_UPDATE_JAN_23_2026.md`
 
-### 5. 💰 C-address Transaction Source Handling
-*   **Problem:** Transaction building used G-address account logic for C-addresses, causing source account errors.
-*   **Fix:** Separate source account handling: C-addresses use default account for building (contract signs), G-addresses use traditional account loading.
-*   **Files:** `src/lib/contract-fe.ts`
+---
 
-### 6. 🐛 Passkey Wallet Initialization on Reconnect
-*   **Problem:** account.wallet wasn't initialized when reconnecting, causing signing failures.
-*   **Fix:** Added initializeWallet() helper that initializes account.wallet with contractId when reconnecting or before signing.
-*   **Files:** `src/lib/passkey-kit.ts`, `src/lib/contract-fe.ts`, `src/lib/passkeyClient.ts`
+## ⚠️ ACTIVE ISSUES (Jan 23, 2026)
+
+### 1. 📊 Balance Display Inconsistency
+*   **Problem:** Modal shows 10,000 XLM but Stellar Expert shows 11,997.56 XLM for account `GC2C7AWLS2FMFTQAHW3IBUB4ZXVP4E37XNLEF2IK7IVXBB6CMEPCSXFO`
+*   **Likely Cause:** Stroop conversion calculation error in `tokenBalance` function
+*   **Impact:** Users see incorrect balance information
+*   **Priority:** Medium
+*   **Files:** `src/services/contract.ts` (lines 140-160)
 
 ### 7. 🔑 Passkey Storage Methods
 *   **Problem:** No dedicated storage methods for passkey keyId and contractId, leading to inconsistent storage.
