@@ -1,17 +1,29 @@
-import { FC } from "react";
+import { FC, useState, useEffect } from "react";
 
 import { Flex, HStack, Image, Link, Spinner, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
 import useAssets from "@/hooks/useAssets";
 import { formatNumber, truncateAddress } from "@/utils";
+import { getUnderlyingAccount } from "@/lib/walletManager";
 import { explorerLink } from "../../lib/chain";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
 
 const BalanceModal: FC<ModalProps> = (props) => {
-  const { address } = useSorobanReact();
+  const { address, activeConnector } = useSorobanReact();
   const { assets } = useAssets();
+  const [underlyingAccount, setUnderlyingAccount] = useState<string | null>(null);
+  
+  const isPasskeyWallet = activeConnector?.id === 'passkey';
+  const isCAddress = address?.startsWith('C');
+  
+  // For PasskeyKit wallets, get the underlying G-address where funds actually live
+  useEffect(() => {
+    if (isPasskeyWallet && props.isOpen) {
+      getUnderlyingAccount().then(setUnderlyingAccount);
+    }
+  }, [isPasskeyWallet, props.isOpen]);
 
   return (
     <Modal {...props}>
@@ -27,7 +39,30 @@ const BalanceModal: FC<ModalProps> = (props) => {
         <ModalCloseButton />
         <Flex direction="column" gap="4px">
           <Text fontSize="18px">Your wallet</Text>
-          <Text fontSize="12px">{truncateAddress(address)}</Text>
+          {isPasskeyWallet && isCAddress && underlyingAccount ? (
+            <Flex direction="column" gap={1}>
+              <HStack fontSize="12px" justify="space-between">
+                <Text color="gray.500">Contract:</Text>
+                <Text>{truncateAddress(address)}</Text>
+              </HStack>
+              <HStack fontSize="12px" justify="space-between">
+                <Text color="gray.500">Account:</Text>
+                <Link
+                  href={`${explorerLink}/account/${underlyingAccount}`}
+                  color="blue.400"
+                  _hover={{ textDecoration: "underline" }}
+                  isExternal
+                >
+                  {truncateAddress(underlyingAccount)}
+                </Link>
+              </HStack>
+              <Text fontSize="10px" color="gray.400">
+                Funds are stored in the account address
+              </Text>
+            </Flex>
+          ) : (
+            <Text fontSize="12px">{truncateAddress(address)}</Text>
+          )}
         </Flex>
         <Flex maxH="480px" direction="column" gap={2} overflowY="auto">
           {assets.map((asset, index) => (

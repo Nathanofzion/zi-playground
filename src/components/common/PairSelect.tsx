@@ -7,6 +7,8 @@ import usePairs from "@/hooks/usePairs";
 import { CloseButton } from "../ui/close-button";
 import { useColorModeValue } from "../ui/color-mode";
 import PairCard from "./PairCard";
+import useAssets from "@/hooks/useAssets";
+import useLiquidity from "@/hooks/useLiquidity";
 
 interface Props {
   selectedPairId: number | null;
@@ -14,31 +16,40 @@ interface Props {
 }
 
 const PairSelect: FC<Props> = ({ selectedPairId, onSelectPair }) => {
-  const { pairs } = usePairs();
+  // const { pairs } = usePairs();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const { assets } = useAssets();
 
-  const selectedPair = useMemo(
-    () => pairs.find((pair) => pair.id == selectedPairId),
-    [pairs, selectedPairId]
+  const { pair } = useLiquidity(
+    assets[0],
+    assets[1]
   );
 
-  const filteredPairs = useMemo(
-    () =>
-      pairs.filter(
-        (pair) =>
-          pair.code.toLowerCase().indexOf(search.toLowerCase()) >= 0 ||
-          pair.name.toLowerCase().indexOf(search.toLowerCase()) >= 0
-      ),
-    [pairs, search]
-  );
+  // const selectedPair = useMemo(
+  //   () => pairs.find((pair) => pair.id == selectedPairId),
+  //   [pairs, selectedPairId]
+  // );
+
+  // const filteredPairs = useMemo(
+  //   () =>
+  //     pairs.filter(
+  //       (pair) =>
+  //         pair.code.toLowerCase().indexOf(search.toLowerCase()) >= 0 ||
+  //         pair.name.toLowerCase().indexOf(search.toLowerCase()) >= 0
+  //     ),
+  //   [pairs, search]
+  // );
+
+  const filteredPairs = pair;
+  const selectedPair = pair;
 
   return (
     <Popover.Root open={open} onOpenChange={(details) => setOpen(details.open)}>
       <Popover.Trigger asChild>
         <Flex justify="space-between" align="center">
           {selectedPair ? (
-            <PairCard flexGrow={1} pair={selectedPair} />
+            <PairCard pair={selectedPair} />
           ) : (
             "Select pair"
           )}
@@ -71,17 +82,21 @@ const PairSelect: FC<Props> = ({ selectedPairId, onSelectPair }) => {
                 onChange={(e) => setSearch(e.target.value)}
               />
               <Flex maxH={48} pr={1} direction="column" overflowY="auto">
-                {filteredPairs.map((pair) => (
-                  <PairCard
-                    key={pair.id}
-                    pair={pair}
-                    _hover={{ bg: "#fff2" }}
+                {/* {filteredPairs.map((pair) => ( */}
+                  <Box
+                    key={0}
                     onClick={() => {
-                      onSelectPair(pair.id);
+                      onSelectPair(0);
                       setOpen(false);
                     }}
-                  />
-                ))}
+                    cursor="pointer"
+                  >
+                    <PairCard
+                      pair={pair}
+                      // _hover={{ bg: "#fff2" }}
+                    />
+                  </Box>
+                {/* ))} */}
               </Flex>
             </Flex>
           </Popover.Body>

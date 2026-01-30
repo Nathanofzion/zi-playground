@@ -8,6 +8,8 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import zionToken from "@/constants/zionToken";
 import { IAsset } from "@/interfaces";
 import { tokenBalance } from "@/services/contract";
+import * as StellarSdk from "@stellar/stellar-sdk";
+import { log } from "util";
 
 const useAssets = () => {
   const sorobanContext = useSorobanReact();
@@ -29,8 +31,15 @@ const useAssets = () => {
         >("https://api.soroswap.finance/api/tokens");
         return [
           zionToken,
-          ...(data.find((list) => list.network == activeChain.network)
-            ?.assets ?? []),
+          {
+"name": "Stellar Lumens",
+"contract": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+"code": "XLM",
+"icon": "https://assets.coingecko.com/coins/images/100/standard/Stellar_symbol_black_RGB.png",
+"decimals": 7
+}
+          // ...(data.find((list) => list.network == activeChain.network)
+          //   ?.assets ?? []),
         ].map((asset: any) => ({ ...asset, id: uuid() }));
       }
     },
@@ -45,7 +54,9 @@ const useAssets = () => {
       queryFn: async () => {
         try {
           const balance = await tokenBalance(sorobanContext, asset.contract);
-          return balance / Math.pow(10, asset.decimals);
+          console.log("Parsed Balance : ",balance);
+          
+          return (balance ?? 0) / Math.pow(10, asset.decimals);
         } catch (err: any) {
           // Handle specific error types gracefully
           if (err?.message?.includes("trustline")) {

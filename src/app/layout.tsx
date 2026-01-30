@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Provider from "@/providers";
 
 import "./globals.css";
+import { ToastContainer, toast } from 'react-toastify';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <ToastContainer/>
         <Provider>
           <Background />
           <Flex h="100vh" direction="column">

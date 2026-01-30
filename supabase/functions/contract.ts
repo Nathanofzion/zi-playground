@@ -24,8 +24,10 @@ export async function sendTx(tx: Transaction) {
 
   let waitTime = 1000;
   const exponentialFactor = 1.5;
+  const maxAttempts = 12; // ~> bounded polling to avoid infinite loops
+  const started = Date.now();
 
-  do {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const getTransactionResponse = await server.getTransaction(
       sendTransactionResponse.hash
     );
@@ -34,7 +36,21 @@ export async function sendTx(tx: Transaction) {
     }
     await new Promise((resolve) => setTimeout(resolve, waitTime));
     waitTime = waitTime * exponentialFactor;
-  } while (true);
+    // safety: hard timeout ~60s
+    if (Date.now() - started > 60_000) {
+      throw new Error(
+        `Transaction polling timed out after ${attempt + 1} attempts (~${(
+          (Date.now() - started) / 1000
+        ).toFixed(1)}s)`
+      );
+    }
+  }
+
+  throw new Error(
+    `Transaction not found after ${maxAttempts} attempts (~${(
+      (Date.now() - started) / 1000
+    ).toFixed(1)}s)`
+  );
 }
 
 export type InvokeArgs = {

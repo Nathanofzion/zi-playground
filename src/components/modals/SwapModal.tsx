@@ -60,6 +60,7 @@ const SwapModal: FC<ModalProps> = (props) => {
 
   const refetchAmount = async () => {
     if (!address || !asset1 || !asset2) return;
+    if (BigNumber(amount1).gt(asset1!.balance)) return;
     try {
       const lpAmount = await calculateAmount(amount1);
       setAmount2(formatBalance(lpAmount, asset2!.decimals));
@@ -79,12 +80,22 @@ const SwapModal: FC<ModalProps> = (props) => {
   }, [amount1]);
 
   const handleSwap = async () => {
+
+    if (BigNumber(amount1).gt(asset1!.balance)) {
+      toaster.create({
+        title: "Insufficient balance",
+        type: "error",
+      });
+      return;
+    }
+
     try {
       await swap(amount1);
       toaster.create({
         title: "You have swapped asset successfully!",
         type: "success",
       });
+      setAmount1("0");
     } catch (err) {
       console.error('Swap error:', err);
       toaster.create({

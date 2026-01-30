@@ -15,7 +15,7 @@ import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 const Header = () => {
-  const { address, disconnect } = useSorobanReact();
+  const { address, disconnect, activeConnector } = useSorobanReact();
   const {
     user,
     openAirdropModal,
@@ -26,6 +26,10 @@ const Header = () => {
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [showConnectWalletModal, setShowConnectWalletModal] = useState(false);
+  const menuBg = useColorModeValue(
+    "linear-gradient(#F8F8F8, #F8F8F8) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;",
+    "linear-gradient(#13141E, #13141E) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;"
+  );
 
   const handleClickRewards = async () => {
     if (!address) {
@@ -40,6 +44,20 @@ const Header = () => {
   };
 
   const handleDisconnect = async () => {
+    // For PasskeyID, call our enhanced disconnect function first
+    if (activeConnector?.id === "passkey") {
+      console.log("🎯 Detected PasskeyID disconnect - calling enhanced disconnect...");
+      try {
+        // Call the wallet's disconnect directly to trigger our enhanced logic
+        if (activeConnector.disconnect) {
+          await activeConnector.disconnect();
+        }
+      } catch (error) {
+        console.error("❌ PasskeyID enhanced disconnect failed:", error);
+      }
+    }
+    
+    // Then call the standard SorobanReact disconnect
     disconnect();
   };
 
@@ -93,10 +111,7 @@ const Header = () => {
                   </MenuTrigger>
                   <MenuContent
                     py={2}
-                    bg={useColorModeValue(
-                      "linear-gradient(#F8F8F8, #F8F8F8) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;",
-                      "linear-gradient(#13141E, #13141E) padding-box, linear-gradient(to bottom right, #a588e4, #b7fee0) border-box;"
-                    )}
+                    bg={menuBg}
                     border="2px solid transparent"
                     rounded="xl"
                   >

@@ -1,0 +1,75 @@
+import { PasskeyKit, PasskeyServer, PasskeyClient } from "passkey-kit";
+
+/**
+ * PasskeyKit instance for client-side passkey wallet operations
+ * Handles wallet creation, connection, and transaction signing
+ */
+// Create PasskeyKit instance with timeoutInSeconds
+// Note: timeoutInSeconds is not in TypeScript definitions but exists at runtime
+const passkeyKitOptions: any = {
+  rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
+  networkPassphrase: process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "Test SDF Network ; September 2015",
+  walletWasmHash: process.env.NEXT_PUBLIC_WALLET_WASM_HASH || "",
+  // Explicitly disable factory contract for individual wallets
+  factoryContractId: null,
+  // LaunchTube requires maxTime within 30 seconds, so use 25 for safety
+  timeoutInSeconds: 25,
+};
+
+// Debug: Log the actual configuration values
+console.log('PasskeyKit configuration:', {
+  rpcUrl: passkeyKitOptions.rpcUrl,
+  networkPassphrase: passkeyKitOptions.networkPassphrase,
+  walletWasmHash: passkeyKitOptions.walletWasmHash ? passkeyKitOptions.walletWasmHash.substring(0, 16) + '...' : 'MISSING',
+  timeoutInSeconds: passkeyKitOptions.timeoutInSeconds,
+});
+
+export const account = new PasskeyKit(passkeyKitOptions);
+
+// Debug: Check what PasskeyKit actually initialized with
+console.log('🔍 PasskeyKit Account Properties:', {
+  walletPublicKey: (account as any).walletPublicKey ? (account as any).walletPublicKey.substring(0, 8) + '...' : 'NONE',
+  hasWallet: !!(account as any).wallet,
+  keyId: (account as any).keyId || 'NONE',
+});
+
+// Verify timeoutInSeconds was set
+if ((account as any).timeoutInSeconds !== 25) {
+  console.warn('timeoutInSeconds not set correctly, attempting to set directly...');
+  (account as any).timeoutInSeconds = 25;
+}
+
+/**
+ * PasskeyServer instance for server-side transaction submission
+ * Since LaunchTube is discontinued, we use direct RPC submission
+ */
+export const server = new PasskeyServer({
+  rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
+  // No LaunchTube configuration - use direct RPC
+});
+
+/**
+ * Set transaction headers for additional metadata
+ * @param token - Client token or other metadata
+ */
+export function setTxHeaders(token: string) {
+  // Since LaunchTube is discontinued, we can use this for other purposes
+  // such as setting custom headers for direct RPC requests
+  console.log('Transaction headers set for direct RPC submission');
+}
+
+/**
+ * Initialize account.wallet with contractId
+ * This is needed when reconnecting to an existing wallet
+ * @param contractId - The contract ID (C-address) of the wallet
+ */
+export function initializeWallet(contractId: string) {
+  if (!account.wallet || account.wallet.options.contractId !== contractId) {
+    account.wallet = new PasskeyClient({
+      contractId,
+      rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
+      networkPassphrase: process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "Test SDF Network ; September 2015",
+    });
+    console.log('PasskeyKit wallet initialized:', contractId.substring(0, 8) + '...');
+  }
+}
