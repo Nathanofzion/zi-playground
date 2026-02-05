@@ -3,6 +3,7 @@ import * as StellarSdk from "@stellar/stellar-sdk";
 import { Api } from "@stellar/stellar-sdk/rpc";
 import { LocalKeyStorage } from "./localKeyStorage";
 import { account, server, initializeWallet } from "./passkey-kit";
+import { getStoredWallets } from "./walletManager";
 
 /**
  * Alternative server send that bypasses LaunchTube when it fails with network errors
@@ -255,14 +256,24 @@ export async function contractInvoke({
         );
       }
 
+      const wallets = getStoredWallets();
+const activeWallet = wallets.find(w => w.isActive);
+
+if (!activeWallet) {
+  throw new Error('No active wallet');
+}
+
+const keyId = activeWallet.keyId;
+const contractId = activeWallet.contractId;
+
       // Passkey signing path
       console.log('🔐 Signing with PasskeyID (C-address)...');
-      const keyId = LocalKeyStorage.getPasskeyKeyId();
+      // const keyId = LocalKeyStorage.getPasskeyKeyId();
       if (!keyId) {
         throw new Error("Passkey keyId not found");
       }
 
-      const contractId = LocalKeyStorage.getPasskeyContractId();
+      // const contractId = LocalKeyStorage.getPasskeyContractId();
       if (!contractId) {
         throw new Error("Passkey contractId not found");
       }
@@ -281,15 +292,15 @@ export async function contractInvoke({
       console.log('🔑 Prompting for passkey authentication (biometric/PIN)...');
       const signedTx = await account.sign(preparedTx as any, { keyId });
 
-      // Since LaunchTube is discontinued, send directly via RPC
-      console.log('📤 Sending transaction via direct RPC (LaunchTube discontinued)...');
+      // Send via PasskeyServer (handles LaunchTube if configured)
+      console.log('📤 Sending transaction via PasskeyServer...');
       try {
-        const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
-        const result = await sendToRpcDirectly(signedTx, rpcUrl);
+        const result = await server.send(signedTx);
 
         // ⏳ Poll for confirmation if we have a hash
         const hash = result.hash || result.transactionHash;
         if (hash) {
+          const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
           await waitForConfirmation(hash, rpcUrl);
         }
 
@@ -299,9 +310,76 @@ export async function contractInvoke({
 
         console.log('✅ Passkey transaction signed and sent successfully');
         return result;
-      } catch (rpcError: any) {
-        console.error('❌ Direct RPC submission failed:', rpcError);
-        throw new Error(`Transaction failed: ${rpcError.message || rpcError}`);
+      } catch (launchtubeError: any) {
+        // Handle LaunchTube errors with better error messages
+        const errorMsg = launchtubeError?.error || launchtubeError?.message || JSON.stringify(launchtubeError);
+
+        // 🧪 REDUNDANCY FALLBACK: If LaunchTube fails with a network error, try direct RPC
+        const isNetworkError = errorMsg.includes('Failed to fetch') ||
+          errorMsg.includes('NetworkError') ||
+          errorMsg.includes('QUIC');
+        const isNotFoundError = errorMsg.includes('NOT_FOUND') ||
+          errorMsg.includes('not found');
+
+        if (isNetworkError || isNotFoundError) {
+          console.warn('⚠️ LaunchTube error detected, falling back to direct RPC submission...');
+          try {
+            const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
+            const result = await sendToRpcDirectly(signedTx, rpcUrl);
+
+            // ⏳ Poll for confirmation if we have a hash
+            const hash = result.hash || result.transactionHash;
+            if (hash) {
+              await waitForConfirmation(hash, rpcUrl);
+            }
+
+            console.log('✅ Fallback: Transaction submitted via direct RPC');
+
+            if (reconnectAfterTx) {
+              sorobanContext.connect();
+            }
+            return result;
+          } catch (rpcError: any) {
+            console.error('❌ Direct RPC fallback also failed:', rpcError);
+            throw new Error(`Transaction failed: ${errorMsg} (and direct RPC fallback failed: ${rpcError.message})`);
+          }
+        }
+
+        const isTimeBoundsError = errorMsg.includes('timeBounds') ||
+          errorMsg.includes('maxTime') ||
+          errorMsg.includes('too far') ||
+          errorMsg.includes('timeout');
+
+        console.error('❌ LaunchTube submission failed:', {
+          error: errorMsg,
+          isTimeBoundsError,
+          fullError: launchtubeError
+        });
+
+        if (isTimeBoundsError) {
+          throw new Error(
+            'Transaction timebounds are invalid. LaunchTube requires maxTime within 30 seconds. ' +
+            'This transaction was built with a 25-second timeout. If this error persists, ' +
+            'the transaction may need to be rebuilt with fresh timebounds.'
+          );
+        }
+
+        // Check for trustline/authorization errors
+        const isTrustlineError = errorMsg.includes('trustline') ||
+          errorMsg.includes('authorization') ||
+          errorMsg.includes('MissingValue') ||
+          errorMsg.includes('not authorized');
+
+        if (isTrustlineError) {
+          throw new Error(
+            'Recipient may not have authorized receiving this token. ' +
+            'For C-address (smart contract) wallets, the recipient needs to initialize their balance storage for this token first. ' +
+            'Please ensure the recipient has interacted with this token contract before sending.'
+          );
+        }
+
+        // Generic error
+        throw new Error(`Transaction submission failed: ${errorMsg}`);
       }
     } else {
       // Fallback: Traditional wallet signing path for other wallets or when no specific wallet is detected

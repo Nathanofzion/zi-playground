@@ -15,7 +15,7 @@ import { ColorModeButton, useColorModeValue } from "./ui/color-mode";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 const Header = () => {
-  const { address, disconnect, activeConnector } = useSorobanReact();
+  const { address, disconnect } = useSorobanReact();
   const {
     user,
     openAirdropModal,
@@ -44,20 +44,6 @@ const Header = () => {
   };
 
   const handleDisconnect = async () => {
-    // For PasskeyID, call our enhanced disconnect function first
-    if (activeConnector?.id === "passkey") {
-      console.log("🎯 Detected PasskeyID disconnect - calling enhanced disconnect...");
-      try {
-        // Call the wallet's disconnect directly to trigger our enhanced logic
-        if (activeConnector.disconnect) {
-          await activeConnector.disconnect();
-        }
-      } catch (error) {
-        console.error("❌ PasskeyID enhanced disconnect failed:", error);
-      }
-    }
-    
-    // Then call the standard SorobanReact disconnect
     disconnect();
   };
 

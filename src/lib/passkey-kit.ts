@@ -10,28 +10,11 @@ const passkeyKitOptions: any = {
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
   networkPassphrase: process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "Test SDF Network ; September 2015",
   walletWasmHash: process.env.NEXT_PUBLIC_WALLET_WASM_HASH || "",
-  // Explicitly disable factory contract for individual wallets
-  factoryContractId: null,
   // LaunchTube requires maxTime within 30 seconds, so use 25 for safety
   timeoutInSeconds: 25,
 };
 
-// Debug: Log the actual configuration values
-console.log('PasskeyKit configuration:', {
-  rpcUrl: passkeyKitOptions.rpcUrl,
-  networkPassphrase: passkeyKitOptions.networkPassphrase,
-  walletWasmHash: passkeyKitOptions.walletWasmHash ? passkeyKitOptions.walletWasmHash.substring(0, 16) + '...' : 'MISSING',
-  timeoutInSeconds: passkeyKitOptions.timeoutInSeconds,
-});
-
 export const account = new PasskeyKit(passkeyKitOptions);
-
-// Debug: Check what PasskeyKit actually initialized with
-console.log('🔍 PasskeyKit Account Properties:', {
-  walletPublicKey: (account as any).walletPublicKey ? (account as any).walletPublicKey.substring(0, 8) + '...' : 'NONE',
-  hasWallet: !!(account as any).wallet,
-  keyId: (account as any).keyId || 'NONE',
-});
 
 // Verify timeoutInSeconds was set
 if ((account as any).timeoutInSeconds !== 25) {
@@ -41,21 +24,25 @@ if ((account as any).timeoutInSeconds !== 25) {
 
 /**
  * PasskeyServer instance for server-side transaction submission
- * Since LaunchTube is discontinued, we use direct RPC submission
+ * Handles LaunchTube integration for gasless transactions
  */
 export const server = new PasskeyServer({
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
-  // No LaunchTube configuration - use direct RPC
+  relayerUrl: "https://channels.openzeppelin.com/testnet",
+  relayerApiKey: "11c48a9c-f9c0-4172-8eea-f89ae6a52a0a",
 });
 
 /**
- * Set transaction headers for additional metadata
- * @param token - Client token or other metadata
+ * Set LaunchTube headers for additional metadata
+ * @param token - Turnstile token or other client token
  */
-export function setTxHeaders(token: string) {
-  // Since LaunchTube is discontinued, we can use this for other purposes
-  // such as setting custom headers for direct RPC requests
-  console.log('Transaction headers set for direct RPC submission');
+export function setLTHeaders(token: string) {
+  // @ts-ignore - launchtubeHeaders exists but may not be in type definitions
+  server.launchtubeHeaders = {
+    'X-Client-Name': 'zi-playground',
+    'X-Client-Version': process.env.npm_package_version || '1.0.0',
+    'X-Turnstile-Response': token,
+  };
 }
 
 /**

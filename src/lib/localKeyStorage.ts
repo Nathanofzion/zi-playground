@@ -13,6 +13,14 @@ export interface WalletData {
   token?: string;
 }
 
+export interface PasskeyWalletEntry {
+  keyId: string;
+  contractId: string;
+  name: string;
+  created: number;
+  lastUsed: number;
+}
+
 export interface ConnectionStatus {
   isConnected: boolean;
   walletType?: string;
@@ -24,6 +32,73 @@ export class LocalKeyStorage {
   private static readonly USER_KEY = 'zi_user_data';
   private static readonly WALLET_KEY = 'zi_wallet_data';
   private static readonly TOKEN_KEY = 'zi_auth_token';
+  private static readonly PASSKEY_WALLETS_KEY = 'zi_passkey_wallets';
+  private static readonly ACTIVE_WALLET_INDEX_KEY = 'zi_active_wallet_index';
+
+  static getPasskeyWallets(): PasskeyWalletEntry[] {
+    try {
+      const data = localStorage.getItem(this.PASSKEY_WALLETS_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('Failed to get passkey wallets:', error);
+      return [];
+    }
+  }
+  static savePasskeyWallets(wallets: PasskeyWalletEntry[]): void {
+    try {
+      localStorage.setItem(this.PASSKEY_WALLETS_KEY, JSON.stringify(wallets));
+    } catch (error) {
+      console.error('Failed to save passkey wallets:', error);
+    }
+  }
+  static addPasskeyWallet(wallet: PasskeyWalletEntry): void {
+    const wallets = this.getPasskeyWallets();
+    // Check if already exists
+    const existingIndex = wallets.findIndex(w => w.keyId === wallet.keyId);
+    if (existingIndex >= 0) {
+        wallets[existingIndex] = wallet;
+    } else {
+        wallets.push(wallet);
+    }
+    this.savePasskeyWallets(wallets);
+  }
+  static removePasskeyWallet(keyId: string): void {
+     const wallets = this.getPasskeyWallets();
+     const newWallets = wallets.filter(w => w.keyId !== keyId);
+     this.savePasskeyWallets(newWallets);
+     
+     // Adjust active index if needed
+     let activeIndex = this.getActiveWalletIndex();
+     if (activeIndex >= newWallets.length) {
+         this.setActiveWalletIndex(Math.max(0, newWallets.length - 1));
+     }
+  }
+  static getActiveWalletIndex(): number {
+    try {
+        const index = localStorage.getItem(this.ACTIVE_WALLET_INDEX_KEY);
+        return index ? parseInt(index, 10) : 0;
+    } catch {
+        return 0;
+    }
+  }
+  static setActiveWalletIndex(index: number): void {
+      localStorage.setItem(this.ACTIVE_WALLET_INDEX_KEY, index.toString());
+  }
+  
+  static updateWalletLastUsed(index: number): void {
+      const wallets = this.getPasskeyWallets();
+      if (wallets[index]) {
+          wallets[index].lastUsed = Date.now();
+          this.savePasskeyWallets(wallets);
+      }
+  }
+  static getActiveWallet(): PasskeyWalletEntry | null {
+      const wallets = this.getPasskeyWallets();
+      if (wallets.length === 0) return null;
+      const index = this.getActiveWalletIndex();
+      return wallets[index] || wallets[0];
+  }
+  // Deprecated direct single-value sets, but kept for compatibility or used as "current session"
 
   // User data methods
   static storeUser(userData: UserData): void {
@@ -187,6 +262,10 @@ export class LocalKeyStorage {
 
   static getPasskeyKeyId(): string | null {
     try {
+
+      const active = this.getActiveWallet();
+      if (active) return active.keyId;
+
       return localStorage.getItem(this.PASSKEY_KEYID_KEY);
     } catch (error) {
       console.error('Failed to get passkey keyId:', error);
@@ -205,6 +284,11 @@ export class LocalKeyStorage {
 
   static getPasskeyContractId(): string | null {
     try {
+
+      // Prefer active wallet from list
+      const active = this.getActiveWallet();
+      if (active) return active.contractId;
+
       return localStorage.getItem(this.PASSKEY_CONTRACT_ID_KEY);
     } catch (error) {
       console.error('Failed to get passkey contractId:', error);

@@ -96,6 +96,7 @@ const SwapModal: FC<ModalProps> = (props) => {
         type: "success",
       });
       setAmount1("0");
+      setAmount2("0");
     } catch (err) {
       console.error('Swap error:', err);
       toaster.create({

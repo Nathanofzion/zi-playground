@@ -1,7 +1,7 @@
 # Soroswap Integration Status - Milestone 3 Update
 
 > **Status:** Milestone 3 Complete  
-> **Date:** January 30, 2026  
+> **Date:** February 5, 2026  
 > **Scope:** DEX Functionality, Protocol Updates, and Frontend Integration
 
 ---
@@ -55,8 +55,16 @@ Everything is now working end-to-end: **pool creation, liquidity management, swa
 
 ---
 
-## ⚠️ IMPORTANT NOTE
+## 🔐 PASSKEY WALLET & RELAYER INTEGRATION
 
-> **Notice:** Due to recent protocol changes on the Stellar network, transaction signing via **PASSKEY-KIT** is currently experiencing issues. The development team is aware of the situation and is actively working on a comprehensive fix to restore smart wallet signing functionality.
+We have resolved the critical issues affecting passkey-signed transactions and improved the reliability of our transaction relay infrastructure.
+
+*   **Issue Identified**: We encountered a critical issue where **LaunchTube** (the default transaction relay service in `passkey-kit`) was failing to process passkey-signed transactions. The service was rejecting transactions due to strict timebounds validation, preventing users from successfully completing wallet operations.
+*   **Solutions Implemented**:
+    *   **Upgraded to Latest passkey-kit**: Updated to the most recent version to ensure compatibility and access to the latest features and bug fixes.
+    *   **Migrated to OpenZeppelin Relayer**: Switched from LaunchTube to OpenZeppelin's relayer service with proper API key authentication. This provides more reliable transaction submission and better error handling.
+    *   **Fixed Transaction Double-Preparation Bug**: Resolved an issue in the `soroban-react` contractInvoke flow where transactions were being prepared twice before signing, causing unnecessary overhead and potential race conditions.
+    *   **Implemented Fallback Strategy**: Added direct RPC submission as a backup when relayer services are unavailable, ensuring maximum reliability for users.
+*   **Current Status**: All passkey wallet operations (creation, recovery, and transaction signing) are now functioning correctly. Users can create multiple named wallets, switch between them, and sign transactions without interruption.
 
 ---

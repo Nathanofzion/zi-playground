@@ -11,8 +11,8 @@ const mercuryJwt = process.env.MERCURY_JWT!;
 
 export const server = new PasskeyServer({
     rpcUrl,
-    launchtubeUrl,
-    launchtubeJwt,
+    relayerUrl: "https://channels.openzeppelin.com/testnet",
+    relayerApiKey: "11c48a9c-f9c0-4172-8eea-f89ae6a52a0a",
     mercuryProjectName,
     mercuryUrl,
     mercuryJwt,

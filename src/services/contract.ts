@@ -1,20 +1,20 @@
 import { SorobanContextType } from "@soroban-react/core";
+// Γ¥î REMOVED: import { nativeToScVal, scValToNative, xdr } from "@stellar/stellar-sdk";
 
 import { IAsset } from "@/interfaces";
 import { contractInvoke } from "@/lib/contract-fe";
 import { accountToScVal, scValToNumber } from "@/utils";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import zionToken from "@/constants/zionToken";
-import nativeToken from "@/constants/nativeToken";
 import { signTransaction } from '@stellar/freighter-api';
 
 const airdropContractId = process.env.NEXT_PUBLIC_AIRDROP_CONTRACT_ID!;
 
 const CONFIG = {
-    NETWORK: 'testnet',
-    HORIZON_URL: 'https://horizon-testnet.stellar.org',
-    NETWORK_PASSPHRASE: StellarSdk.Networks.TESTNET,
-    TOKEN_CODE: 'ZITOKEN',
+  NETWORK: 'testnet',
+  HORIZON_URL: 'https://horizon-testnet.stellar.org',
+  NETWORK_PASSPHRASE: StellarSdk.Networks.TESTNET,
+  TOKEN_CODE: 'ZITOKEN',
 };
 
 // Γ£à API-based conversion functions
@@ -23,10 +23,10 @@ async function nativeToScVal(value: any, options?: { type?: string }) {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'nativeToScVal', 
+      body: JSON.stringify({
+        operation: 'nativeToScVal',
         value,
-        options 
+        options
       })
     });
 
@@ -48,9 +48,9 @@ async function scValToNative(scVal: any) {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'scValToNative', 
-        scVal 
+      body: JSON.stringify({
+        operation: 'scValToNative',
+        scVal
       })
     });
 
@@ -72,8 +72,8 @@ async function createScValU32(value: number) {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'nativeToScVal', 
+      body: JSON.stringify({
+        operation: 'nativeToScVal',
         value,
         options: { type: 'u32' }
       })
@@ -96,7 +96,7 @@ export async function tokenBalance(
   sorobanContext: SorobanContextType,
   tokenAddress: string
 ) {
-  const { address , activeChain , activeConnector } = sorobanContext;
+  const { address, activeChain, activeConnector } = sorobanContext;
 
   if (!address || !activeChain) {
     throw new Error("Wallet is not connected yet.");
@@ -105,60 +105,10 @@ export async function tokenBalance(
   const walletName = activeConnector?.name?.toLowerCase() || '';
   const networkPassphrase = activeChain.networkPassphrase!;
   const isZionToken = tokenAddress === zionToken.contract;
-  const isPasskeyWallet = walletName.includes('passkey') || activeConnector?.id === 'passkey';
-  
-  console.log('🔍 Balance check:', {
-    tokenAddress: tokenAddress.substring(0, 8) + '...',
-    userAddress: address.substring(0, 8) + '...',
-    wallet: walletName,
-    isPasskey: isPasskeyWallet,
-    isZionToken
-  });
 
   try {
     // Convert the user's address to proper ScVal format
     const accountScVal = new StellarSdk.Address(address).toScVal();
-
-    // For PasskeyKit wallets checking native XLM, we need to check the underlying Stellar account
-    // instead of the contract address
-    if (isPasskeyWallet && tokenAddress === nativeToken.contract) {
-      console.log('🔑 PasskeyKit wallet detected - getting underlying Stellar account for balance check');
-      
-      // Try to get the underlying G-address from the PasskeyKit wallet
-      let stellarAccount = address; // Default to contract address
-      
-      try {
-        // Check if we can get the underlying account from PasskeyKit
-        const { account } = await import('../lib/passkey-kit');
-        if (account.wallet) {
-          const underlyingAccount = await account.wallet.getPublicKey();
-          if (underlyingAccount && underlyingAccount.startsWith('G')) {
-            stellarAccount = underlyingAccount;
-            console.log('🎯 Found underlying Stellar account:', stellarAccount.substring(0, 8) + '...');
-          }
-        }
-      } catch (e) {
-        console.log('📝 Using contract address (could not get underlying account)');
-      }
-      
-      try {
-        // Wait a moment for account funding if it's very new
-        console.log('⏳ Checking if wallet needs time for funding...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Check the native XLM balance of the underlying Stellar account
-        const server = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
-        console.log('🔍 Loading account from Horizon:', stellarAccount.substring(0, 8) + '...');
-        const accountData = await server.loadAccount(stellarAccount);
-        const nativeBalance = accountData.balances.find(b => b.asset_type === 'native');
-        const balance = nativeBalance ? parseFloat(nativeBalance.balance) : 0;
-        console.log('💰 Native XLM balance from Horizon:', balance, 'XLM');
-        return balance * Math.pow(10, 7); // Convert to stroops
-      } catch (horizonError: any) {
-        console.warn('⚠️ Horizon balance check failed, falling back to contract method:', horizonError.message);
-        // Fall through to standard contract method
-      }
-    }
 
     // First, try to get balance directly
     try {
@@ -169,20 +119,20 @@ export async function tokenBalance(
         sorobanContext,
       });
 
-      console.log("Response From Get Balance : ",response);
+      console.log("Response From Get Balance : ", response);
       return scValToNumber(response);
     } catch (balanceError: any) {
       // If balance call fails with trustline error and it's ZITOKEN, create trustline
-      const isTrustlineError = balanceError?.message?.includes("trustline") || 
-                                balanceError?.message?.includes("Contract, #13") ||
-                                balanceError?.message?.includes("trustline entry is missing");
-      
+      const isTrustlineError = balanceError?.message?.includes("trustline") ||
+        balanceError?.message?.includes("Contract, #13") ||
+        balanceError?.message?.includes("trustline entry is missing");
+
       if (isTrustlineError && isZionToken) {
-        console.log('ΓÜá∩╕Å Trustline missing for ZITOKEN, creating trustline...');
-        
+        console.log('⚠️ Trustline missing for ZITOKEN, creating trustline...');
+
         const server = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
         const account = await server.loadAccount(address);
-        
+
         // Check if trustline already exists in Horizon (might be a contract trustline issue)
         const trustline = account.balances.find(balance =>
           balance.asset_type !== 'native' &&
@@ -202,7 +152,7 @@ export async function tokenBalance(
             .addOperation(
               StellarSdk.Operation.changeTrust({
                 asset: asset,
-                limit: "1000000000" 
+                limit: "1000000000"
               })
             )
             .setTimeout(StellarSdk.TimeoutInfinite)
@@ -211,17 +161,17 @@ export async function tokenBalance(
           let signedTransaction: StellarSdk.Transaction;
 
           // Check for Passkey wallet first (by ID or name)
-          const isPasskey = activeConnector?.id === 'passkey' || 
-                            walletName.includes('passkey') || 
-                            walletName.includes('passkeyid');
+          const isPasskey = activeConnector?.id === 'passkey' ||
+            walletName.includes('passkey') ||
+            walletName.includes('passkeyid');
 
-          console.log("Active Connector At Trustline : ",activeConnector);
-          
-          
+          console.log("Active Connector At Trustline : ", activeConnector);
+
+
           if (isPasskey) {
             // Support Passkey wallet for trustline creation
-            console.log('≡ƒöÉ Signing trustline transaction with Passkey...');
-            
+            console.log('🔐 Signing trustline transaction with Passkey...');
+
             if (!activeConnector?.signTransaction) {
               throw new Error("Passkey connector does not support transaction signing. Please reconnect your wallet.");
             }
@@ -234,7 +184,7 @@ export async function tokenBalance(
 
               // Handle different return formats from Passkey
               let signedXdrString: string;
-              
+
               if (typeof signedResult === 'string') {
                 signedXdrString = signedResult;
               } else if (signedResult && typeof signedResult === 'object') {
@@ -280,11 +230,11 @@ export async function tokenBalance(
               signedResponse.signedTxXdr,
               networkPassphrase
             ) as StellarSdk.Transaction;
-            console.log('Γ£à Trustline transaction signed with Freighter');
-          } else if(walletName.includes('lobstr')){
+            console.log('✅ Trustline transaction signed with Freighter');
+          } else if (walletName.includes('lobstr')) {
             // Support Lobstr wallet for trustline creation
-            console.log('≡ƒöÉ Signing trustline transaction with Lobstr...');
-            
+            console.log('🔐 Signing trustline transaction with Lobstr...');
+
             if (!activeConnector?.signTransaction) {
               throw new Error("Lobstr connector does not support transaction signing. Please reconnect your wallet.");
             }
@@ -301,7 +251,7 @@ export async function tokenBalance(
 
               // Handle different return formats from Lobstr
               let signedXdrString: string;
-              
+
               if (typeof signedResult === 'string') {
                 signedXdrString = signedResult;
               } else if (signedResult && typeof signedResult === 'object') {
@@ -337,7 +287,7 @@ export async function tokenBalance(
               throw new Error(`Failed to sign trustline transaction with Lobstr: ${error.message || error}`);
             }
           }
-          else{
+          else {
             throw new Error(`Unsupported wallet connector: ${walletName || activeConnector?.id || 'unknown'}. Only Freighter and Passkey are currently supported for trustline creation.`);
           }
 
@@ -358,7 +308,7 @@ export async function tokenBalance(
             sorobanContext,
           });
 
-          console.log("Response From Get Balance After Trustline : ",response);
+          console.log("Response From Get Balance After Trustline : ", response);
           return scValToNumber(response);
         } else {
           // Trustline exists in Horizon but contract says it doesn't - might be contract trustline issue
@@ -405,7 +355,7 @@ export const getAirdropStatus = async (
     const accountScVal = StellarSdk.xdr.ScVal.fromXDR(
       Buffer.from(accountScValBase64, 'base64')
     );
-    
+
     // createScValU32 returns base64 XDR string; convert to ScVal for contractInvoke
     const actionScValBase64 = await createScValU32(action);
     const actionScVal = StellarSdk.xdr.ScVal.fromXDR(
@@ -422,88 +372,17 @@ export const getAirdropStatus = async (
     return await scValToNative(response as any);
   } catch (error: any) {
     // Handle MissingValue error gracefully - means action hasn't been performed yet
-    if (error?.message?.includes("Storage, MissingValue") || 
-        error?.message?.includes("MissingValue") ||
-        error?.message?.includes("trying to get non-existing value")) {
+    if (error?.message?.includes("Storage, MissingValue") ||
+      error?.message?.includes("MissingValue") ||
+      error?.message?.includes("trying to get non-existing value")) {
       // Return false instead of throwing - this is expected for new users/actions
       return false;
     }
-    
+
     // Log other errors but don't crash the app
     console.warn('Airdrop status check failed:', error?.message || error);
     // Return false for any other errors too - better UX than crashing
     return false;
-  }
-};
-
-/**
- * Creates a Stellar account by sending native XLM (minimum 1 XLM required)
- * @param sorobanContext - The soroban context containing wallet details
- * @param destinationId - The public key of the account to create
- * @param startingBalance - The initial XLM balance (default 2 XLM)
- */
-export const createStellarAccount = async (
-  sorobanContext: SorobanContextType,
-  destinationId: string,
-  startingBalance: string = "2"
-) => {
-  const { address } = sorobanContext;
-
-  if (!address) {
-    throw new Error("Wallet is not connected yet.");
-  }
-
-  console.log(`Creating account for ${destinationId} with ${startingBalance} XLM`);
-
-  try {
-    // Create Horizon server using the same pattern as other functions
-    const server = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
-    
-    // Load source account
-    const sourceAccount = await server.loadAccount(address);
-    
-    // Create the account creation transaction
-    const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
-      fee: StellarSdk.BASE_FEE,
-      networkPassphrase: CONFIG.NETWORK_PASSPHRASE
-    })
-      .addOperation(StellarSdk.Operation.createAccount({
-        destination: destinationId,
-        startingBalance: startingBalance
-      }))
-      .setTimeout(300)
-      .build();
-
-    console.log('Account creation transaction created, signing and sending...');
-    
-    // Use the existing signing pattern from the codebase
-    const activeConnectorId = sorobanContext.activeConnector?.id;
-    const isPasskeyWallet = activeConnectorId === 'passkey';
-    
-    if (isPasskeyWallet) {
-      // For PasskeyKit wallets, we need to use their signing method
-      const { account } = await import('@/lib/passkey-kit');
-      const signedTransaction = await account.signTransaction(transaction);
-      
-      // Submit the signed transaction
-      const result = await server.submitTransaction(signedTransaction);
-      console.log('✅ Account creation successful:', result);
-      return result;
-    } else {
-      // For other wallet types (Freighter, etc.)
-      const signedTransaction = await signTransaction(transaction.toXDR(), {
-        networkPassphrase: CONFIG.NETWORK_PASSPHRASE,
-        accountToSign: address,
-      });
-      
-      const txFromXdr = StellarSdk.TransactionBuilder.fromXDR(signedTransaction, CONFIG.NETWORK_PASSPHRASE);
-      const result = await server.submitTransaction(txFromXdr);
-      console.log('✅ Account creation successful:', result);
-      return result;
-    }
-  } catch (error: any) {
-    console.error('❌ Account creation failed:', error);
-    throw error;
   }
 };
 
@@ -530,26 +409,26 @@ export const sendAsset = async (
     const recipientScVal = StellarSdk.xdr.ScVal.fromXDR(
       Buffer.from(recipientScValBase64, 'base64')
     );
-    
+
     // Validate ScVal objects have proper switch method
     if (typeof senderScVal.switch !== 'function' || typeof recipientScVal.switch !== 'function') {
       throw new Error('Invalid ScVal: sender or recipient ScVal is not properly constructed');
     }
-    
+
     // Convert amount to proper i128 format (handle large numbers as string)
     const amountInSmallestUnit = amount * Math.pow(10, asset.decimals);
     // Convert to string to preserve precision for large numbers
     const amountString = amountInSmallestUnit.toString();
-    
+
     // nativeToScVal returns base64 XDR string, need to parse to ScVal object for contractInvoke
     const amountScValBase64 = await nativeToScVal(
-      amountString, 
+      amountString,
       { type: "i128" }
     );
     const amountScVal = StellarSdk.xdr.ScVal.fromXDR(
       Buffer.from(amountScValBase64, 'base64')
     );
-    
+
     // Validate amount ScVal
     if (typeof amountScVal.switch !== 'function') {
       throw new Error('Invalid ScVal: amount ScVal is not properly constructed');
@@ -559,8 +438,8 @@ export const sendAsset = async (
     const isRecipientCAddress = recipient.startsWith('C');
     const walletType = sorobanContext.activeConnector?.id || '';
     const isSenderPasskey = walletType === 'passkey';
-    
-    console.log('≡ƒôñ Sending transfer transaction:', {
+
+    console.log('📤 Sending transfer transaction:', {
       contract: asset.contract,
       sender: address.substring(0, 8) + '...',
       recipient: recipient.substring(0, 8) + '...',
@@ -570,31 +449,7 @@ export const sendAsset = async (
       isRecipientCAddress,
       isSenderPasskey
     });
-    // 🔧 Check if recipient account exists (for G-addresses)
-    console.log(`🔍 Checking recipient type - starts with G: ${recipient.startsWith('G')}, recipient: ${recipient.substring(0, 8)}...`);
-    
-    if (recipient.startsWith('G')) {
-      console.log('🔍 Checking if recipient account exists...');
-      try {
-        const horizonResponse = await fetch(`https://horizon-testnet.stellar.org/accounts/${recipient}`);
-        console.log(`🌐 Horizon response status: ${horizonResponse.status}`);
-        
-        if (horizonResponse.status === 404) {
-          console.log('❌ Recipient account does not exist - creating account first');
-          
-          // Create account with minimum 2 XLM
-          await createStellarAccount(sorobanContext, recipient);
-          
-          console.log('✅ Account created successfully');
-        } else if (horizonResponse.ok) {
-          console.log('✅ Recipient account already exists');
-        } else {
-          console.warn('⚠️ Could not verify account existence, proceeding with transfer');
-        }
-      } catch (checkError) {
-        console.warn('⚠️ Account existence check failed, proceeding with transfer:', checkError);
-      }
-    }
+
     // ΓÜá∩╕Å IMPORTANT: For C-address recipients, they need to have initialized their balance storage
     // This is typically done automatically on first receive, but we should handle errors gracefully
     if (isRecipientCAddress && !isSenderPasskey) {
@@ -629,13 +484,13 @@ export const sendAsset = async (
       stack: error.stack,
       error: error
     });
-    
+
     // Provide more helpful error messages for common issues
     const errorMsg = error?.message || error?.error || JSON.stringify(error);
-    
+
     // Check for trustline/authorization errors for C-address recipients
     if (recipient.startsWith('C') && (
-      errorMsg.includes('trustline') || 
+      errorMsg.includes('trustline') ||
       errorMsg.includes('authorization') ||
       errorMsg.includes('MissingValue') ||
       errorMsg.includes('not authorized') ||
@@ -647,7 +502,7 @@ export const sendAsset = async (
         `Original error: ${errorMsg}`
       );
     }
-    
+
     // Check for timebounds errors
     if (errorMsg.includes('timeBounds') || errorMsg.includes('maxTime') || errorMsg.includes('too far')) {
       throw new Error(
@@ -655,7 +510,7 @@ export const sendAsset = async (
         `Original error: ${errorMsg}`
       );
     }
-    
+
     throw error;
   }
 };
@@ -720,7 +575,7 @@ export const approveToken = async (
     const spenderScVal = StellarSdk.xdr.ScVal.fromXDR(
       Buffer.from(spenderScValBase64, 'base64')
     );
-    
+
     const amountScVal = await nativeToScVal(
       amount * Math.pow(10, decimals),
       { type: "i128" }
