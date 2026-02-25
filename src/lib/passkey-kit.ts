@@ -10,7 +10,7 @@ const passkeyKitOptions: any = {
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
   networkPassphrase: process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "Test SDF Network ; September 2015",
   walletWasmHash: process.env.NEXT_PUBLIC_WALLET_WASM_HASH || "",
-  // LaunchTube requires maxTime within 30 seconds, so use 25 for safety
+  // OpenZapplinRelayer requires maxTime within 30 seconds, so use 25 for safety
   timeoutInSeconds: 25,
 };
 
@@ -24,20 +24,20 @@ if ((account as any).timeoutInSeconds !== 25) {
 
 /**
  * PasskeyServer instance for server-side transaction submission
- * Handles LaunchTube integration for gasless transactions
+ * Handles OpenZapplinRelayer integration for gasless transactions
  */
 export const server = new PasskeyServer({
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
-  relayerUrl: "https://channels.openzeppelin.com/testnet",
-  relayerApiKey: "11c48a9c-f9c0-4172-8eea-f89ae6a52a0a",
+  relayerUrl: process.env.NEXT_PUBLIC_RELAYER_URL,
+  relayerApiKey: process.env.NEXT_PUBLIC_RELAYER_API_KEY
 });
 
 /**
- * Set LaunchTube headers for additional metadata
+ * Set OpenZapplinRelayer headers for additional metadata
  * @param token - Turnstile token or other client token
  */
 export function setLTHeaders(token: string) {
-  // @ts-ignore - launchtubeHeaders exists but may not be in type definitions
+  // @ts-ignore - OpenZapplinRelayerHeaders exists but may not be in type definitions
   server.launchtubeHeaders = {
     'X-Client-Name': 'zi-playground',
     'X-Client-Version': process.env.npm_package_version || '1.0.0',

@@ -9,7 +9,7 @@ import { getStoredWallets } from "./walletManager";
 const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID || "";
 
 /**
- * Alternative server send that bypasses LaunchTube's strict timebounds
+ * Alternative server send that bypasses OpenZapplinRelayer's strict timebounds
  */
 const sendToRpcDirectly = async (signedTx: any, rpcUrl: string) => {
   // Get XDR from AssembledTransaction or Transaction
@@ -234,13 +234,13 @@ async function initializeZionTokenTrustline(contractId: string, keyId: string) {
       // Sign with passkey
       const signedTx = await account.sign(preparedTx as any, { keyId });
 
-      // Send via PasskeyServer (LaunchTube)
+      // Send via PasskeyServer (OpenZapplinRelayer)
       try {
         await server.send(signedTx);
         console.log('ZION token balance initialization transaction submitted successfully');
       } catch (sendError: any) {
-        // If LaunchTube fails, try direct RPC
-        console.warn('LaunchTube submission failed, trying direct RPC...');
+        // If OpenZapplinRelayer fails, try direct RPC
+        console.warn('OpenZapplinRelayer submission failed, trying direct RPC...');
         const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
         await sendToRpcDirectly(signedTx, rpcUrl);
         console.log('ZION token balance initialization submitted via direct RPC');
@@ -330,6 +330,14 @@ const passkey = () => {
         if (storedKeyId && storedContractId) {
           console.log('Found stored passkey session, reconnecting without WebAuthn prompt...');
           setPasskeyStatus(null);
+
+          const connectResult: any = await connectWithFactory();
+  
+          // Verify the returned keyId matches what we expect
+          if (connectResult.keyIdBase64 !== storedKeyId) {
+            throw new Error('Wrong passkey used. Please select the correct credential.');
+          }
+
           ensureLocalSession(storedContractId, storedKeyId);
           return storedContractId;
         }
@@ -408,17 +416,17 @@ const passkey = () => {
         console.log('Submitting wallet creation transaction...');
 
         try {
-          // Try LaunchTube first
-          console.log('Attempting submission via LaunchTube...');
+          // Try OpenZapplinRelayer first
+          console.log('Attempting submission via OpenZapplinRelayer...');
           await server.send(signedTx);
-          console.log('Wallet creation transaction submitted via LaunchTube');
-        } catch (launchtubeError: any) {
-          const errorMsg = launchtubeError?.error || launchtubeError?.message || '';
+          console.log('Wallet creation transaction submitted via OpenZapplinRelayer');
+        } catch (OpenZapplinRelayerError: any) {
+          const errorMsg = OpenZapplinRelayerError?.error || OpenZapplinRelayerError?.message || '';
           const isTimeBoundsError = errorMsg.includes('timeBounds') ||
             errorMsg.includes('maxTime') ||
             errorMsg.includes('too far');
 
-          console.warn('LaunchTube submission failed:', errorMsg);
+          console.warn('OpenZapplinRelayer submission failed:', errorMsg);
 
           if (isTimeBoundsError) {
             console.log('Timebounds error detected. Ensure timeoutInSeconds is 25 seconds.');
@@ -450,7 +458,7 @@ const passkey = () => {
               console.error('Contract not found on-chain');
               throw new Error(
                 'Failed to deploy wallet contract. This is likely due to transaction timebounds being too far in the future. ' +
-                'LaunchTube requires maxTime within 30 seconds. ' +
+                'OpenZapplinRelayer requires maxTime within 30 seconds. ' +
                 'Please ensure passkey-kit is configured with timeoutInSeconds: 25'
               );
             }
@@ -547,7 +555,7 @@ const passkey = () => {
         network?: string;
         networkPassphrase?: string;
         accountToSign?: string;
-        submitToLaunchTube?: boolean;
+        submitToOpenZapplinRelayer?: boolean;
       }
     ) => {
       console.log('Signing transaction with PasskeyID (C-address)...');
@@ -595,7 +603,7 @@ const contractId = activeWallet.contractId;
         // // Sign with passkey (triggers WebAuthn authentication)
         const signedTx = await account.sign(transaction as any, { keyId });
 
-        const shouldSubmit = opts?.submitToLaunchTube !== false;
+        const shouldSubmit = opts?.submitToOpenZapplinRelayer !== false;
         if (shouldSubmit) {
           console.log('Submitting transaction via PasskeyServer...');
           await server.send(signedTx);
@@ -656,11 +664,11 @@ const contractId = activeWallet.contractId;
         
         try {
           await server.send(signedTx);
-          console.log('Wallet creation transaction submitted via LaunchTube');
-        } catch (launchtubeError: any) {
+          console.log('Wallet creation transaction submitted via OpenZapplinRelayer');
+        } catch (OpenZapplinRelayerError: any) {
              // ... duplicate existing fallback logic or refactor to shared ...
              // For brevity, using simplified fallback here or assume shared
-             console.warn('LaunchTube submission failed, trying direct RPC...');
+             console.warn('OpenZapplinRelayer submission failed, trying direct RPC...');
              const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
              await sendToRpcDirectly(signedTx, rpcUrl);
         }

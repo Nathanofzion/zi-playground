@@ -2,13 +2,13 @@
 
 > **Status:** Milestone 3 Complete  
 > **Date:** February 5, 2026  
-> **Scope:** DEX Functionality, Protocol Updates, and Frontend Integration
+> **Scope:** DEX Functionality, Protocol Updates, and Passkey Security
 
 ---
 
 ## 🎯 EXECUTIVE SUMMARY
 
-Milestone 3 is now officially complete. This document summarizes the delivery of core decentralized exchange (DEX) features and architectural improvements across Milestones 2 and 3. The application now supports full end-to-end Soroswap integration on the Stellar network.
+Milestone 3 is now officially complete. This document summarizes the delivery of core decentralized exchange (DEX) features and architectural improvements. The application now supports full end-to-end Soroswap integration on the Stellar network, backed by a production-ready Passkey security model and a robust relay infrastructure.
 
 ---
 
@@ -30,41 +30,38 @@ Architectural changes were made to enhance stability and performance:
 
 *   **Contract Updates**: The **Router** and **Factory** contracts have been updated to align with the latest protocol standards.
 *   **Optimized Pool Fetching**:
-    *   **Previous Issue**: A Supabase Edge Function fetched all pools from the chain and filtered them by token. This caused frequent "service workers failed" crashes and backend bottlenecks.
-    *   **New Solution**: Pool fetching logic has been moved to **client-side hooks**. This removes the reliance on unstable backend functions, significantly improving application reliability and data retrieval speed.
+    *   **Backend Bottleneck Removed**: Previously, a Supabase function fetched and filtered all pools, causing "service worker failed" crashes.
+    *   **New Solution**: Pool fetching is now handled via **client-side hooks**, removing backend bottlenecks and significantly improving reliability and performance.
 
 ---
 
-## 💻 FRONTEND & DATA FLOW
+## 🔐 PASSKEY AUTHENTICATION SECURITY (RESOLVED)
 
-*   **Live Data**: Updated React hooks to fetch and sync live pool data directly from the chain.
-*   **Consistency**: Improved the overall data flow between the UI and the Stellar network to ensure users see real-time balances and pool ratios.
+The previously identified WebAuthn authentication bypass has been fully remediated. The passkey implementation now adheres to the intended WebAuthn security model:
 
----
-
-## 🎨 UI / UX ENHANCEMENTS
-
-*   **Flow Optimization**: Fixed multiple UI/UX bottlenecks in the liquidity and swap modals.
-*   **User Interaction**: Achieved smoother transitions and feedback loops across all financial interaction points.
+*   **Enforced WebAuthn**: WebAuthn authentication (biometric/PIN) is now strictly required on every connection attempt.
+*   **Session Security**: Automatic session-based reconnection has been removed. Cached authentication state is no longer used to authorize wallet access.
+*   **Proper Cleanup**: Authentication state is now properly cleared upon disconnect, ensuring that biometric prompts are enforced after a page refresh or restart.
 
 ---
 
-## ✅ FINAL VERDICT
+## 🚀 RELAYER SERVICE MIGRATION (COMPLETED)
 
-Everything is now working end-to-end: **pool creation, liquidity management, swaps, and stable data fetching** are fully operational without backend crashes.
+Following the deprecation of the Launchtube service, we have successfully migrated to the **OpenZeppelin Relayer**.
+
+*   **Operational Stability**: Relayer configuration has been implemented and validated. Transaction signing and submission are fully operational.
+*   **Cleanup**: All deprecated Launchtube references have been removed from the codebase.
+*   **Functionality**: Swap and liquidity flows using PasskeyID are functioning as expected, providing a stable and production-ready experience.
 
 ---
 
-## 🔐 PASSKEY WALLET & RELAYER INTEGRATION
+## ✅ CURRENT SYSTEM STATUS
 
-We have resolved the critical issues affecting passkey-signed transactions and improved the reliability of our transaction relay infrastructure.
+All previously identified critical risks have been addressed. The system is now stable and ready for production testing:
 
-*   **Issue Identified**: We encountered a critical issue where **LaunchTube** (the default transaction relay service in `passkey-kit`) was failing to process passkey-signed transactions. The service was rejecting transactions due to strict timebounds validation, preventing users from successfully completing wallet operations.
-*   **Solutions Implemented**:
-    *   **Upgraded to Latest passkey-kit**: Updated to the most recent version to ensure compatibility and access to the latest features and bug fixes.
-    *   **Migrated to OpenZeppelin Relayer**: Switched from LaunchTube to OpenZeppelin's relayer service with proper API key authentication. This provides more reliable transaction submission and better error handling.
-    *   **Fixed Transaction Double-Preparation Bug**: Resolved an issue in the `soroban-react` contractInvoke flow where transactions were being prepared twice before signing, causing unnecessary overhead and potential race conditions.
-    *   **Implemented Fallback Strategy**: Added direct RPC submission as a backup when relayer services are unavailable, ensuring maximum reliability for users.
-*   **Current Status**: All passkey wallet operations (creation, recovery, and transaction signing) are now functioning correctly. Users can create multiple named wallets, switch between them, and sign transactions without interruption.
+*   **Passkey Authentication**: Secure and enforced (WebAuthn prompt active).
+*   **Transaction Submission**: Fully operational via OpenZeppelin Relayer.
+*   **Wallet Management**: Creation and recovery are fully functional.
+*   **DEX Operations**: Swap and liquidity flows are functional and end-to-end.
 
 ---

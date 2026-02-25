@@ -6,7 +6,7 @@ import { account, server, initializeWallet } from "./passkey-kit";
 import { getStoredWallets } from "./walletManager";
 
 /**
- * Alternative server send that bypasses LaunchTube when it fails with network errors
+ * Alternative server send that bypasses OpenZapplinRelayer when it fails with network errors
  * (e.g. net::ERR_QUIC_PROTOCOL_ERROR)
  */
 const sendToRpcDirectly = async (signedTx: any, rpcUrl: string) => {
@@ -170,9 +170,9 @@ export async function contractInvoke({
   //Builds the transaction
   // NOTE: Soroban transactions (Protocol 23+) do NOT support memos
   // Adding a memo to a Soroban transaction will cause: "non-source auth Soroban tx uses memo or mixed source account"
-  // ⚠️ CRITICAL: Use proper timeout (25 seconds) instead of TimeoutInfinite for LaunchTube compatibility
-  // LaunchTube requires maxTime within 30 seconds, so use 25 for safety
-  // Use the parameter value but cap at 25 for LaunchTube compatibility
+  // ⚠️ CRITICAL: Use proper timeout (25 seconds) instead of TimeoutInfinite for OpenZapplinRelayer compatibility
+  // OpenZapplinRelayer requires maxTime within 30 seconds, so use 25 for safety
+  // Use the parameter value but cap at 25 for OpenZapplinRelayer compatibility
   const txTimeout = Math.min(timeoutSeconds || 25, 25);
   let tx = new StellarSdk.TransactionBuilder(source, {
     fee: "100",
@@ -292,7 +292,7 @@ const contractId = activeWallet.contractId;
       console.log('🔑 Prompting for passkey authentication (biometric/PIN)...');
       const signedTx = await account.sign(preparedTx as any, { keyId });
 
-      // Send via PasskeyServer (handles LaunchTube if configured)
+      // Send via PasskeyServer (handles OpenZapplinRelayer if configured)
       console.log('📤 Sending transaction via PasskeyServer...');
       try {
         const result = await server.send(signedTx);
@@ -310,11 +310,11 @@ const contractId = activeWallet.contractId;
 
         console.log('✅ Passkey transaction signed and sent successfully');
         return result;
-      } catch (launchtubeError: any) {
-        // Handle LaunchTube errors with better error messages
-        const errorMsg = launchtubeError?.error || launchtubeError?.message || JSON.stringify(launchtubeError);
+      } catch (OpenZapplinRelayerError: any) {
+        // Handle OpenZapplinRelayer errors with better error messages
+        const errorMsg = OpenZapplinRelayerError?.error || OpenZapplinRelayerError?.message || JSON.stringify(OpenZapplinRelayerError);
 
-        // 🧪 REDUNDANCY FALLBACK: If LaunchTube fails with a network error, try direct RPC
+        // 🧪 REDUNDANCY FALLBACK: If OpenZapplinRelayer fails with a network error, try direct RPC
         const isNetworkError = errorMsg.includes('Failed to fetch') ||
           errorMsg.includes('NetworkError') ||
           errorMsg.includes('QUIC');
@@ -322,7 +322,7 @@ const contractId = activeWallet.contractId;
           errorMsg.includes('not found');
 
         if (isNetworkError || isNotFoundError) {
-          console.warn('⚠️ LaunchTube error detected, falling back to direct RPC submission...');
+          console.warn('⚠️ OpenZapplinRelayer error detected, falling back to direct RPC submission...');
           try {
             const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
             const result = await sendToRpcDirectly(signedTx, rpcUrl);
@@ -350,15 +350,15 @@ const contractId = activeWallet.contractId;
           errorMsg.includes('too far') ||
           errorMsg.includes('timeout');
 
-        console.error('❌ LaunchTube submission failed:', {
+        console.error('❌ OpenZapplinRelayer submission failed:', {
           error: errorMsg,
           isTimeBoundsError,
-          fullError: launchtubeError
+          fullError: OpenZapplinRelayerError
         });
 
         if (isTimeBoundsError) {
           throw new Error(
-            'Transaction timebounds are invalid. LaunchTube requires maxTime within 30 seconds. ' +
+            'Transaction timebounds are invalid. OpenZapplinRelayer requires maxTime within 30 seconds. ' +
             'This transaction was built with a 25-second timeout. If this error persists, ' +
             'the transaction may need to be rebuilt with fresh timebounds.'
           );

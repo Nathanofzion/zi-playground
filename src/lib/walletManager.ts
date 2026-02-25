@@ -48,7 +48,7 @@ export const createNamedWallet = async (name: string): Promise<WalletInfo> => {
 //       name // Use the provided name as user handle/name
 //   );
   
-  // We need to submit the transaction. passkeyClient has logic for this (LaunchTube vs RPC).
+  // We need to submit the transaction. passkeyClient has logic for this (OpenZapplinRelayer vs RPC).
   // Ideally we expose a method in passkeyClient to "submitWalletCreation(signedTx)".
   // For now, I'll rely on passkeyClient to have a helper or duplicate the submission logic carefully, 
   // OR better: I'll modify passkeyClient to export a `createWallet` function that does this.
