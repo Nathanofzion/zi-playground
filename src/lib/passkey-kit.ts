@@ -24,24 +24,24 @@ if ((account as any).timeoutInSeconds !== 25) {
 
 /**
  * PasskeyServer instance for server-side transaction submission
- * Handles OpenZapplinRelayer integration for gasless transactions
+ * Handles transaction relay through configured service
  */
 export const server = new PasskeyServer({
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
-  relayerUrl: process.env.NEXT_PUBLIC_RELAYER_URL,
-  relayerApiKey: process.env.NEXT_PUBLIC_RELAYER_API_KEY
+  launchtubeUrl: process.env.NEXT_PUBLIC_RELAYER_URL,
+  launchtubeJwt: process.env.NEXT_PUBLIC_RELAYER_API_KEY
 });
 
 /**
- * Set OpenZapplinRelayer headers for additional metadata
+ * Set service headers for additional metadata
  * @param token - Turnstile token or other client token
  */
-export function setLTHeaders(token: string) {
-  // @ts-ignore - OpenZapplinRelayerHeaders exists but may not be in type definitions
+export function setServiceHeaders(token: string) {
   server.launchtubeHeaders = {
     'X-Client-Name': 'zi-playground',
     'X-Client-Version': process.env.npm_package_version || '1.0.0',
     'X-Turnstile-Response': token,
+    'X-Service': 'OpenZeppelin-Relayer' // Identify the actual service being used
   };
 }
 
