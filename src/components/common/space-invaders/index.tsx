@@ -23,36 +23,54 @@ const BgSpaceInvaders = () => {
   const lastRenderTimeRef = useRef(0);
   const FPSRef = useRef(60);
 
+  const parseSelectedMode = () => {
+      const mode = parseInt(window.localStorage.getItem("mode") ?? "0");
+      document.body.classList.add(`mode${mode}`);
+      switch (mode) {
+        case 0:
+          break;
+        case 1:
+          spaceinvadersConfig.oldSchoolEffects.enabled = true;
+          break;
+        case 2:
+          spaceinvadersConfig.actionCam = true;
+          break;
+        default:
+          break;
+      }
+    };
+
   useEffect(() => {
-    if (!canvasRef.current) return;
+  if (!canvasRef.current) return;
 
-    // Initialize game
-    const canvas = canvasRef.current;
-    const engine = new Engine(canvas, true);
-    engineRef.current = engine;
+  // ✅ Cancellation flag
+  let isMounted = true;
 
-    const environment = new Environment(engine);
-    // const stars = new Starfield(environment.scene);
-    // const deltaTime = new DeltaTime(environment.scene);
-    const gameAssets = new GameAssetsManager(environment.scene);
-    const inputController = new InputController(environment.scene);
-    const UI = new UIText();
-    const gameController = new GameController(
-      environment,
-      inputController,
-      gameAssets,
-      UI
-    );
-    gameControllerRef.current = gameController;
+  const canvas = canvasRef.current;
+  const engine = new Engine(canvas, true);
+  engineRef.current = engine;
 
-    // Set FPS based on mode
-    if (spaceinvadersConfig.oldSchoolEffects.enabled) {
-      FPSRef.current = 18;
-    }
+  const environment = new Environment(engine);
+  const gameAssets = new GameAssetsManager(environment.scene);
+  const inputController = new InputController(environment.scene);
+  const UI = new UIText();
+  const gameController = new GameController(
+    environment,
+    inputController,
+    gameAssets,
+    UI
+  );
+  gameControllerRef.current = gameController;
 
-    // Game loop
-    const renderLoop = () => {
-      if (gameAssets.isComplete) {
+  if (spaceinvadersConfig.oldSchoolEffects.enabled) {
+    FPSRef.current = 18;
+  }
+
+  const renderLoop = () => {
+    // ✅ Don't render if component has unmounted
+    if (!isMounted) return;
+
+    if (gameAssets.isComplete) {
         switch (State.state) {
           case "LOADING":
             break;
@@ -87,49 +105,36 @@ const BgSpaceInvaders = () => {
 
         // Force low FPS if required
         let timeNow = Date.now();
-        while (timeNow - lastRenderTimeRef.current < 1000 / FPSRef.current) {
-          timeNow = Date.now();
-        }
-        lastRenderTimeRef.current = timeNow;
-        window.scrollTo(0, 0);
-        environment.scene.render();
+      while (timeNow - lastRenderTimeRef.current < 1000 / FPSRef.current) {
+        timeNow = Date.now();
       }
-    };
+      lastRenderTimeRef.current = timeNow;
+      window.scrollTo(0, 0);
+      environment.scene.render();
+    }
+  };
 
-    engine.runRenderLoop(renderLoop);
+  engine.runRenderLoop(renderLoop);
 
-    // Handle window resize
-    const handleResize = () => {
-      engine.resize();
-    };
-    window.addEventListener("resize", handleResize);
+  const handleResize = () => engine.resize();
+  window.addEventListener("resize", handleResize);
 
-    // Parse selected mode
-    const parseSelectedMode = () => {
-      const mode = parseInt(window.localStorage.getItem("mode") ?? "0");
-      document.body.classList.add(`mode${mode}`);
-      switch (mode) {
-        case 0:
-          break;
-        case 1:
-          spaceinvadersConfig.oldSchoolEffects.enabled = true;
-          break;
-        case 2:
-          spaceinvadersConfig.actionCam = true;
-          break;
-        default:
-          break;
-      }
-    };
-    parseSelectedMode();
+  parseSelectedMode(); // move this function outside useEffect
 
-    // Cleanup
-    return () => {
-      engine.stopRenderLoop(renderLoop);
-      window.removeEventListener("resize", handleResize);
+  return () => {
+    // ✅ Signal cancellation BEFORE disposing
+    isMounted = false;
+
+    engine.stopRenderLoop(renderLoop);
+    window.removeEventListener("resize", handleResize);
+
+    // ✅ Small delay gives in-flight async ops time to see isMounted=false
+    // before the scene is actually disposed
+    setTimeout(() => {
       engine.dispose();
-    };
-  }, [createScore]);
+    }, 100);
+  };
+}, [createScore]);
 
   return (
     <div id="container">

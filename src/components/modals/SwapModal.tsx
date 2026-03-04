@@ -59,7 +59,7 @@ const SwapModal: FC<ModalProps> = (props) => {
   const { isSwapping, swap, calculateAmount } = useSwap(asset1, asset2);
 
   const refetchAmount = async () => {
-    if (!address || !asset1 || !asset2) return;
+    if (!address || !asset1 || !asset2 || !amount1) return;
     if (BigNumber(amount1).gt(asset1!.balance)) return;
     if (BigNumber(amount1).lte(0)) return;
     try {

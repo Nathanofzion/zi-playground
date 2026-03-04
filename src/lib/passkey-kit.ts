@@ -1,4 +1,5 @@
 import { PasskeyKit, PasskeyServer, PasskeyClient } from "passkey-kit";
+import { startRegistration, startAuthentication, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/browser";
 
 /**
  * PasskeyKit instance for client-side passkey wallet operations
@@ -6,12 +7,48 @@ import { PasskeyKit, PasskeyServer, PasskeyClient } from "passkey-kit";
  */
 // Create PasskeyKit instance with timeoutInSeconds
 // Note: timeoutInSeconds is not in TypeScript definitions but exists at runtime
-const passkeyKitOptions: any = {
+const passkeyKitOptions = {
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
   networkPassphrase: process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "Test SDF Network ; September 2015",
   walletWasmHash: process.env.NEXT_PUBLIC_WALLET_WASM_HASH || "",
-  // OpenZapplinRelayer requires maxTime within 30 seconds, so use 25 for safety
   timeoutInSeconds: 25,
+  WebAuthn: {
+    startRegistration: async (options: {
+  optionsJSON: PublicKeyCredentialCreationOptionsJSON;
+  useAutoRegister?: boolean;
+}) => {
+  const existing = options.optionsJSON.pubKeyCredParams ?? [];
+  
+  const requiredAlgs = [
+    { type: "public-key" as const, alg: -7 },   // ES256
+    { type: "public-key" as const, alg: -257 }, // RS256
+  ];
+
+  // Merge: keep existing, add required ones that aren't already present
+  const existingAlgs = new Set(existing.map((p) => p.alg));
+  const merged = [
+    ...existing,
+    ...requiredAlgs.filter((p) => !existingAlgs.has(p.alg)),
+  ];
+
+  const patchedOptions = {
+    ...options,
+    optionsJSON: {
+      ...options.optionsJSON,
+      pubKeyCredParams: merged,
+    },
+  };
+
+  return startRegistration(patchedOptions);
+},
+    startAuthentication: async (options: {
+      optionsJSON: PublicKeyCredentialRequestOptionsJSON;
+      useBrowserAutofill?: boolean;
+    }) => {
+      // Pass authentication through unmodified
+      return startAuthentication(options);
+    },
+  },
 };
 
 export const account = new PasskeyKit(passkeyKitOptions);
