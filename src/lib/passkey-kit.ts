@@ -72,13 +72,15 @@ export const server = new PasskeyServer({
 /**
  * Set service headers for additional metadata
  * @param token - Turnstile token or other client token
+ * NOTE: Removed X-Client-Version to fix CORS policy error with OpenZeppelin Relayer
  */
 export function setServiceHeaders(token: string) {
   server.launchtubeHeaders = {
-    'X-Client-Name': 'zi-playground',
-    'X-Client-Version': process.env.npm_package_version || '1.0.0',
-    'X-Turnstile-Response': token,
-    'X-Service': 'OpenZeppelin-Relayer' // Identify the actual service being used
+    'X-Turnstile-Response': token
+    // Removed problematic headers that cause CORS errors:
+    // 'X-Client-Name': OpenZeppelin Relayer blocks this
+    // 'X-Client-Version': OpenZeppelin Relayer blocks this  
+    // 'X-Service': Redundant metadata
   };
 }
 
