@@ -61,26 +61,24 @@ if ((account as any).timeoutInSeconds !== 25) {
 
 /**
  * PasskeyServer instance for server-side transaction submission
- * Handles transaction relay through configured service
+ * Handles OpenZapplinRelayer integration for gasless transactions
  */
 export const server = new PasskeyServer({
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
-  launchtubeUrl: process.env.NEXT_PUBLIC_RELAYER_URL,
-  launchtubeJwt: process.env.NEXT_PUBLIC_RELAYER_API_KEY
+  relayerUrl: process.env.NEXT_PUBLIC_RELAYER_URL,
+  relayerApiKey: process.env.NEXT_PUBLIC_RELAYER_API_KEY
 });
 
 /**
- * Set service headers for additional metadata
+ * Set OpenZapplinRelayer headers for additional metadata
  * @param token - Turnstile token or other client token
- * NOTE: Removed X-Client-Version to fix CORS policy error with OpenZeppelin Relayer
  */
-export function setServiceHeaders(token: string) {
+export function setLTHeaders(token: string) {
+  // @ts-ignore - OpenZapplinRelayerHeaders exists but may not be in type definitions
   server.launchtubeHeaders = {
-    'X-Turnstile-Response': token
-    // Removed problematic headers that cause CORS errors:
-    // 'X-Client-Name': OpenZeppelin Relayer blocks this
-    // 'X-Client-Version': OpenZeppelin Relayer blocks this  
-    // 'X-Service': Redundant metadata
+    'X-Client-Name': 'zi-playground',
+    'X-Client-Version': process.env.npm_package_version || '1.0.0',
+    'X-Turnstile-Response': token,
   };
 }
 
