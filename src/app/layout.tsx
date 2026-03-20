@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
-import { Flex } from "@chakra-ui/react";
-
 import Background from "@/components/common/Background";
 import Header from "@/components/Header";
 import Provider from "@/providers";
@@ -37,10 +35,10 @@ export default function RootLayout({
         <ToastContainer/>
         <Provider>
           <Background />
-          <Flex h="100vh" direction="column">
+          <div className="app-layout">
             <Header />
             {children}
-          </Flex>
+          </div>
         </Provider>
       </body>
     </html>

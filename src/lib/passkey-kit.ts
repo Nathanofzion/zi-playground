@@ -63,10 +63,15 @@ if ((account as any).timeoutInSeconds !== 25) {
  * PasskeyServer instance for server-side transaction submission
  * Handles OpenZapplinRelayer integration for gasless transactions
  */
+// passkey-kit v0.11.3 uses launchtubeUrl/launchtubeJwt internally.
+// Route through local proxy (/api/relay) to avoid CORS rejection of X-Client-Version header.
+const relayProxyUrl = typeof window !== 'undefined'
+  ? `${window.location.origin}/api/relay`
+  : '/api/relay';
+
 export const server = new PasskeyServer({
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
-  relayerUrl: process.env.NEXT_PUBLIC_RELAYER_URL,
-  relayerApiKey: process.env.NEXT_PUBLIC_RELAYER_API_KEY
+  launchtubeUrl: relayProxyUrl,
 });
 
 /**

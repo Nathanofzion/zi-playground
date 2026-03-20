@@ -1,8 +1,10 @@
+'use client';
+
 import { FC, useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import {
   VStack,
   HStack,
-  Button,
   Text,
   Input,
   Box,
@@ -10,7 +12,9 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 
-import { useSorobanReact } from '@soroban-react/core';
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+import passkeyAnimation from '../../../public/assets/animations/passkey.json';
+
 import Modal from '../common/Modal';
 import ModalContent from '../common/ModalContent';
 import ModalOverlay from '../common/ModalOverlay';
@@ -31,11 +35,12 @@ interface SimpleWalletModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  activateConnector?: () => Promise<void>;
 }
 
 type ViewType = 'main' | 'choose' | 'create' | 'delete' | 'confirm-delete';
 
-const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSuccess }) => {
+const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSuccess, activateConnector }) => {
   const [view, setView] = useState<ViewType>('main');
   const [wallets, setWallets] = useState<WalletInfo[]>([]);
   const [selectedWallet, setSelectedWallet] = useState<WalletInfo | null>(null);
@@ -43,9 +48,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
   const [isLoading, setIsLoading] = useState(false);
   const [loadingWalletId, setLoadingWalletId] = useState<string | null>(null);
 
-  const { connectors, setActiveConnectorAndConnect } = useSorobanReact();
   const cardBg = useColorModeValue("#F8F8F8", "#0F1016");
-  const borderColor = useColorModeValue("#E2E8F0", "#2D3748");
 
   useEffect(() => {
     if (isOpen) {
@@ -89,9 +92,8 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
       await connectToWallet(wallet);
       
       // Then, activate the PasskeyID connector in SorobanReactProvider
-      const passkeyConnector = connectors.find(c => c.id === 'passkey');
-      if (passkeyConnector && setActiveConnectorAndConnect) {
-        await setActiveConnectorAndConnect(passkeyConnector);
+      if (activateConnector) {
+        await activateConnector();
       }
       
       toaster.create({
@@ -176,7 +178,11 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
   };
 
   const renderMainView = () => (
-    <VStack spacing={4} align="stretch">
+    <VStack gap={4} align="stretch">
+      <Box mx="auto" w="160px" h="213px" mt={6} mb={4} overflow="hidden">
+        <Lottie animationData={passkeyAnimation} loop autoplay />
+      </Box>
+
       <Text fontSize="lg" fontWeight="bold" textAlign="center">
         PasskeyID Wallet Manager
       </Text>
@@ -247,7 +253,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
   );
 
   const renderChooseView = () => (
-    <VStack spacing={4} align="stretch">
+    <VStack gap={4} align="stretch">
       <HStack>
         <Flex
           p="8px"
@@ -300,7 +306,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
   );
 
   const renderCreateView = () => (
-    <VStack spacing={4} align="stretch">
+    <VStack gap={4} align="stretch">
       <HStack>
         <Flex
           p="8px"
@@ -351,7 +357,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
   );
 
   const renderDeleteView = () => (
-    <VStack spacing={4} align="stretch">
+    <VStack gap={4} align="stretch">
       <HStack>
         <Flex
           p="8px"
@@ -392,7 +398,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
   );
 
   const renderConfirmDeleteView = () => (
-    <VStack spacing={4} align="stretch">
+    <VStack gap={4} align="stretch">
       <Text fontWeight="bold" color="red.500" textAlign="center">
         Confirm Deletion
       </Text>
@@ -416,7 +422,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
         Are you sure you want to delete this wallet? This action cannot be undone.
       </Text>
       
-      <HStack spacing={3}>
+      <HStack gap={3}>
         <Flex
           flex={1}
           p="16px"

@@ -1,4 +1,7 @@
+'use client';
+
 import { FC, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
 import {
   Flex,
@@ -8,6 +11,9 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
+
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+import passkeyAnimation from '../../../public/assets/animations/passkey.json';
 
 import { IWallet } from "@/interfaces";
 import { LocalKeyStorage } from "@/lib/localKeyStorage";
@@ -117,15 +123,21 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
     >
       <Flex justify="space-between" align="center">
         <Flex gap="16px">
-          <Image
-            alt={wallet?.sname}
-            src={wallet?.iconUrl}
-            w="24px"
-            h="24px"
-            rounded="8px"
-          />
-          <Text>{wallet?.name} Wallet</Text>
-        </Flex>
+            {(walletId === "passkey" || walletShortName === "Passkey") ? (
+              <Flex w="24px" h="24px" rounded="8px" overflow="hidden" flexShrink={0} align="center" justify="center">
+                <Lottie animationData={passkeyAnimation} loop autoplay style={{ width: 24, height: 24, transform: 'scale(2.2)', transformOrigin: 'center' }} />
+              </Flex>
+            ) : (
+              <Image
+                alt={wallet?.sname}
+                src={wallet?.iconUrl}
+                w="24px"
+                h="24px"
+                rounded="8px"
+              />
+            )}
+            <Text>{wallet?.name} Wallet</Text>
+          </Flex>
         <HStack>
           {isConnecting && <Spinner size="sm" />}
           {wallet?.isConnected ? (
@@ -148,6 +160,7 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
         isOpen={showWalletModal}
         onClose={() => setShowWalletModal(false)}
         onSuccess={handleWalletModalSuccess}
+        activateConnector={wallet?.connect}
       />
     </Flex>
   );

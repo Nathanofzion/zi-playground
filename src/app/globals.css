@@ -16,6 +16,12 @@ body {
   overflow-x: hidden;
 }
 
+.app-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

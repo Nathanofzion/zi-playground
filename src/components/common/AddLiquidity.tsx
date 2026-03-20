@@ -141,8 +141,13 @@ const AddLiquidity = () => {
       setAmount1("0");
       setAmount2("0");
     } catch (err) {
+      const message = err instanceof Error
+        ? err.message
+        : typeof err === 'object' && err !== null
+          ? (err as any).error || (err as any).message || JSON.stringify(err)
+          : String(err);
       toaster.create({
-        title: err instanceof Error ? err.message : (err as string),
+        title: message,
         type: "error",
       });
     }
