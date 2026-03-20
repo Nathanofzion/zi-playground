@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { IAsset } from "@/interfaces";
 import { RouterContract } from "@/app/api/lib/router-contract";
+import * as StellarSdk from "@stellar/stellar-sdk";
 
 const routerContractAddress = process.env.NEXT_PUBLIC_SOROSWAP_ROUTER!;
 
@@ -42,6 +43,20 @@ const useSwap = (asset1: IAsset | null, asset2: IAsset | null) => {
   const { address } = sorobanContext;
   const [isSwapping, setIsSwapping] = useState(false);
 
+  function i128FromDecimal(value: BigNumber.Value) {
+    const bn = new BigNumber(value);
+    const base = new BigNumber(2).pow(64);
+    const lo = bn.modulo(base);
+    const hi = bn.minus(lo).dividedBy(base);
+
+    return StellarSdk.xdr.ScVal.scvI128(
+      new StellarSdk.xdr.Int128Parts({
+        hi: StellarSdk.xdr.Int64.fromString(hi.toFixed(0)),
+        lo: StellarSdk.xdr.Uint64.fromString(lo.toFixed(0)),
+      })
+    );
+  }
+
   const swap = async (
     amount: string,
     signAndSend: boolean | undefined = true
@@ -58,25 +73,44 @@ const useSwap = (asset1: IAsset | null, asset2: IAsset | null) => {
       setIsSwapping(true);
 
       // ✅ FIX: Await the conversion before passing to contractInvoke
-      const args = await RouterContract.spec.funcArgsToScVals(
-        "swap_exact_tokens_for_tokens",
-        {
-          amount_in: BigNumber(amount).times(10000000).toFixed(0),
-          amount_out_min: 0,
-          path: [asset1.contract, asset2.contract],
-          to: address,
-          deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
-        }
-      );
+      // const args = await RouterContract.spec.funcArgsToScVals(
+      //   "swap_exact_tokens_for_tokens",
+      //   {
+      //     amount_in: BigNumber(amount).times(10000000).toFixed(0),
+      //     amount_out_min: 0,
+      //     path: [asset1.contract, asset2.contract],
+      //     to: address,
+      //     deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
+      //   }
+      // );
+
+      const argsManual = [
+        i128FromDecimal(new BigNumber(amount).times(1e7)),
+        i128FromDecimal(new BigNumber("0").times(1e7)),
+        StellarSdk.xdr.ScVal.scvVec([
+          new StellarSdk.Address(asset1.contract).toScVal(),
+          new StellarSdk.Address(asset2.contract).toScVal(),
+        ]),
+        new StellarSdk.Address(address).toScVal(),
+        StellarSdk.xdr.ScVal.scvU64(
+          StellarSdk.xdr.Uint64.fromString(
+            (Math.floor(Date.now() / 1000) + 1200).toString()
+          )
+        ),
+      ]
 
       const result = await contractInvoke({
         contractAddress: routerContractAddress,
         method: "swap_exact_tokens_for_tokens",
-        args, // ✅ Now this is a resolved ScVal[] array
+        // args, // ✅ Now this is a resolved ScVal[] array
+        args: argsManual,
         signAndSend,
         sorobanContext,
         reconnectAfterTx: false,
       });
+
+      console.log("Swap Result : ",result);
+      
 
       if (signAndSend) {
         queryClient.invalidateQueries({
@@ -90,7 +124,8 @@ const useSwap = (asset1: IAsset | null, asset2: IAsset | null) => {
         return result;
       } else {
         // ✅ Use API-based conversion instead of direct Stellar SDK
-        return await scValToNative(result);
+        // return await scValToNative(result);
+        return StellarSdk.scValToNative(result as any);
       }
     } catch (error) {
       console.error('Swap error:', error);

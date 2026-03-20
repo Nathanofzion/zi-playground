@@ -104,7 +104,7 @@ const SendModal: FC<ModalProps> = (props) => {
         ) : (
           <Flex maxH="480px" direction="column" gap={1} overflowY="auto">
             {assets
-              .filter((asset) => asset.balance && asset.balance > 0)
+              .filter((asset) => asset.balance)
               .map((asset, index) => (
                 <AssetCard
                   key={index}

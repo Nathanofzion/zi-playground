@@ -1,8 +1,25 @@
 import { Connector } from "@soroban-react/types";
+import { isConnected as freighterInstalled } from "@stellar/freighter-api";
 
 export const connect = async (connector: Connector) => {
-  const isConnected = await connector.isConnected();
-  if (!isConnected) {
+  // const isConnected = await connector.isConnected();
+
+  let isConnected = false;
+  try {
+    if(connector.id == "freighter"){
+      const response = await fetch(`chrome-extension://bcacfldlkkdogcmkkibnjlakofdplcbk/index.html`);
+      isConnected = response.ok;
+    }else if(connector.id == "lobstr"){
+      const response = await fetch(`chrome-extension://ldiagbjmlmjiieclmdkagofdjcgodjle/index.html`);
+      isConnected = response.ok;
+    }else if(connector.id == "passkey"){
+      isConnected = true;
+    }
+  } catch (error) {
+    console.log("Error Checking Extension : ",error);
+  }
+
+  if (isConnected == false) {
     // Check if this is a passkey connector
     if (connector.id === 'passkey') {
       // For passkeys, we need to call getPublicKey to trigger the connection flow
@@ -17,8 +34,10 @@ export const connect = async (connector: Connector) => {
       // For other wallets (Freighter, Lobstr), open download URLs
       const userAgent = navigator.userAgent;
       if (/android/i.test(userAgent)) {
+        console.log("Android Download Called!!!");
         window.open(connector.downloadUrls?.android, "_blank");
       } else if (/iPad|iPhone|iPod/i.test(userAgent)) {
+        console.log("Ios Download Called!!!");
         window.open(connector.downloadUrls?.ios, "_blank");
       } else {
         window.open(connector.downloadUrls?.browserExtension, "_blank");

@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
-import { Flex } from "@chakra-ui/react";
-
 import Background from "@/components/common/Background";
 import Header from "@/components/Header";
 import Provider from "@/providers";
 
 import "./globals.css";
+import { ToastContainer, toast } from 'react-toastify';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,12 +32,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <ToastContainer/>
         <Provider>
           <Background />
-          <Flex h="100vh" direction="column">
+          <div className="app-layout">
             <Header />
             {children}
-          </Flex>
+          </div>
         </Provider>
       </body>
     </html>

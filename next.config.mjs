@@ -2,6 +2,11 @@
 const nextConfig = {
     experimental: {
         optimizePackageImports: ["@chakra-ui/react"],
+        serverComponentsExternalPackages: [
+            '@stellar/stellar-sdk',
+            '@stellar/stellar-base',
+            'sodium-native'
+        ],
     },
     transpilePackages: [
         'passkey-kit',
@@ -10,13 +15,6 @@ const nextConfig = {
         'sac-sdk',
         '@soroban-react/core',
         '@soroban-react/types',
-    ],
-    
-    // ✅ This prevents client-side bundling
-    serverComponentsExternalPackages: [
-        '@stellar/stellar-sdk',
-        '@stellar/stellar-base',
-        'sodium-native'
     ],
     
     webpack: (config, { isServer }) => {

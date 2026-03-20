@@ -11,20 +11,41 @@ const supabase = createClient(supabaseUrl, supabasekey);
 
 const soroswapFactory = Deno.env.get("SOROSWAP_FACTORY")!;
 
+// Deno.serve((req) =>
+//   handleException(async () => {
+//     if (req.method === "OPTIONS") return null;
+
+//     if (req.method === "POST") {
+//       const { action } = await req.json();
+
+//       switch (action) {
+//         case "sync":
+//           return syncPairs();
+//         case "all-pairs":
+//           return getPairs();
+//       }
+//     }
+//     throw new MethodNotAllowedException();
+//   })
+// );
+
 Deno.serve((req) =>
   handleException(async () => {
-    if (req.method === "OPTIONS") return null;
+    if (req.method === "OPTIONS") {
+      return new Response(null, { status: 204 });
+    }
 
     if (req.method === "POST") {
       const { action } = await req.json();
 
       switch (action) {
         case "sync":
-          return syncPairs();
+          return Response.json(await syncPairs());
         case "all-pairs":
-          return getPairs();
+          return Response.json(await getPairs());
       }
     }
+
     throw new MethodNotAllowedException();
   })
 );
@@ -86,6 +107,8 @@ async function syncPairs() {
 }
 
 async function getPairs() {
+  console.log("Get pairs called!!!");
+  
   const { data, error } = await supabase.from("pairs").select();
   if (error) throw new Error(error.message);
   return data;

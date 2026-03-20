@@ -10,9 +10,55 @@ import {
     useGLTF
 } from "@react-three/drei";
 import { Canvas, GroupProps, useFrame } from "@react-three/fiber";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Component, ErrorInfo, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
+
+// WebGL Support Detection
+function isWebGLSupported(): boolean {
+    try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        return !!gl;
+    } catch (e) {
+        return false;
+    }
+}
+
+// React Error Boundary for Canvas
+class WebGLErrorBoundary extends Component<
+    { children: ReactNode; onError: () => void },
+    { hasError: boolean }
+> {
+    constructor(props: { children: ReactNode; onError: () => void }) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error: Error): { hasError: boolean } {
+        // Check if it's a WebGL-related error
+        if (error.message.includes('WebGL') || 
+            error.message.includes('WebGLRenderer') ||
+            error.message.includes('context')) {
+            return { hasError: true };
+        }
+        return { hasError: false };
+    }
+
+    componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+        if (this.state.hasError) {
+            console.warn('WebGL Error Boundary caught:', error.message);
+            this.props.onError();
+        }
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return null; // Let parent handle fallback
+        }
+        return this.props.children;
+    }
+}
 
 interface EarthProps extends GroupProps {
     startAnimation?: boolean;
@@ -143,32 +189,139 @@ interface Props {
 }
 
 export default function Viewer({ startAnimation }: Props) {
+    const [hasWebGLError, setHasWebGLError] = useState(false);
+    const [webGLSupported, setWebGLSupported] = useState<boolean | null>(null);
+    
+    // Check WebGL support on mount
+    useEffect(() => {
+        setWebGLSupported(isWebGLSupported());
+    }, []);
+    
+    // Global error handler
+    useEffect(() => {
+        const handleError = (event: ErrorEvent) => {
+            const message = event.error?.message || event.message || '';
+            if (message.includes('WebGL') || 
+                message.includes('WebGLRenderer') ||
+                message.includes('context') ||
+                message.includes('canvas')) {
+                console.warn('WebGL Error detected:', message);
+                setHasWebGLError(true);
+                event.preventDefault();
+            }
+        };
+        
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            const message = event.reason?.message || event.reason || '';
+            if (typeof message === 'string' && 
+                (message.includes('WebGL') || message.includes('context'))) {
+                console.warn('WebGL Promise rejection:', message);
+                setHasWebGLError(true);
+                event.preventDefault();
+            }
+        };
+        
+        window.addEventListener('error', handleError);
+        window.addEventListener('unhandledrejection', handleUnhandledRejection);
+        
+        return () => {
+            window.removeEventListener('error', handleError);
+            window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+        };
+    }, []);
+    
+    // Fallback UI when WebGL fails or isn't supported
+    if (hasWebGLError || webGLSupported === false) {
+        return (
+            <div 
+                style={{
+                    width: '100%',
+                    height: '100vh',
+                    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '1rem',
+                    textAlign: 'center',
+                    padding: '2rem'
+                }}
+            >
+                <div>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌍</div>
+                    <h3 style={{ marginBottom: '0.5rem', opacity: 0.9 }}>
+                        {webGLSupported === false ? 'WebGL Not Available' : '3D Environment Loading'}
+                    </h3>
+                    <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>
+                        {webGLSupported === false 
+                            ? 'Your browser doesn\'t support WebGL. Core functionality available below.' 
+                            : 'WebGL optimization in progress...\nCore functionality available below'
+                        }
+                    </p>
+                </div>
+            </div>
+        );
+    }
+    
+    // Loading state while checking WebGL
+    if (webGLSupported === null) {
+        return (
+            <div 
+                style={{
+                    width: '100%',
+                    height: '100vh',
+                    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                }}
+            >
+                <div>Loading...</div>
+            </div>
+        );
+    }
+    
+    // Render Canvas with error boundary
     return (
-        <Canvas camera={{ position: [5, 2, 0], fov: 55 }} onScroll={(e) => e.stopPropagation()}>
-            <Suspense>
-                <group position={[0, 0.5, 0]}>
-                    <Earth
-                        scale={0.7}
-                        position={[0, 0, 0]}
-                        startAnimation={startAnimation}
+        <WebGLErrorBoundary onError={() => setHasWebGLError(true)}>
+            <Canvas 
+                camera={{ position: [5, 2, 0], fov: 55 }} 
+                onScroll={(e) => e.stopPropagation()}
+                onCreated={({ gl }) => {
+                    // Verify GL context was created successfully
+                    if (!gl.getContext()) {
+                        console.warn('WebGL context creation failed');
+                        setHasWebGLError(true);
+                    }
+                }}
+                fallback={<div>Canvas Loading...</div>}
+            >
+                <Suspense fallback={null}>
+                    <group position={[0, 0.5, 0]}>
+                        <Earth
+                            scale={0.7}
+                            position={[0, 0, 0]}
+                            startAnimation={startAnimation}
+                        />
+                        <TextOnFaces startAnimation={startAnimation} />
+                    </group>
+                    <Environment
+                        files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr"
+                        blur={1}
                     />
-                    <TextOnFaces startAnimation={startAnimation} />
-                </group>
-                <Environment
-                    files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr"
-                    blur={1}
-                />
-                <AccumulativeShadows
-                    color="lightblue"
-                    position={[0, -1, 0]}
-                    frames={100}
-                    opacity={0.75}
-                >
-                    <RandomizedLight radius={10} position={[-5, 5, 2]} />
-                </AccumulativeShadows>
-                <CameraControls />
-            </Suspense>
-            <Preload all />
-        </Canvas>
+                    <AccumulativeShadows
+                        color="lightblue"
+                        position={[0, -1, 0]}
+                        frames={100}
+                        opacity={0.75}
+                    >
+                        <RandomizedLight radius={10} position={[-5, 5, 2]} />
+                    </AccumulativeShadows>
+                    <CameraControls />
+                </Suspense>
+                <Preload all />
+            </Canvas>
+        </WebGLErrorBoundary>
     );
 }

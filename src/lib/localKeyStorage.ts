@@ -8,9 +8,17 @@ export interface UserData {
 
 export interface WalletData {
   publicKey: string;
-  walletType: string;
+  walletType: 'passkey' | 'freighter' | 'lobstr' | string;
   timestamp: number;
   token?: string;
+}
+
+export interface PasskeyWalletEntry {
+  keyId: string;
+  contractId: string;
+  name: string;
+  created: number;
+  lastUsed: number;
 }
 
 export interface ConnectionStatus {
@@ -24,6 +32,73 @@ export class LocalKeyStorage {
   private static readonly USER_KEY = 'zi_user_data';
   private static readonly WALLET_KEY = 'zi_wallet_data';
   private static readonly TOKEN_KEY = 'zi_auth_token';
+  private static readonly PASSKEY_WALLETS_KEY = 'zi_passkey_wallets';
+  private static readonly ACTIVE_WALLET_INDEX_KEY = 'zi_active_wallet_index';
+
+  static getPasskeyWallets(): PasskeyWalletEntry[] {
+    try {
+      const data = localStorage.getItem(this.PASSKEY_WALLETS_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('Failed to get passkey wallets:', error);
+      return [];
+    }
+  }
+  static savePasskeyWallets(wallets: PasskeyWalletEntry[]): void {
+    try {
+      localStorage.setItem(this.PASSKEY_WALLETS_KEY, JSON.stringify(wallets));
+    } catch (error) {
+      console.error('Failed to save passkey wallets:', error);
+    }
+  }
+  static addPasskeyWallet(wallet: PasskeyWalletEntry): void {
+    const wallets = this.getPasskeyWallets();
+    // Check if already exists
+    const existingIndex = wallets.findIndex(w => w.keyId === wallet.keyId);
+    if (existingIndex >= 0) {
+        wallets[existingIndex] = wallet;
+    } else {
+        wallets.push(wallet);
+    }
+    this.savePasskeyWallets(wallets);
+  }
+  static removePasskeyWallet(keyId: string): void {
+     const wallets = this.getPasskeyWallets();
+     const newWallets = wallets.filter(w => w.keyId !== keyId);
+     this.savePasskeyWallets(newWallets);
+     
+     // Adjust active index if needed
+     let activeIndex = this.getActiveWalletIndex();
+     if (activeIndex >= newWallets.length) {
+         this.setActiveWalletIndex(Math.max(0, newWallets.length - 1));
+     }
+  }
+  static getActiveWalletIndex(): number {
+    try {
+        const index = localStorage.getItem(this.ACTIVE_WALLET_INDEX_KEY);
+        return index ? parseInt(index, 10) : 0;
+    } catch {
+        return 0;
+    }
+  }
+  static setActiveWalletIndex(index: number): void {
+      localStorage.setItem(this.ACTIVE_WALLET_INDEX_KEY, index.toString());
+  }
+  
+  static updateWalletLastUsed(index: number): void {
+      const wallets = this.getPasskeyWallets();
+      if (wallets[index]) {
+          wallets[index].lastUsed = Date.now();
+          this.savePasskeyWallets(wallets);
+      }
+  }
+  static getActiveWallet(): PasskeyWalletEntry | null {
+      const wallets = this.getPasskeyWallets();
+      if (wallets.length === 0) return null;
+      const index = this.getActiveWalletIndex();
+      return wallets[index] || wallets[0];
+  }
+  // Deprecated direct single-value sets, but kept for compatibility or used as "current session"
 
   // User data methods
   static storeUser(userData: UserData): void {
@@ -170,6 +245,101 @@ export class LocalKeyStorage {
     }
   }
 
+  // Passkey-specific storage keys
+  private static readonly PASSKEY_KEYID_KEY = 'zi_passkey_keyId';
+  private static readonly PASSKEY_CONTRACT_ID_KEY = 'zi_passkey_contractId';
+  private static readonly PASSKEY_STATUS_KEY = 'zi_passkey_status';
+
+  // Passkey storage methods
+  static storePasskeyKeyId(keyId: string): void {
+    try {
+      localStorage.setItem(this.PASSKEY_KEYID_KEY, keyId);
+      console.log('🔑 Passkey keyId stored');
+    } catch (error) {
+      console.error('Failed to store passkey keyId:', error);
+    }
+  }
+
+  static getPasskeyKeyId(): string | null {
+    try {
+
+      const active = this.getActiveWallet();
+      if (active) return active.keyId;
+
+      return localStorage.getItem(this.PASSKEY_KEYID_KEY);
+    } catch (error) {
+      console.error('Failed to get passkey keyId:', error);
+      return null;
+    }
+  }
+
+  static storePasskeyContractId(contractId: string): void {
+    try {
+      localStorage.setItem(this.PASSKEY_CONTRACT_ID_KEY, contractId);
+      console.log('📝 Passkey contractId stored');
+    } catch (error) {
+      console.error('Failed to store passkey contractId:', error);
+    }
+  }
+
+  static getPasskeyContractId(): string | null {
+    try {
+
+      // Prefer active wallet from list
+      const active = this.getActiveWallet();
+      if (active) return active.contractId;
+
+      return localStorage.getItem(this.PASSKEY_CONTRACT_ID_KEY);
+    } catch (error) {
+      console.error('Failed to get passkey contractId:', error);
+      return null;
+    }
+  }
+
+  private static emitPasskeyStatus(status: string | null): void {
+    if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') {
+      return;
+    }
+    window.dispatchEvent(new CustomEvent('passkey-status', { detail: status }));
+  }
+
+  static storePasskeyStatus(status: string): void {
+    try {
+      localStorage.setItem(this.PASSKEY_STATUS_KEY, status);
+      this.emitPasskeyStatus(status);
+    } catch (error) {
+      console.error('Failed to store passkey status:', error);
+    }
+  }
+
+  static getPasskeyStatus(): string | null {
+    try {
+      return localStorage.getItem(this.PASSKEY_STATUS_KEY);
+    } catch (error) {
+      console.error('Failed to get passkey status:', error);
+      return null;
+    }
+  }
+
+  static clearPasskeyStatus(): void {
+    try {
+      localStorage.removeItem(this.PASSKEY_STATUS_KEY);
+      this.emitPasskeyStatus(null);
+    } catch (error) {
+      console.error('Failed to clear passkey status:', error);
+    }
+  }
+
+  static getWalletType(): 'passkey' | 'freighter' | 'lobstr' | null {
+    try {
+      const wallet = this.getWallet();
+      return (wallet?.walletType as 'passkey' | 'freighter' | 'lobstr') || null;
+    } catch (error) {
+      console.error('Failed to get wallet type:', error);
+      return null;
+    }
+  }
+
   // Clear all data
   static clearAll(): void {
     try {
@@ -179,6 +349,11 @@ export class LocalKeyStorage {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem("token"); // Also clear the direct token
       localStorage.removeItem("mock_passkey_token"); // Clear mock token
+      
+      // Clear passkey-specific data
+      localStorage.removeItem(this.PASSKEY_KEYID_KEY);
+      localStorage.removeItem(this.PASSKEY_CONTRACT_ID_KEY);
+      this.clearPasskeyStatus();
       
       // Clear all passkey data
       this.clearPasskeyData();

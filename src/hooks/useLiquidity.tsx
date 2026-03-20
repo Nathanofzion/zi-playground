@@ -8,6 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { IAsset } from "@/interfaces";
 import { RouterContract } from "@/app/api/lib/router-contract";
+import * as StellarSdk from "@stellar/stellar-sdk";
 
 const routerContractAddress = process.env.NEXT_PUBLIC_SOROSWAP_ROUTER!;
 const factoryContractAddress = process.env.NEXT_PUBLIC_SOROSWAP_FACTORY!;
@@ -18,10 +19,10 @@ async function nativeToScVal(value: any, options?: { type?: string }) {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'nativeToScVal', 
+      body: JSON.stringify({
+        operation: 'nativeToScVal',
         value,
-        options 
+        options
       })
     });
 
@@ -43,9 +44,9 @@ async function scValToNative(scVal: any) {
     const response = await fetch('/api/stellar/parse-xdr/convert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        operation: 'scValToNative', 
-        scVal 
+      body: JSON.stringify({
+        operation: 'scValToNative',
+        scVal
       })
     });
 
@@ -73,8 +74,18 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
     queryKey: ["pair", asset1?.contract, asset2?.contract],
     queryFn: async () => {
       try {
-        const asset1Address = await nativeToScVal(asset1!.contract, { type: "address" });
-        const asset2Address = await nativeToScVal(asset2!.contract, { type: "address" });
+        // const asset1Address = await nativeToScVal(asset1!.contract, { type: "address" });
+        // const asset2Address = await nativeToScVal(asset2!.contract, { type: "address" });
+
+        if (!asset1 || !asset2) return;
+
+        const asset1Address = new StellarSdk.Address(asset1!.contract).toScVal();
+        const asset2Address = new StellarSdk.Address(asset2!.contract).toScVal();
+
+        console.log("Asset 1 Address : ", asset1Address);
+        console.log("Asset 2 Address : ", asset2Address);
+
+        if (!asset1Address || !asset2Address) return;
 
         const result1 = await contractInvoke({
           contractAddress: factoryContractAddress,
@@ -83,7 +94,11 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
           sorobanContext,
         });
 
-        const contract = await scValToNative(result1) as string;
+        // const contract = await scValToNative(result1) as string;
+        const contract = StellarSdk.scValToNative(result1 as any);
+
+        console.log("Contract Address of pool : ",contract);
+        
 
         const result2 = await contractInvoke({
           contractAddress: contract,
@@ -91,27 +106,127 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
           sorobanContext,
         });
 
-        const reserves = await scValToNative(result2);
+        // const reserves = await scValToNative(result2);
+        const reserves = StellarSdk.scValToNative(result2 as any);
+
+        const result3 = await contractInvoke({
+          contractAddress: contract,
+          method: "decimals",
+          sorobanContext,
+        });
+
+        const decimals = StellarSdk.scValToNative(result3 as any);
+
+        const result4 = await contractInvoke({
+          contractAddress: contract,
+          method: "token_0",
+          sorobanContext,
+        });
+
+        const token_0 = StellarSdk.scValToNative(result4 as any);
+
+        const result5 = await contractInvoke({
+          contractAddress: contract,
+          method: "token_1",
+          sorobanContext,
+        });
+
+        const token_1 = StellarSdk.scValToNative(result5 as any);
+
+        const result6 = await contractInvoke({
+          contractAddress: contract,
+          method: "name",
+          sorobanContext,
+        });
+
+        const name = StellarSdk.scValToNative(result6 as any);
+
+        const result7 = await contractInvoke({
+          contractAddress: contract,
+          method: "symbol",
+          sorobanContext,
+        });
+
+        const symbol = StellarSdk.scValToNative(result7 as any);
+
+        const result8 = await contractInvoke({
+          contractAddress: contract,
+          method: "balance",
+          args: [
+            StellarSdk.nativeToScVal(
+              StellarSdk.Address.fromString(sorobanContext.address!),
+              { type: "address" }
+            ),
+          ],
+          sorobanContext,
+        });
+
+        const balance = StellarSdk.scValToNative(result8 as any);
+
+        const parsedBalance = Number(balance) / 10 ** decimals;
+
+        console.log("Pool Balance : ",balance);
+
+        const result9 = await contractInvoke({
+          contractAddress: contract,
+          method: "total_supply",
+          sorobanContext,
+        });
+
+        const total_supply = StellarSdk.scValToNative(result9 as any);
+
+        const parsedTotalSupply = Number(total_supply) / 10 ** decimals;
+
+        console.log("Pool Balance : ",balance);
+
+        const pair = {
+          decimals,
+          token_0,
+          token_1,
+          name,
+          symbol,
+          balance: parsedBalance,
+          total_supply: parsedTotalSupply
+        }
+        
 
         return {
           contract,
           reserves,
+          pair
         };
       } catch (error) {
         console.error('Pair query error:', error);
-        throw error;
       }
+
+      return null;
+
     },
     enabled: !!asset1 && !!asset2,
   });
 
   const contract = data?.contract;
+  const pair = data?.pair;
   const reserves = (() => {
     if (!asset1 || !asset2 || !data) return null;
     if (asset1.contract < asset2.contract)
       return [data.reserves[0], data.reserves[1]];
     return [data.reserves[1], data.reserves[0]];
   })();
+
+  function i128FromDecimal(value: BigNumber.Value) {
+    const bn = new BigNumber(value);
+    const base = new BigNumber(2).pow(64);
+    const lo = bn.modulo(base);
+    const hi = bn.minus(lo).dividedBy(base);
+
+    return StellarSdk.xdr.ScVal.scvI128(
+      new StellarSdk.xdr.Int128Parts({
+        hi: StellarSdk.xdr.Int64.fromString(hi.toFixed(0)),
+        lo: StellarSdk.xdr.Uint64.fromString(lo.toFixed(0)),
+      })
+    );
+  }
 
   const addLiquidity = async (
     amount_a: string,
@@ -130,16 +245,66 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
       setIsAdding(true);
 
       // ✅ FIX: Await the conversion before passing to contractInvoke
-      const args = await RouterContract.spec.funcArgsToScVals("add_liquidity", {
-        token_a: asset1.contract,
-        token_b: asset2.contract,
-        amount_a_desired: BigNumber(amount_a).times(10000000).toFixed(0),
-        amount_b_desired: BigNumber(amount_b).times(10000000).toFixed(0),
-        amount_a_min: 0,
-        amount_b_min: 0,
-        to: address,
-        deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
-      });
+      // const args = await RouterContract.spec.funcArgsToScVals("add_liquidity", {
+      //   token_a: asset1.contract,
+      //   token_b: asset2.contract,
+      //   amount_a_desired: BigNumber(amount_a).times(10000000).toFixed(0),
+      //   amount_b_desired: BigNumber(amount_b).times(10000000).toFixed(0),
+      //   amount_a_min: 0,
+      //   amount_b_min: 0,
+      //   to: address,
+      //   deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
+      // });
+
+      const args: StellarSdk.xdr.ScVal[] = [
+        // token_a
+        new StellarSdk.Address(asset1.contract).toScVal(),
+
+        // token_b
+        new StellarSdk.Address(asset2.contract).toScVal(),
+
+        // amount_a_desired (i128 / u128 – most routers use i128)
+        // StellarSdk.xdr.ScVal.scvI128(
+        //   StellarSdk.xdr.Int128Parts.fromString(
+        //     new BigNumber(amount_a).times(1e7).toFixed(0)
+        //   )
+        // ),
+
+        i128FromDecimal(new BigNumber(amount_a).times(1e7)),
+
+        // amount_b_desired
+        // StellarSdk.xdr.ScVal.scvI128(
+        //   StellarSdk.xdr.Int128Parts.fromString(
+        //     new BigNumber(amount_b).times(1e7).toFixed(0)
+        //   )
+        // ),
+
+        i128FromDecimal(new BigNumber(amount_b).times(1e7)),
+
+        // amount_a_min
+        // StellarSdk.xdr.ScVal.scvI128(
+        //   StellarSdk.xdr.Int128Parts.fromString("0")
+        // ),
+
+        i128FromDecimal(new BigNumber("0").times(1e7)),
+
+        // amount_b_min
+        // StellarSdk.xdr.ScVal.scvI128(
+        //   StellarSdk.xdr.Int128Parts.fromString("0")
+        // ),
+
+        i128FromDecimal(new BigNumber("0").times(1e7)),
+
+        // to
+        new StellarSdk.Address(address).toScVal(),
+
+        // deadline (u64)
+        StellarSdk.xdr.ScVal.scvU64(
+          StellarSdk.xdr.Uint64.fromString(
+            (Math.floor(Date.now() / 1000) + 1200).toString()
+          )
+        ),
+      ];
 
       const result = await contractInvoke({
         contractAddress: routerContractAddress,
@@ -162,6 +327,11 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
         queryClient.invalidateQueries({
           queryKey: ["balance", address, asset2.contract],
         });
+
+        queryClient.invalidateQueries({
+          queryKey: ["pair", asset1?.contract, asset2?.contract],
+        });
+
       } else {
         return await scValToNative(result);
       }
@@ -199,15 +369,56 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
       setIsRemoving(true);
 
       // ✅ FIX: Await the conversion before passing to contractInvoke
-      const args = await RouterContract.spec.funcArgsToScVals("remove_liquidity", {
-        token_a: asset1.contract,
-        token_b: asset2.contract,
-        liquidity: BigNumber(amount).times(10000000).toFixed(0),
-        amount_a_min: 0,
-        amount_b_min: 0,
-        to: address,
-        deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
-      });
+      // const args = await RouterContract.spec.funcArgsToScVals("remove_liquidity", {
+      //   token_a: asset1.contract,
+      //   token_b: asset2.contract,
+      //   liquidity: BigNumber(amount).times(10000000).toFixed(0),
+      //   amount_a_min: 0,
+      //   amount_b_min: 0,
+      //   to: address,
+      //   deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
+      // });
+
+      const args: StellarSdk.xdr.ScVal[] = [
+        // token_a
+        new StellarSdk.Address(asset1.contract).toScVal(),
+
+        // token_b
+        new StellarSdk.Address(asset2.contract).toScVal(),
+
+        // liquidity (i128 / u128 – most routers use i128)
+        // StellarSdk.xdr.ScVal.scvI128(
+        //   StellarSdk.xdr.Int128Parts.fromString(
+        //     new BigNumber(amount_a).times(1e7).toFixed(0)
+        //   )
+        // ),
+
+        i128FromDecimal(new BigNumber(amount).times(1e7)),
+
+        // amount_a_min
+        // StellarSdk.xdr.ScVal.scvI128(
+        //   StellarSdk.xdr.Int128Parts.fromString("0")
+        // ),
+
+        i128FromDecimal(new BigNumber("0").times(1e7)),
+
+        // amount_b_min
+        // StellarSdk.xdr.ScVal.scvI128(
+        //   StellarSdk.xdr.Int128Parts.fromString("0")
+        // ),
+
+        i128FromDecimal(new BigNumber("0").times(1e7)),
+
+        // to
+        new StellarSdk.Address(address).toScVal(),
+
+        // deadline (u64)
+        StellarSdk.xdr.ScVal.scvU64(
+          StellarSdk.xdr.Uint64.fromString(
+            (Math.floor(Date.now() / 1000) + 1200).toString()
+          )
+        ),
+      ];
 
       const result = await contractInvoke({
         contractAddress: routerContractAddress,
@@ -229,6 +440,10 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
 
         queryClient.invalidateQueries({
           queryKey: ["balance", address, asset2.contract],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["pair", asset1?.contract, asset2?.contract],
         });
       } else {
         return await scValToNative(result);
@@ -260,6 +475,7 @@ const useLiquidity = (asset1: IAsset | null, asset2: IAsset | null) => {
     calculateAmount,
     isRemoving,
     removeLiquidity,
+    pair
   };
 };
 

@@ -6,22 +6,24 @@ import useAssets from "@/hooks/useAssets";
 import { IPair } from "@/interfaces";
 import { formatNumber } from "@/utils";
 
-const PairCard: FC<FlexProps & { pair: IPair & { balance: number } }> = ({
-  pair,
-  ...props
-}) => {
+// const PairCard: FC<FlexProps & { pair: IPair & { balance?: number } }> = ({
+//   pair,
+//   ...props
+// }) => {
+
+const PairCard: FC<{ pair: any}> = ({ pair , ...props }) => {
   const { assets } = useAssets();
 
   const { asset1, asset2 } = useMemo(() => {
     let asset1 =
-      assets.find((asset) => asset.contract == pair?.token_a) ?? null;
+      assets.find((asset) => asset.contract == pair?.token_0) ?? null;
     let asset2 =
-      assets.find((asset) => asset.contract == pair?.token_b) ?? null;
+      assets.find((asset) => asset.contract == pair?.token_1) ?? null;
     if (asset1 && asset2) {
       return { asset1, asset2 };
     }
-    asset1 = assets.find((asset) => asset.contract == pair?.token_b) ?? null;
-    asset2 = assets.find((asset) => asset.contract == pair?.token_a) ?? null;
+    asset1 = assets.find((asset) => asset.contract == pair?.token_1) ?? null;
+    asset2 = assets.find((asset) => asset.contract == pair?.token_0) ?? null;
     return { asset1, asset2 };
   }, [assets, pair]);
 
@@ -42,15 +44,15 @@ const PairCard: FC<FlexProps & { pair: IPair & { balance: number } }> = ({
         )}
         <Flex direction="column" justify="space-around">
           <Text maxW="120px" fontSize="small" truncate>
-            {pair.name}
+            {pair?.name}
           </Text>
           <Text maxW="120px" fontSize="x-small" truncate>
-            {pair.code}
+            {pair?.code}
           </Text>
         </Flex>
       </Flex>
       <Flex direction="column" justify="space-around">
-        {pair.balance != undefined ? (
+        {pair?.balance != undefined ? (
           <Text>{formatNumber(pair.balance, 2)}</Text>
         ) : (
           <Spinner size="sm" />

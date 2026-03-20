@@ -23,14 +23,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate address using server-side SDK
-    const isValid = await stellarServer.validatePublicKey(address);
-    if (!isValid) {
+    // Validate address - support both G-address (traditional) and C-address (smart contract)
+    const isGAddress = address.startsWith('G') && address.length === 56;
+    const isCAddress = address.startsWith('C') && address.length === 56;
+    
+    if (!isGAddress && !isCAddress) {
       return NextResponse.json(
-        { error: 'Invalid address format' },
+        { error: 'Invalid address format. Must be a valid G-address or C-address (56 characters, starting with G or C)' },
         { status: 400 }
       );
     }
+    
+    // For G-addresses, validate using server-side SDK
+    if (isGAddress) {
+      const isValid = await stellarServer.validatePublicKey(address);
+      if (!isValid) {
+        return NextResponse.json(
+          { error: 'Invalid G-address format' },
+          { status: 400 }
+        );
+      }
+    }
+    // C-addresses are contract addresses, no need for additional validation beyond format
 
     if (!airdropContractId || !funderSecretKey) {
       return NextResponse.json(
@@ -42,13 +56,13 @@ export async function POST(req: NextRequest) {
     const { contractInvoke } = await getContractInvoke();
 
     // Convert values using server-side SDK
-    const recipientScVal = await stellarServer.nativeToScVal(address);
-    const actionScVal = await stellarServer.nativeToScVal(parseInt(action));
+    const recipientScVal = await stellarServer.nativeToScValAddress(address);
+    const actionScVal = await stellarServer.nativeToScValU32(parseInt(action));
 
     const result = await contractInvoke({
       contractAddress: airdropContractId,
       secretKey: funderSecretKey,
-      method: "distribute_tokens",
+      method: "distribute_reward",
       args: [recipientScVal, actionScVal],
     });
 
@@ -56,7 +70,7 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Airdrop tokens distributed successfully',
       data: {
-        ...result,
+        ...(result as any),
         recipient: address,
         action: parseInt(action)
       }

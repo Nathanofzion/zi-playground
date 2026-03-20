@@ -14,12 +14,15 @@ const usePairs = () => {
   const { data } = useQuery<IPair[]>({
     queryKey: ["pairs"],
     queryFn: async () => {
-      const { data: pairs } = await supabase.functions.invoke("soroswap", {
-        method: "POST",
-        body: {
-          action: "all-pairs",
-        },
-      });
+      // const { data: pairs } = await supabase.functions.invoke("soroswap", {
+      //   method: "POST",
+      //   body: {
+      //     action: "all-pairs",
+      //   },
+      // });
+      const { data: pairs, error } = await supabase.from("pairs").select();
+      console.log("Res from supabase : ",pairs,error);
+      
       return pairs;
     },
     refetchOnMount: false,

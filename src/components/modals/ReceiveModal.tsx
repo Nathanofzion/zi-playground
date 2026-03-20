@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-import { Box, Flex, Heading, QrCode, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, QrCode, Text, Badge } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
 import { truncateAddress } from "@/utils";
@@ -10,7 +10,11 @@ import { ModalProps } from "../common/Modal";
 import { ClipboardIconButton, ClipboardRoot } from "../ui/clipboard";
 
 const ReceiveModal: FC<ModalProps> = (props) => {
-  const { address } = useSorobanReact();
+  const { address, activeConnector } = useSorobanReact();
+  // ⚠️ CRITICAL: Check active connector, not localStorage, to determine wallet type
+  // This ensures we show the correct badge for the currently connected wallet
+  const isPasskeyWallet = activeConnector?.id === 'passkey';
+  const isCAddress = address?.startsWith('C');
 
   return (
     <Modal {...props}>
@@ -39,11 +43,28 @@ const ReceiveModal: FC<ModalProps> = (props) => {
               </QrCode.Frame>
             </QrCode.Root>
           </Box>
-          <Flex align="center" gap={2}>
-            <Text fontSize="small">{truncateAddress(address)}</Text>
-            <ClipboardRoot value={address}>
-              <ClipboardIconButton />
-            </ClipboardRoot>
+          <Flex direction="column" align="center" gap={2}>
+            <Flex align="center" gap={2}>
+              <Text fontSize="small">{truncateAddress(address)}</Text>
+              <ClipboardRoot value={address}>
+                <ClipboardIconButton />
+              </ClipboardRoot>
+            </Flex>
+            {isPasskeyWallet && isCAddress && (
+              <Badge colorScheme="purple" fontSize="xs">
+                Smart Contract Wallet (C-address)
+              </Badge>
+            )}
+            {!isPasskeyWallet && isCAddress && (
+              <Badge colorScheme="blue" fontSize="xs">
+                Contract Address
+              </Badge>
+            )}
+            {!isCAddress && (
+              <Badge colorScheme="green" fontSize="xs">
+                Traditional Wallet (G-address)
+              </Badge>
+            )}
           </Flex>
         </Flex>
       </ModalContent>
