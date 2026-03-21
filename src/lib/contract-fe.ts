@@ -350,11 +350,11 @@ const contractId = activeWallet.contractId;
           errorMsg.includes('too far') ||
           errorMsg.includes('timeout');
 
-        console.error('❌ OpenZapplinRelayer submission failed:', {
+        console.error('❌ OpenZapplinRelayer submission failed:', JSON.stringify({
           error: errorMsg,
           isTimeBoundsError,
-          fullError: OpenZapplinRelayerError
-        });
+          fullError: typeof OpenZapplinRelayerError === 'object' ? Object.assign({}, OpenZapplinRelayerError, { message: OpenZapplinRelayerError?.message, stack: OpenZapplinRelayerError?.stack }) : OpenZapplinRelayerError,
+        }, null, 2));
 
         if (isTimeBoundsError) {
           throw new Error(

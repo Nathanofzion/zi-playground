@@ -61,30 +61,26 @@ if ((account as any).timeoutInSeconds !== 25) {
 
 /**
  * PasskeyServer instance for server-side transaction submission
- * Handles OpenZapplinRelayer integration for gasless transactions
+ * Handles OpenZeppelin relayer integration for gasless transactions
  */
-// passkey-kit v0.11.3 uses launchtubeUrl/launchtubeJwt internally.
-// Route through local proxy (/api/relay) to avoid CORS rejection of X-Client-Version header.
+// Route through local proxy (/api/relay) to avoid browser CORS restrictions.
+// PasskeyServer requires BOTH relayerUrl + relayerApiKey to create the ChannelsClient.
 const relayProxyUrl = typeof window !== 'undefined'
   ? `${window.location.origin}/api/relay`
   : '/api/relay';
 
 export const server = new PasskeyServer({
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
-  launchtubeUrl: relayProxyUrl,
+  relayerUrl: relayProxyUrl,
+  relayerApiKey: process.env.NEXT_PUBLIC_RELAYER_API_KEY || "zi-playground",
 });
 
 /**
- * Set OpenZapplinRelayer headers for additional metadata
+ * Set OpenZeppelin relayer headers for additional metadata
  * @param token - Turnstile token or other client token
  */
-export function setLTHeaders(token: string) {
-  // @ts-ignore - OpenZapplinRelayerHeaders exists but may not be in type definitions
-  server.launchtubeHeaders = {
-    'X-Client-Name': 'zi-playground',
-    'X-Client-Version': process.env.npm_package_version || '1.0.0',
-    'X-Turnstile-Response': token,
-  };
+export function setLTHeaders(_token: string) {
+  // No-op: headers are now managed by ChannelsClient internally
 }
 
 /**

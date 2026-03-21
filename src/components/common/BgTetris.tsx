@@ -233,6 +233,7 @@ const BgTetris = () => {
   const { createScore } = useScore(GameType.TETRIS);
 
   const [bestScore, setBestScore] = useState("");
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const handleGameOver = async () => {
     createScore(score);
@@ -272,6 +273,12 @@ const BgTetris = () => {
 
       <Title />
 
+      <Flex justify="center" mb={2}>
+        <Button onClick={() => setShowLeaderboard(true)}>
+          Leaderboard
+        </Button>
+      </Flex>
+
       <Flex
         flexGrow={1}
         w="full"
@@ -286,6 +293,26 @@ const BgTetris = () => {
           <LeadBoard />
         </Flex>
 
+        {/* Leaderboard overlay */}
+        {showLeaderboard && (
+          <Flex
+            position="fixed"
+            top={{ base: "96px", lg: "118px" }}
+            left={0}
+            right={0}
+            bottom={0}
+            zIndex={100}
+            bg="rgba(11,22,30,0.97)"
+            direction="column"
+            align="center"
+            p={6}
+            overflow="auto"
+          >
+            <Button mb={4} onClick={() => setShowLeaderboard(false)}>Close</Button>
+            <LeadBoard />
+          </Flex>
+        )}
+
         <Flex
           position="relative"
           order={2}
@@ -295,14 +322,14 @@ const BgTetris = () => {
           gap={{ base: 2, sm: 4 }}
         >
           <Flex direction="column" align="center" gap={2}>
-            <Board currentBoard={board} border="2px solid white" />
             <Button
               display={{ base: "none", md: "flex" }}
-              mb={32}
+              mb={2}
               onClick={handleGameStart}
             >
               Start game
             </Button>
+            <Board currentBoard={board} border="2px solid white" />
           </Flex>
           <Controller move={move} down={down} release={release} />
           <Button
