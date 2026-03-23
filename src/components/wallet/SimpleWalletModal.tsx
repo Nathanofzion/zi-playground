@@ -99,7 +99,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
       toaster.create({
         title: 'Success',
         description: `Connected to ${wallet.name}`,
-        status: 'success',
+        type: 'success',
       });
       onSuccess();
       handleClose();
@@ -107,7 +107,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
       toaster.create({
         title: 'Connection Failed',
         description: error instanceof Error ? error.message : 'Failed to connect wallet',
-        status: 'error',
+        type: 'error',
       });
     } finally {
       setIsLoading(false);
@@ -132,7 +132,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
       toaster.create({
         title: 'Success',
         description: `Wallet "${newWalletName}" created successfully!`,
-        status: 'success',
+        type: 'success',
       });
       onSuccess();
       handleClose();
@@ -140,7 +140,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
       toaster.create({
         title: 'Creation Failed',
         description: error instanceof Error ? error.message : 'Failed to create wallet',
-        status: 'error',
+        type: 'error',
       });
     } finally {
       setIsLoading(false);
@@ -161,7 +161,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
       toaster.create({
         title: 'Success',
         description: `Wallet "${selectedWallet.name}" deleted successfully!`,
-        status: 'success',
+        type: 'success',
       });
       setWallets(getStoredWallets());
       setView('main');
@@ -169,7 +169,7 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
       toaster.create({
         title: 'Deletion Failed',
         description: error instanceof Error ? error.message : 'Failed to delete wallet',
-        status: 'error',
+        type: 'error',
       });
     } finally {
       setIsLoading(false);

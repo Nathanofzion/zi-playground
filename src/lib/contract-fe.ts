@@ -174,7 +174,7 @@ export async function contractInvoke({
   // OpenZapplinRelayer requires maxTime within 30 seconds, so use 25 for safety
   // Use the parameter value but cap at 25 for OpenZapplinRelayer compatibility
   const txTimeout = Math.min(timeoutSeconds || 25, 25);
-  let tx = new StellarSdk.TransactionBuilder(source, {
+  const tx = new StellarSdk.TransactionBuilder(source, {
     fee: "100",
     networkPassphrase,
   })
@@ -298,7 +298,7 @@ const contractId = activeWallet.contractId;
         const result = await server.send(signedTx);
 
         // ⏳ Poll for confirmation if we have a hash
-        const hash = result.hash || result.transactionHash;
+        const hash = result.transactionId || (result as any).hash || (result as any).transactionHash;
         if (hash) {
           const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
           await waitForConfirmation(hash, rpcUrl);

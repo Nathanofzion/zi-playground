@@ -78,7 +78,7 @@ const RemoveLiquidity = () => {
 
   const handleRemoveLiquidity = async () => {
     try {
-      if(BigNumber(lpAmount).gt(pair?.balance!)){
+      if(pair?.balance != null && BigNumber(lpAmount).gt(pair.balance)){
         return;
       }
       await removeLiquidity(lpAmount);

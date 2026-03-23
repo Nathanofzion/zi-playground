@@ -23,7 +23,7 @@ const usePairs = () => {
       const { data: pairs, error } = await supabase.from("pairs").select();
       console.log("Res from supabase : ",pairs,error);
       
-      return pairs;
+      return pairs ?? [];
     },
     refetchOnMount: false,
     refetchOnWindowFocus: false,
