@@ -85,7 +85,7 @@ const useAssets = () => {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       // Add retry configuration to prevent excessive retries
-      retry: (failureCount, error: any) => {
+      retry: (failureCount: number, error: any) => {
         // Don't retry for trustline/contract errors
         if (error?.message?.includes("trustline") || 
             error?.message?.includes("MissingValue") ||

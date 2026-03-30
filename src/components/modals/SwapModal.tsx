@@ -14,6 +14,7 @@ import Button from "../common/Button";
 import Input from "../common/Input";
 import { ModalProps } from "../common/Modal";
 import { toaster } from "../ui/toaster";
+import LowLiquidityModal from "./LowLiquidityModal";
 
 // ✅ NEW: Server-side XDR parsing function
 export async function strToScVal(base64Xdr: string): Promise<any> {
@@ -44,6 +45,7 @@ const SwapModal: FC<ModalProps> = (props) => {
   const [assetId2, setAssetId2] = useState<string | null>(null);
   const [amount1, setAmount1] = useState("0");
   const [amount2, setAmount2] = useState("0");
+  const [showLowLiquidityModal, setShowLowLiquidityModal] = useState(false);
   const timerRef = useRef<any | null>();
 
   const asset1 = useMemo(
@@ -90,6 +92,11 @@ const SwapModal: FC<ModalProps> = (props) => {
       return;
     }
 
+    if (BigNumber(amount2).lte(0)) {
+      setShowLowLiquidityModal(true);
+      return;
+    }
+
     try {
       await swap(amount1);
       toaster.create({
@@ -100,14 +107,17 @@ const SwapModal: FC<ModalProps> = (props) => {
       setAmount2("0");
     } catch (err) {
       console.error('Swap error:', err);
-      toaster.create({
-        title: err instanceof Error ? err.message : (err as string),
-        type: "error",
-      });
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("insufficient liquidity") || msg.includes("Error(Contract, #10)")) {
+        setShowLowLiquidityModal(true);
+      } else {
+        toaster.create({ title: msg, type: "error" });
+      }
     }
   };
 
   return (
+    <>
     <Modal {...props}>
       <ModalOverlay />
       <ModalContent
@@ -143,6 +153,16 @@ const SwapModal: FC<ModalProps> = (props) => {
         </Button>
       </ModalContent>
     </Modal>
+
+    <LowLiquidityModal
+      isOpen={showLowLiquidityModal}
+      onClose={() => setShowLowLiquidityModal(false)}
+      assetIn={asset1?.code}
+      assetOut={asset2?.code}
+      requested={amount1 ? `${amount1} ${asset1?.code ?? ""}` : undefined}
+      available={asset2 ? `${asset2.balance} ${asset2.code}` : undefined}
+    />
+    </>
   );
 };
 

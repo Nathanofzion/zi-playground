@@ -131,7 +131,10 @@ const AddLiquidity = () => {
 
       if(!amount1 || !amount2 || amount1 == "0" || amount2 == "0") return;
 
-      if(BigNumber(amount2).gt(asset2?.balance!) || BigNumber(amount1).gt(asset1?.balance!)) return;
+      if(
+        (asset2?.balance != null && BigNumber(amount2).gt(asset2.balance)) ||
+        (asset1?.balance != null && BigNumber(amount1).gt(asset1.balance))
+      ) return;
 
       await addLiquidity(amount1, amount2);
       toaster.create({

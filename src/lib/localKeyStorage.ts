@@ -68,7 +68,7 @@ export class LocalKeyStorage {
      this.savePasskeyWallets(newWallets);
      
      // Adjust active index if needed
-     let activeIndex = this.getActiveWalletIndex();
+     const activeIndex = this.getActiveWalletIndex();
      if (activeIndex >= newWallets.length) {
          this.setActiveWalletIndex(Math.max(0, newWallets.length - 1));
      }

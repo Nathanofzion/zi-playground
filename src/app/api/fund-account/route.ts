@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       data: {
         publicKey,
         amount: '10000.0000000',
-        transactionHash: fundingResult.hash || 'N/A'
+        transactionHash: (fundingResult as any)?.hash || 'N/A'
       }
     });
 

@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Engine } from "@babylonjs/core";
-import { Button } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
 
 import { GameType } from "@/enums";
 import useScore from "@/hooks/useScore";
+import { truncateAddress } from "@/utils";
 import { Environment } from "./Environment";
 import { GameAssetsManager } from "./GameAssetsManager";
 import { GameController } from "./GameController";
@@ -16,7 +17,8 @@ import spaceinvadersConfig from "./config";
 import "./index.css";
 
 const BgSpaceInvaders = () => {
-  const { createScore } = useScore(GameType.SPACE_INVADERS);
+  const { createScore, scores } = useScore(GameType.SPACE_INVADERS);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const canvasRef = useRef<any>(null);
   const engineRef = useRef<any>(null);
   const gameControllerRef = useRef<any>(null);
@@ -213,6 +215,19 @@ const BgSpaceInvaders = () => {
             START GAME
           </Button>
         </p>
+        <p>
+          <Button
+            background="transparent"
+            color="#0f0"
+            border="2px solid #0f0"
+            padding="10px 10px 8px"
+            position="relative"
+            fontSize="1.2em"
+            onClick={() => setShowLeaderboard(true)}
+          >
+            LEADERBOARD
+          </Button>
+        </p>
       </div>
       <div id="panel-play-again" className="">
         <Button
@@ -227,6 +242,47 @@ const BgSpaceInvaders = () => {
           PLAY AGAIN
         </Button>
       </div>
+      {showLeaderboard && (
+        <Flex
+          position="fixed"
+          top={{ base: "96px", lg: "118px" }}
+          left={0}
+          right={0}
+          bottom={0}
+          zIndex={50}
+          bg="rgba(0,0,0,0.92)"
+          direction="column"
+          align="center"
+          p={6}
+          overflow="auto"
+        >
+          <Text color="#0f0" fontSize="xl" fontWeight="bold" mb={4}>
+            Leaderboard
+          </Text>
+          <VStack gap={2} align="stretch" w="full" maxW="400px" mb={4}>
+            {scores && scores.length > 0 ? (
+              scores.map((s) => (
+                <Box key={s.id} display="flex" justifyContent="space-between" color="#0f0" fontSize="sm">
+                  <Text>{truncateAddress(s.publicKey)}</Text>
+                  <Text fontWeight="bold">{s.score}</Text>
+                  <Text opacity={0.7}>{new Date(s.created_at).toLocaleDateString()}</Text>
+                </Box>
+              ))
+            ) : (
+              <Text color="#0f0" textAlign="center" opacity={0.7}>No scores yet</Text>
+            )}
+          </VStack>
+          <Button
+            background="transparent"
+            color="#0f0"
+            border="2px solid #0f0"
+            padding="8px 16px"
+            onClick={() => setShowLeaderboard(false)}
+          >
+            Close
+          </Button>
+        </Flex>
+      )}
     </div>
   );
 };

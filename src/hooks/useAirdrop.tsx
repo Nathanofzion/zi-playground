@@ -30,7 +30,7 @@ const useAirdrop = () => {
         if (!address || action === Action.Unknown) return false;
         try {
           // const result = await getAirdropStatus(sorobanContext, address, +action);
-          let result=false; // Placeholder for actual contract call
+          const result=false; // Placeholder for actual contract call
           // Ensure boolean return
           return Boolean(result);
         } catch (err: any) {

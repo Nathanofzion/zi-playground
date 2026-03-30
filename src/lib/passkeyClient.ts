@@ -223,7 +223,7 @@ async function initializeZionTokenTrustline(contractId: string, keyId: string) {
     try {
       await rpc.simulateTransaction(tx);
       console.log('ZION token balance storage initialized (simulated)');
-    } catch (simError: any) {
+    } catch (_simError: any) {
       // If simulation fails, try to actually call balance with signing
       // This will create the storage entry
       console.log('Balance simulation failed, attempting to initialize with signed transaction...');
@@ -238,7 +238,7 @@ async function initializeZionTokenTrustline(contractId: string, keyId: string) {
       try {
         await server.send(signedTx);
         console.log('ZION token balance initialization transaction submitted successfully');
-      } catch (sendError: any) {
+      } catch (_sendError: any) {
         // If OpenZapplinRelayer fails, try direct RPC
         console.warn('OpenZapplinRelayer submission failed, trying direct RPC...');
         const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
@@ -454,7 +454,7 @@ const passkey = () => {
                 StellarSdk.xdr.ScVal.scvLedgerKeyContractInstance()
               );
               console.log('Contract exists on-chain despite submission error!');
-            } catch (checkError) {
+            } catch (_checkError) {
               console.error('Contract not found on-chain');
               throw new Error(
                 'Failed to deploy wallet contract. This is likely due to transaction timebounds being too far in the future. ' +
@@ -665,7 +665,7 @@ const contractId = activeWallet.contractId;
         try {
           await server.send(signedTx);
           console.log('Wallet creation transaction submitted via OpenZapplinRelayer');
-        } catch (OpenZapplinRelayerError: any) {
+        } catch (_OpenZapplinRelayerError: any) {
              // ... duplicate existing fallback logic or refactor to shared ...
              // For brevity, using simplified fallback here or assume shared
              console.warn('OpenZapplinRelayer submission failed, trying direct RPC...');

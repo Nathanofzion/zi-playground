@@ -72,21 +72,23 @@ const useSwap = (asset1: IAsset | null, asset2: IAsset | null) => {
     try {
       setIsSwapping(true);
 
-      // ✅ FIX: Await the conversion before passing to contractInvoke
-      // const args = await RouterContract.spec.funcArgsToScVals(
-      //   "swap_exact_tokens_for_tokens",
-      //   {
-      //     amount_in: BigNumber(amount).times(10000000).toFixed(0),
-      //     amount_out_min: 0,
-      //     path: [asset1.contract, asset2.contract],
-      //     to: address,
-      //     deadline: BigInt(Math.floor(Date.now() / 1000) + 1200),
-      //   }
-      // );
+      // Pre-validate: simulate swap and check pool has enough liquidity
+      const simulatedAmounts = await getAmountsOut(amount);
+      if (!simulatedAmounts || !simulatedAmounts[1]) {
+        throw new Error("Unable to calculate swap output. Pool may have insufficient liquidity.");
+      }
+      const expectedAmountOut = new BigNumber(simulatedAmounts[1]);
+      if (expectedAmountOut.lte(0)) {
+        throw new Error("Swap would return 0 tokens. Pool has insufficient liquidity.");
+      }
+
+      // 0.5% slippage tolerance
+      const slippageTolerance = new BigNumber("0.995");
+      const amountOutMin = expectedAmountOut.times(slippageTolerance).integerValue(BigNumber.ROUND_DOWN);
 
       const argsManual = [
         i128FromDecimal(new BigNumber(amount).times(1e7)),
-        i128FromDecimal(new BigNumber("0").times(1e7)),
+        i128FromDecimal(amountOutMin),
         StellarSdk.xdr.ScVal.scvVec([
           new StellarSdk.Address(asset1.contract).toScVal(),
           new StellarSdk.Address(asset2.contract).toScVal(),
