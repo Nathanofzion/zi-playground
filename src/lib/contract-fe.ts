@@ -47,38 +47,46 @@ const sendToRpcDirectly = async (signedTx: any, rpcUrl: string) => {
 /**
  * Polling function to wait for transaction confirmation on-chain
  */
-const waitForConfirmation = async (hash: string, rpcUrl: string, maxAttempts = 10) => {
+const waitForConfirmation = async (hash: string, rpcUrl: string, maxAttempts = 30) => {
   console.log(`⏳ Waiting for transaction confirmation: ${hash.substring(0, 8)}...`);
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const response = await fetch(rpcUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'getTransaction',
-        params: { hash },
-      }),
-    });
+    try {
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getTransaction',
+          params: { hash },
+        }),
+      });
 
-    const result = await response.json();
-    const status = result.result?.status;
+      const result = await response.json();
+      const status = result.result?.status;
 
-    if (status === 'SUCCESS') {
-      console.log('✅ Transaction confirmed on-chain');
-      // Small extra delay to ensure node state consistency
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return result.result;
-    } else if (status === 'FAILED') {
-      throw new Error(`Transaction failed on-chain: ${JSON.stringify(result.result?.resultXdr)}`);
+      if (status === 'SUCCESS') {
+        console.log('✅ Transaction confirmed on-chain');
+        return result.result;
+      } else if (status === 'FAILED') {
+        throw new Error(`Transaction failed on-chain: ${JSON.stringify(result.result?.resultXdr)}`);
+      }
+      // status === 'NOT_FOUND' or still pending — keep polling
+    } catch (pollError: any) {
+      // Re-throw hard failures, ignore transient fetch errors
+      if (pollError.message?.includes('Transaction failed on-chain')) throw pollError;
+      console.warn(`⏳ Poll attempt ${attempt + 1} error (retrying):`, pollError.message);
     }
 
-    // Wait 2 seconds before next poll
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Wait 3 seconds before next poll (30 attempts × 3s = 90s max)
+    await new Promise(resolve => setTimeout(resolve, 3000));
   }
 
-  throw new Error('Transaction confirmation timeout. The transaction may still succeed, but we stopped waiting.');
+  // Timeout is NOT a failure — the transaction was submitted successfully.
+  // Return null so callers can treat it as a pending success.
+  console.warn('⏳ Confirmation polling timed out — transaction was submitted and may still land on-chain.');
+  return null;
 };
 
 const defaultAddress =
@@ -297,11 +305,14 @@ const contractId = activeWallet.contractId;
       try {
         const result = await server.send(signedTx);
 
-        // ⏳ Poll for confirmation if we have a hash
+        // ⏳ Poll for confirmation — null return means submitted but still pending (not an error)
         const hash = result.transactionId || (result as any).hash || (result as any).transactionHash;
         if (hash) {
           const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
-          await waitForConfirmation(hash, rpcUrl);
+          const confirmed = await waitForConfirmation(hash, rpcUrl);
+          if (confirmed === null) {
+            console.log('⏳ Transaction submitted — confirmation still pending. Treating as success.');
+          }
         }
 
         if (reconnectAfterTx) {
@@ -327,10 +338,13 @@ const contractId = activeWallet.contractId;
             const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
             const result = await sendToRpcDirectly(signedTx, rpcUrl);
 
-            // ⏳ Poll for confirmation if we have a hash
+            // ⏳ Poll for confirmation — null return is a pending success, not an error
             const hash = result.hash || result.transactionHash;
             if (hash) {
-              await waitForConfirmation(hash, rpcUrl);
+              const confirmed = await waitForConfirmation(hash, rpcUrl);
+              if (confirmed === null) {
+                console.log('⏳ Fallback RPC: transaction submitted, confirmation still pending.');
+              }
             }
 
             console.log('✅ Fallback: Transaction submitted via direct RPC');
@@ -345,10 +359,10 @@ const contractId = activeWallet.contractId;
           }
         }
 
-        const isTimeBoundsError = errorMsg.includes('timeBounds') ||
+        const isTimeBoundsError = errorMsg.includes('txBadSeq') ||
+          errorMsg.includes('timeBounds') ||
           errorMsg.includes('maxTime') ||
-          errorMsg.includes('too far') ||
-          errorMsg.includes('timeout');
+          errorMsg.includes('too far');
 
         console.error('❌ OpenZapplinRelayer submission failed:', JSON.stringify({
           error: errorMsg,
