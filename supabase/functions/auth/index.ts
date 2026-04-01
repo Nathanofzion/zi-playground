@@ -139,6 +139,8 @@ Deno.serve((req) =>
           return await withTimeout(handleAuthenticationVerification(data, challenge_id), 15000, "Authentication verification timed out");
         case "sign-transaction":
           return await withTimeout(handleSignTransaction(data), 20000, "Transaction signing timed out");
+        case "register-wallet":
+          return await withTimeout(handleRegisterWallet(data, referrer), 10000, "Wallet registration timed out");
         default:
           throw new BadRequestException();
       }
@@ -392,6 +394,58 @@ const handleSignTransaction = async (data: any) => {
     signedTxXdr: transaction.toXDR(),
     signerAddress: keypair.publicKey(),
   };
+};
+
+const handleRegisterWallet = async (data: any, referrer?: string) => {
+  const { contractId } = data;
+
+  if (!contractId) {
+    throw new BadRequestException("contractId is required");
+  }
+
+  const { data: existingUser } = await supabase
+    .from("users")
+    .select("id, publicKey")
+    .eq("publicKey", contractId)
+    .single();
+
+  if (existingUser) {
+    const token = generateToken({ id: contractId });
+    return { publicKey: contractId, token };
+  }
+
+  const { error } = await supabase.from("users").insert({
+    user_id: contractId,
+    publicKey: contractId,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (referrer) {
+    const { data: referrerUser, error: referrerError } = await supabase
+      .from("users")
+      .select("id, referral_count")
+      .eq("publicKey", referrer)
+      .single();
+
+    if (!referrerError && referrerUser) {
+      await supabase
+        .from("users")
+        .update({ referral_count: (referrerUser.referral_count || 0) + 1 })
+        .eq("publicKey", referrer);
+
+      await supabase.from("rewards").insert({
+        user_id: referrerUser.id,
+        type: "invited",
+        amount: 1,
+      });
+    }
+  }
+
+  const token = generateToken({ id: contractId });
+  return { publicKey: contractId, token };
 };
 
 const handleUpdateProfile = async (data: any) => {

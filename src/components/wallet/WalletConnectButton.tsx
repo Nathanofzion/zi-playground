@@ -18,10 +18,8 @@ import passkeyAnimation from '../../../public/assets/animations/passkey.json';
 import { IWallet } from "@/interfaces";
 import { LocalKeyStorage } from "@/lib/localKeyStorage";
 import SimpleWalletModal from "./SimpleWalletModal";
-import passkeyClient from '@/lib/passkeyClient';
 
 import { useColorModeValue } from "../ui/color-mode";
-import { getStoredWallets } from "@/lib/walletManager";
 
 interface Props extends FlexProps {
   wallet?: IWallet;
@@ -62,33 +60,14 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // ✅ Don't handle click if modal is already open
     if (showWalletModal) {
       return;
     }
 
-    console.log("main connect called!!!")
-
     const isPasskey = walletId === "passkey" || walletShortName === "Passkey";
-    
+
     if (isPasskey) {
-      const wallets = getStoredWallets();
-      console.log("wallets", wallets);
-      if(wallets.length === 0) {
-
-        const hasPasskey = await (passkeyClient() as any).getPasskeysInfo();
-
-        console.log("hasPasskey", hasPasskey);
-
-        if(hasPasskey){
-          await (passkeyClient() as any).getPublicKey();
-        }else{
-          setShowWalletModal(true);
-        }
-      }else{
-        setShowWalletModal(true);
-      }
-
+      setShowWalletModal(true);
     } else {
       // For other wallets, connect directly
       try {

@@ -44,7 +44,7 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         throw new Error("Please connect your wallet to sign up");
       }
 
-      await supabase.functions.invoke("auth", {
+      const { error } = await supabase.functions.invoke("auth", {
         method: "POST",
         body: {
           action: "update-profile",
@@ -54,6 +54,10 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
           },
         },
       });
+
+      if (error) {
+        throw new Error(error.message || "Failed to register email");
+      }
 
       toaster.create({
         type: "success",
