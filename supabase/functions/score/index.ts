@@ -37,6 +37,11 @@ Deno.serve((req) =>
   })
 );
 
+// 1 strop (0.000001 ZI) per point, 10 ZI lifetime cap per game type per account
+const STROPS_PER_POINT = 1;
+const LIFETIME_CAP_STROPS = 10_000_000; // 10 ZI
+const MIN_SCORE_FOR_TRANSFER = 100; // Below this, tx fee exceeds reward
+
 const createScore = async (createScoreDto: any) => {
   const { data, error: scoreError } = await supabase
     .from("scores")
@@ -46,6 +51,37 @@ const createScore = async (createScoreDto: any) => {
   if (scoreError) throw new Error(scoreError.message);
   if (!data) throw new Error("Failed to create score");
 
+  if (data.score < MIN_SCORE_FOR_TRANSFER) {
+    return { ...data, reward: 0, reason: "Score below minimum for token transfer" };
+  }
+
+  // Calculate lifetime rewards already given for this account + game type
+  // Only count sessions that met the minimum threshold (those were actually rewarded)
+  const { data: pastScores, error: historyError } = await supabase
+    .from("scores")
+    .select("score")
+    .eq("publicKey", data.publicKey)
+    .eq("type", data.type)
+    .gte("score", MIN_SCORE_FOR_TRANSFER);
+
+  if (historyError) throw new Error(historyError.message);
+
+  // Exclude the current session from past rewards calculation
+  const previousRewardedPoints = (pastScores || []).reduce(
+    (sum: number, s: any) => sum + (s.score || 0), 0
+  ) - data.score;
+  const previousStrops = Math.min(
+    Math.max(previousRewardedPoints, 0) * STROPS_PER_POINT,
+    LIFETIME_CAP_STROPS
+  );
+  const remainingCap = LIFETIME_CAP_STROPS - previousStrops;
+
+  if (remainingCap <= 0) {
+    return { ...data, reward: 0, reason: "Lifetime reward cap reached for this game" };
+  }
+
+  const rewardStrops = Math.min(data.score * STROPS_PER_POINT, remainingCap);
+
   const result = await contractInvoke({
     contractAddress: zionTokenAddress,
     method: "transfer",
@@ -53,15 +89,15 @@ const createScore = async (createScoreDto: any) => {
     args: [
       nativeToScVal(funderPublicKey, { type: "address" }),
       nativeToScVal(data.publicKey, { type: "address" }),
-      nativeToScVal(data.score * 100, { type: "i128" }),
+      nativeToScVal(rewardStrops, { type: "i128" }),
     ],
   });
 
   if (result.status != "SUCCESS") {
-    throw new Error("Failed to create score");
+    throw new Error("Failed to transfer reward");
   }
 
-  return data;
+  return { ...data, reward: rewardStrops };
 };
 
 const readScore = async (type: string) => {
