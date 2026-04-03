@@ -1,6 +1,5 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 import { Grid } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
@@ -12,17 +11,17 @@ import { AppContext } from "@/providers/AppProvider";
 export default function Home() {
   const { theme } = useContext(AppContext);
   const { address } = useSorobanReact();
-  const searchParams = useSearchParams();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
 
-    const ref = searchParams.get("ref");
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
     if (ref) {
       localStorage.setItem("zi_referrer", ref);
     }
-  }, [searchParams]);
+  }, []);
 
   if (!isClient) {
     return null;
