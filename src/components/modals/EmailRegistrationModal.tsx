@@ -44,7 +44,7 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         throw new Error("Please connect your wallet to sign up");
       }
 
-      await supabase.functions.invoke("auth", {
+      const { error } = await supabase.functions.invoke("auth", {
         method: "POST",
         body: {
           action: "update-profile",
@@ -54,6 +54,10 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
           },
         },
       });
+
+      if (error) {
+        throw new Error(error.message || "Failed to register email");
+      }
 
       toaster.create({
         type: "success",
@@ -69,6 +73,24 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         title: `Error: ${error instanceof Error ? error.message : error}`,
       });
     }
+  };
+
+  const inviteLink = address
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/?ref=${address}`
+    : "";
+
+  const shareText = "Join me on Zi Playground and earn ZI tokens!";
+
+  const handleShare = (platform: "facebook" | "whatsapp" | "x") => {
+    if (!inviteLink) return;
+    const encodedLink = encodeURIComponent(inviteLink);
+    const encodedText = encodeURIComponent(shareText);
+    const urls: Record<string, string> = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`,
+      whatsapp: `https://wa.me/?text=${encodedText}%20${encodedLink}`,
+      x: `https://x.com/intent/tweet?text=${encodedText}&url=${encodedLink}`,
+    };
+    window.open(urls[platform], "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -107,14 +129,20 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
             bg="linear-gradient(to bottom right, #a588e4, #b7fee0)"
             rounded="0.8rem"
           />
-          <HStack spaceX={6} justify="center">
-            <SocialIcon network="facebook" />
-            <SocialIcon network="whatsapp" />
-            <SocialIcon network="x" />
-          </HStack>
-          <Text textAlign="center">
-            Send Your Magic Link with Fb, WhatsApp, X & email.
+          <Text textAlign="center" fontWeight="medium">
+            Share with friends
           </Text>
+          <HStack spaceX={6} justify="center">
+            <Box cursor="pointer" onClick={() => handleShare("facebook")}>
+              <SocialIcon network="facebook" />
+            </Box>
+            <Box cursor="pointer" onClick={() => handleShare("whatsapp")}>
+              <SocialIcon network="whatsapp" />
+            </Box>
+            <Box cursor="pointer" onClick={() => handleShare("x")}>
+              <SocialIcon network="x" />
+            </Box>
+          </HStack>
         </Flex>
       </ModalContent>
     </Modal>

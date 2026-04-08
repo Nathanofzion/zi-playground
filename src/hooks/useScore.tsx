@@ -40,10 +40,12 @@ const useScore = (type: string) => {
   const { mutateAsync: createScore } = useMutation({
     mutationFn: async (score: number) => {
       if (!address) {
-        throw new Error("You have to connect wallet to submit your score.");
+        console.warn("Score not submitted: wallet not connected");
+        return null;
       }
       if (score <= 0) {
-        throw new Error("Score must be greater than 0.");
+        console.warn("Score not submitted: score must be greater than 0");
+        return null;
       }
       const { data, error } = await supabase.functions.invoke("score", {
         method: "POST",
@@ -61,7 +63,8 @@ const useScore = (type: string) => {
       }
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (!data) return;
       toaster.create({
         type: "success",
         title: "Your score has been submitted.",

@@ -15,6 +15,12 @@ export default function Home() {
 
   useEffect(() => {
     setIsClient(true);
+
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      localStorage.setItem("zi_referrer", ref);
+    }
   }, []);
 
   if (!isClient) {

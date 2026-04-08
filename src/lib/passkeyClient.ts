@@ -1,10 +1,11 @@
 import { activeChain } from "./chain";
 import { account, server, initializeWallet } from "./passkey-kit";
-import { LocalKeyStorage, PasskeyWalletEntry } from "./localKeyStorage";
+import { LocalKeyStorage } from "./localKeyStorage";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import zionToken from "@/constants/zionToken";
 import { accountToScVal } from "@/utils";
 import { getStoredWallets } from "./walletManager";
+import { supabase } from "./supabase";
 
 const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID || "";
 
@@ -84,29 +85,53 @@ const connectWithFactory = async (keyId?: string) => {
   });
 };
 
-const persistSession = (contractId: string, keyIdBase64: string) => {
+const registerWalletAndGetToken = async (contractId: string): Promise<string> => {
+  const referrer = localStorage.getItem("zi_referrer");
+  try {
+    const { data, error } = await supabase.functions.invoke("auth", {
+      method: "POST",
+      body: {
+        action: "register-wallet",
+        referrer: referrer || undefined,
+        data: { contractId },
+      },
+    });
+    if (!error && data?.token) {
+      if (referrer) localStorage.removeItem("zi_referrer");
+      return data.token;
+    }
+    console.warn('Wallet registration failed, using fallback token:', error);
+  } catch (err) {
+    console.warn('Wallet registration failed, using fallback token:', err);
+  }
+  return `passkey_fallback_${Date.now()}`;
+};
+
+const storeSessionToken = (token: string) => {
+  LocalKeyStorage.storeToken(token);
+  localStorage.setItem("token", token);
+};
+
+const persistSession = async (contractId: string, keyIdBase64: string) => {
   LocalKeyStorage.storePasskeyKeyId(keyIdBase64);
   LocalKeyStorage.storePasskeyContractId(contractId);
 
   initializeWallet(contractId);
 
-  const token = `passkey_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  LocalKeyStorage.storeToken(token);
+  const token = await registerWalletAndGetToken(contractId);
+  storeSessionToken(token);
 
   const walletEntry = {
     keyId: keyIdBase64,
     contractId: contractId,
-    name: "Passkey Wallet " + contractId.substring(0, 4), // Default name for recovered wallets
+    name: "Passkey Wallet " + contractId.substring(0, 4),
     created: Date.now(),
     lastUsed: Date.now()
   };
-  // Add to multi-wallet list
   LocalKeyStorage.addPasskeyWallet(walletEntry);
-  // Set as active
   const wallets = LocalKeyStorage.getPasskeyWallets();
   const index = wallets.findIndex(w => w.keyId === keyIdBase64);
   if (index !== -1) LocalKeyStorage.setActiveWalletIndex(index);
-
 
   LocalKeyStorage.storeWallet({
     publicKey: contractId,
@@ -126,20 +151,20 @@ const persistSession = (contractId: string, keyIdBase64: string) => {
   return token;
 };
 
-const ensureLocalSession = (contractId: string, keyId: string | null) => {
+const isValidJwt = (token: string) => token.split(".").length === 3;
+
+const ensureLocalSession = async (contractId: string, keyId: string | null) => {
   initializeWallet(contractId);
 
   let token = LocalKeyStorage.getToken();
-  if (!token) {
-    token = `passkey_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    LocalKeyStorage.storeToken(token);
+  if (!token || !isValidJwt(token)) {
+    token = await registerWalletAndGetToken(contractId);
   }
+  storeSessionToken(token);
 
-  // Ensure it's in the list if we have a keyId
   if (keyId) {
     LocalKeyStorage.storePasskeyKeyId(keyId);
-    
-    // Check if in list, if not add it (legacy migration or consistency)
+
     const wallets = LocalKeyStorage.getPasskeyWallets();
     if (!wallets.find(w => w.keyId === keyId)) {
         LocalKeyStorage.addPasskeyWallet({
@@ -166,7 +191,6 @@ const ensureLocalSession = (contractId: string, keyId: string | null) => {
     walletConnected: true,
     token,
   });
-
 };
 const setPasskeyStatus = (status: string | null) => {
   if (status) {
@@ -338,7 +362,7 @@ const passkey = () => {
             throw new Error('Wrong passkey used. Please select the correct credential.');
           }
 
-          ensureLocalSession(storedContractId, storedKeyId);
+          await ensureLocalSession(storedContractId, storedKeyId);
           return storedContractId;
         }
 
@@ -359,7 +383,7 @@ const passkey = () => {
             throw new Error('Passkey recovery returned incomplete data.');
           }
 
-          persistSession(connectResult.contractId, connectResult.keyIdBase64);
+          await persistSession(connectResult.contractId, connectResult.keyIdBase64);
           setPasskeyStatus(null);
           return connectResult.contractId;
         }
@@ -376,7 +400,7 @@ const passkey = () => {
               throw new Error('Passkey recovery returned incomplete data.');
             }
 
-            persistSession(connectResult.contractId, connectResult.keyIdBase64);
+            await persistSession(connectResult.contractId, connectResult.keyIdBase64);
             setPasskeyStatus(null);
             return connectResult.contractId;
           } catch (error: any) {
@@ -466,7 +490,7 @@ const passkey = () => {
         }
 
         // Store credentials locally
-        persistSession(contractId, keyIdBase64);
+        await persistSession(contractId, keyIdBase64);
         setPasskeyStatus(null);
 
         console.log('PasskeyID wallet created and connected successfully:', {

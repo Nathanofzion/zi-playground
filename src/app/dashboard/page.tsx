@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Area,
   AreaChart,
@@ -14,6 +14,7 @@ import {
 
 import { BarList, BarListData, Chart, useChart } from "@chakra-ui/charts";
 import { Box, Flex, Table, Text } from "@chakra-ui/react";
+import { useSorobanReact } from "@soroban-react/core";
 
 import { CloseButton } from "@/components/ui/close-button";
 import { useColorModeValue } from "@/components/ui/color-mode";
@@ -25,9 +26,16 @@ import { truncateAddress } from "@/utils";
 
 export default function PlaygroundPage() {
   const router = useRouter();
+  const { address } = useSorobanReact();
   const { user } = useUser();
   const { rewards } = useRewards();
   const { rewardsList } = useRewardsList();
+
+  useEffect(() => {
+    if (!address) {
+      router.push("/");
+    }
+  }, [address, router]);
 
   const rewardsHistory = useMemo(() => {
     const groupedHistory = _.groupBy(rewards.history, (item) =>
