@@ -6,6 +6,15 @@ import zionToken from "@/constants/zionToken";
 import { accountToScVal } from "@/utils";
 import { getStoredWallets } from "./walletManager";
 import { supabase } from "./supabase";
+import {
+  generateAndStorePQCKeys,
+  signHybrid,
+  hasPQCKeys,
+  setHybridSession,
+  getHybridSession,
+  deletePQCKeys,
+  clearHybridSession,
+} from "./hybrid-pqc";
 
 const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID || "";
 
@@ -85,7 +94,14 @@ const connectWithFactory = async (keyId?: string) => {
   });
 };
 
-const registerWalletAndGetToken = async (contractId: string): Promise<string> => {
+/**
+ * Register wallet with Supabase auth, optionally attaching a PQC public key
+ * for hybrid post-quantum proof storage.
+ */
+const registerWalletAndGetToken = async (
+  contractId: string,
+  pqcPublicKeyBase64?: string
+): Promise<string> => {
   const referrer = localStorage.getItem("zi_referrer");
   try {
     const { data, error } = await supabase.functions.invoke("auth", {
@@ -93,7 +109,12 @@ const registerWalletAndGetToken = async (contractId: string): Promise<string> =>
       body: {
         action: "register-wallet",
         referrer: referrer || undefined,
-        data: { contractId },
+        data: {
+          contractId,
+          // Attach PQC public key during registration so Supabase stores it
+          // alongside the wallet record for future hybrid verification.
+          ...(pqcPublicKeyBase64 ? { pqcPublicKey: pqcPublicKeyBase64 } : {}),
+        },
       },
     });
     if (!error && data?.token) {
@@ -118,7 +139,27 @@ const persistSession = async (contractId: string, keyIdBase64: string) => {
 
   initializeWallet(contractId);
 
-  const token = await registerWalletAndGetToken(contractId);
+  // ── Hybrid PQC: generate ML-DSA-65 keys on first registration ──────────
+  // Keys are generated before token registration so the public key can be
+  // included in the register-wallet request to Supabase.
+  let pqcPublicKeyBase64: string | undefined;
+  try {
+    const alreadyHasKeys = await hasPQCKeys(contractId);
+    if (!alreadyHasKeys) {
+      console.log('[hybrid-pqc] Generating ML-DSA-65 key pair for new wallet...');
+      const { publicKeyBase64 } = await generateAndStorePQCKeys(contractId, keyIdBase64);
+      pqcPublicKeyBase64 = publicKeyBase64;
+      console.log('[hybrid-pqc] PQC key pair generated and stored in IndexedDB.');
+    } else {
+      console.log('[hybrid-pqc] PQC keys already exist for this wallet, skipping keygen.');
+    }
+  } catch (pqcErr) {
+    // PQC generation failure must never block wallet creation
+    console.warn('[hybrid-pqc] PQC key generation failed (non-critical):', pqcErr);
+  }
+  // ── End Hybrid PQC ──────────────────────────────────────────────────────
+
+  const token = await registerWalletAndGetToken(contractId, pqcPublicKeyBase64);
   storeSessionToken(token);
 
   const walletEntry = {
@@ -148,6 +189,9 @@ const persistSession = async (contractId: string, keyIdBase64: string) => {
     token,
   });
 
+  // Mark PQC session as active (avoids re-signing on every API call)
+  setHybridSession(contractId);
+
   return token;
 };
 
@@ -161,6 +205,26 @@ const ensureLocalSession = async (contractId: string, keyId: string | null) => {
     token = await registerWalletAndGetToken(contractId);
   }
   storeSessionToken(token);
+
+  // ── Hybrid PQC: activate session cache on reconnect ────────────────────
+  // If there's no active hybrid session (e.g. page refresh), mark as active.
+  // Full PQC re-signing only happens at registration or explicit re-auth.
+  if (!getHybridSession()) {
+    setHybridSession(contractId);
+    // If this wallet was created before PQC support was added, log a note.
+    // The user will get PQC keys on next full re-registration.
+    if (keyId) {
+      hasPQCKeys(contractId).then((has) => {
+        if (!has) {
+          console.info(
+            '[hybrid-pqc] This wallet predates PQC support. ' +
+            'PQC keys will be generated on next wallet re-registration.'
+          );
+        }
+      }).catch(() => {});
+    }
+  }
+  // ── End Hybrid PQC ──────────────────────────────────────────────────────
 
   if (keyId) {
     LocalKeyStorage.storePasskeyKeyId(keyId);
@@ -657,6 +721,15 @@ const contractId = activeWallet.contractId;
     },
 
     disconnect: () => {
+      // ── Hybrid PQC: clean up PQC keys and session on disconnect ──────────
+      const contractId = LocalKeyStorage.getPasskeyContractId();
+      if (contractId) {
+        deletePQCKeys(contractId).catch((e) =>
+          console.warn('[hybrid-pqc] cleanup on disconnect failed (non-critical):', e)
+        );
+      }
+      clearHybridSession();
+      // ── End Hybrid PQC ────────────────────────────────────────────────────
       LocalKeyStorage.clearAll();
       console.log('PasskeyID wallet disconnected');
     },
@@ -745,6 +818,22 @@ const contractId = activeWallet.contractId;
         } catch (e) {
             console.warn('Trustline init failed', e);
         }
+
+        // ── Hybrid PQC: generate ML-DSA-65 keys for multi-wallet creation ──
+        // createNewWallet does not go through persistSession, so keygen is
+        // triggered here. Failure is non-critical and never blocks the flow.
+        try {
+          const alreadyHasKeys = await hasPQCKeys(contractId);
+          if (!alreadyHasKeys) {
+            console.log('[hybrid-pqc] Generating ML-DSA-65 key pair for new wallet...');
+            await generateAndStorePQCKeys(contractId, keyIdBase64);
+            console.log('[hybrid-pqc] PQC key pair generated for createNewWallet.');
+          }
+          setHybridSession(contractId);
+        } catch (pqcErr) {
+          console.warn('[hybrid-pqc] PQC key generation failed (non-critical):', pqcErr);
+        }
+        // ── End Hybrid PQC ──────────────────────────────────────────────────
         
         setPasskeyStatus(null);
         return { keyId: keyIdBase64, contractId };
