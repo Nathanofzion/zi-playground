@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import { FC } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { SocialIcon } from "react-social-icons";
 import { z } from "zod";
 
@@ -27,7 +27,7 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const { address } = useSorobanReact();
   const router = useRouter();
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<EmailRegistrationFormData>({
@@ -111,7 +111,17 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
           <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
             <Flex w="full" direction="column" align="center" gap={4}>
               <Flex w="full" direction="column" gap={2}>
-                <Input placeholder="Email" {...register("email")} />
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="Email"
+                    />
+                  )}
+                />
                 {errors.email && (
                   <Text color="red.500" fontSize="sm">
                     {errors.email.message}
@@ -134,13 +144,13 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
           </Text>
           <HStack spaceX={6} justify="center">
             <Box cursor="pointer" onClick={() => handleShare("facebook")}>
-              <SocialIcon network="facebook" />
+              <SocialIcon network="facebook" url="" />
             </Box>
             <Box cursor="pointer" onClick={() => handleShare("whatsapp")}>
-              <SocialIcon network="whatsapp" />
+              <SocialIcon network="whatsapp" url="" />
             </Box>
             <Box cursor="pointer" onClick={() => handleShare("x")}>
-              <SocialIcon network="x" />
+              <SocialIcon network="x" url="" />
             </Box>
           </HStack>
         </Flex>

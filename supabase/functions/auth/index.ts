@@ -397,7 +397,7 @@ const handleSignTransaction = async (data: any) => {
 };
 
 const handleRegisterWallet = async (data: any, referrer?: string) => {
-  const { contractId } = data;
+  const { contractId, pqcPublicKey } = data;
 
   if (!contractId) {
     throw new BadRequestException("contractId is required");
@@ -410,6 +410,18 @@ const handleRegisterWallet = async (data: any, referrer?: string) => {
     .single();
 
   if (existingUser) {
+    // If PQC public key provided, update the record (e.g., after key rotation or
+    // first PQC-capable login on an existing account).
+    if (pqcPublicKey) {
+      await supabase
+        .from("users")
+        .update({
+          pqc_public_key: pqcPublicKey,
+          pqc_algorithm: "ML-DSA-65",
+          pqc_registered_at: new Date().toISOString(),
+        })
+        .eq("publicKey", contractId);
+    }
     const token = generateToken({ id: contractId });
     return { publicKey: contractId, token };
   }
@@ -417,6 +429,13 @@ const handleRegisterWallet = async (data: any, referrer?: string) => {
   const { error } = await supabase.from("users").insert({
     user_id: contractId,
     publicKey: contractId,
+    ...(pqcPublicKey
+      ? {
+          pqc_public_key: pqcPublicKey,
+          pqc_algorithm: "ML-DSA-65",
+          pqc_registered_at: new Date().toISOString(),
+        }
+      : {}),
   });
 
   if (error) {
