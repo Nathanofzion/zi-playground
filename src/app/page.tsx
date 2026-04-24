@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useContext, useEffect, useState } from "react";
 
 import { Grid } from "@chakra-ui/react";

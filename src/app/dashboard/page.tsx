@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import _ from "lodash";
 import { useRouter } from "next/navigation";
