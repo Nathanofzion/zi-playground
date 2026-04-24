@@ -3,7 +3,7 @@
 **Frameworks applied:** ISO/IEC 27001:2022 · Certra 4 A's · Stellar STRIDE  
 **Audit date initiated:** 24 April 2026  
 **Auditors:** (assign before starting)  
-**Status:** ⬜ Not started
+**Status:** 🟡 In Progress — Critical issues P01–P06 + P10 resolved 24 Apr 2026
 
 ---
 
@@ -73,8 +73,8 @@ Browser (Next.js)
 | `supabase/functions/rewards` | Claim ZITOKEN rewards | Public (authenticated) |
 | `supabase/functions/score` | Write leaderboard entry | Public (authenticated) |
 | `supabase/functions/soroswap` | DEX routing / swap | Public (authenticated) |
-| `src/app/api/airdrop/route.ts` | Distribute tokens via funder key | **Public (no auth check)** ⚠️ |
-| `src/app/api/fund/[address]/route.ts` | Fund any address | **Public (no auth check)** ⚠️ |
+| `src/app/api/airdrop/route.ts` | Distribute tokens via funder key | ✅ JWT auth + rate limit (fixed 24 Apr 2026) |
+| `src/app/api/fund/[address]/route.ts` | Fund any address | ✅ JWT auth (fixed 24 Apr 2026) |
 | Soroban smart contract (Game Reward) | Token distribution, game config | On-chain |
 
 ### System Infrastructure
@@ -135,9 +135,9 @@ Browser (Next.js)
 ### Secure Network
 
 - [ ] **WAF**: Verify Vercel's WAF is enabled for the project (Settings → Security)
-- [ ] **CORS**: `verify-hybrid` uses `Access-Control-Allow-Origin: *` — needs restriction to own domain
-- [ ] **HTTPS**: Enforced by Vercel. Confirm HSTS header is present in production response
-- [ ] **CSP**: No `Content-Security-Policy` header exists in `vercel.json` — **needs adding**
+- [x] **CORS**: `verify-hybrid` — ✅ Restricted to `https://zi-playground.vercel.app` (fixed 24 Apr 2026)
+- [x] **HTTPS**: Enforced by Vercel. ✅ `Strict-Transport-Security` header added to `vercel.json` (fixed 24 Apr 2026)
+- [x] **CSP**: ✅ Full `Content-Security-Policy` header added to `vercel.json` (fixed 24 Apr 2026)
 - [ ] Supabase project is not publicly accessible via direct Postgres port
 
 ### Trusted Third-Parties
@@ -188,11 +188,11 @@ Browser (Next.js)
 
 | Vector | Surface | Current State | Action Required |
 |--------|---------|--------------|-----------------|
-| Unauthenticated airdrop drain | `/api/airdrop` | **No auth — CRITICAL** ⚠️ | Add JWT auth check + rate limit |
-| Unauthenticated fund endpoint | `/api/fund/[address]` | **No auth — HIGH** ⚠️ | Add JWT auth check + rate limit |
-| `users_insert_service` allows `anon` role | RLS policy | Anon can insert users | Tighten — only `service_role` should insert |
+| Unauthenticated airdrop drain | `/api/airdrop` | ✅ JWT auth + 60s per-wallet cooldown (fixed 24 Apr 2026) | — |
+| Unauthenticated fund endpoint | `/api/fund/[address]` | ✅ JWT auth (fixed 24 Apr 2026) | — |
+| `users_insert_service` allows `anon` role | RLS policy | ✅ Anon removed from policy (fixed 24 Apr 2026) | — |
 | Leaderboard score injection | `scores` table | Service role only inserts ✅ | Verify edge function validates user JWT before writing |
-| PQC public key substitution | `verify-hybrid` | Checks DB-stored key vs submitted key? | **Audit**: ensure server fetches key from DB, not trusts client-submitted `pqcPublicKey` |
+| PQC public key substitution | `verify-hybrid` | ✅ Server fetches key from DB; client-submitted key ignored (fixed 24 Apr 2026) | — |
 | Replay of hybrid proof | `verify-hybrid` | 5-minute TTL check ✅ | Verify `issuedAt` is validated strictly server-side |
 | Privilege escalation via JWT | All edge functions | `auth.role()` used in RLS | Audit all edge functions validate JWT before DB writes |
 
@@ -200,8 +200,8 @@ Browser (Next.js)
 
 | Vector | Surface | Action |
 |--------|---------|--------|
-| Airdrop endpoint spam (funder balance drain) | `/api/airdrop` | **Add rate limiting immediately** |
-| Fund endpoint spam | `/api/fund/[address]` | **Add rate limiting immediately** |
+| Airdrop endpoint spam (funder balance drain) | `/api/airdrop` | ✅ 60s per-wallet cooldown implemented (fixed 24 Apr 2026) |
+| Fund endpoint spam | `/api/fund/[address]` | ✅ JWT auth added; IP-level rate limiting recommended (P09) |
 | Edge function CPU exhaustion | Auth function (WebAuthn verify) | Timeout wrapper exists — verify it fires |
 | Soroban RPC flood | via swap/rewards | Add request queuing / backpressure |
 | IndexedDB overflow (client) | Browser | Limit stored PQC key entries to one per contract |
@@ -245,24 +245,24 @@ See Section 1 for data flow diagram.
 | ID | Remediation |
 |----|-------------|
 | Spoof.1.R.1 | `auth` edge function must verify the authenticator counter increments on each assertion — already partially in place; confirm counter column is checked |
-| Spoof.2.R.1 | `verify-hybrid` must fetch `pqc_public_key` from Supabase DB by `contractId` and ignore the client-submitted `pqcPublicKey` entirely |
-| Spoof.3.R.1 | Add JWT auth middleware to `/api/airdrop` and `/api/fund`; only authenticated users may call these |
+| Spoof.2.R.1 | ✅ **DONE 24 Apr 2026** — `verify-hybrid` now fetches `pqc_public_key` from Supabase DB by `contractId`; client-submitted key is ignored entirely |
+| Spoof.3.R.1 | ✅ **DONE 24 Apr 2026** — JWT auth middleware (`src/lib/api-auth.ts`) added to `/api/airdrop` and `/api/fund`; unauthenticated calls rejected with 401 |
 | Spoof.3.R.2 | Rotate `FUNDER_SECRET_KEY` immediately if suspicious transactions are observed; add monitoring alert |
-| Tamper.1.R.1 | Whitelist valid `action` values (1, 2, 3) in `/api/airdrop/route.ts`; reject anything else with 400 |
+| Tamper.1.R.1 | ✅ **DONE 24 Apr 2026** — `VALID_ACTIONS = new Set([1, 2, 3])` whitelist added to `/api/airdrop/route.ts`; invalid values rejected with 400 |
 | Tamper.2.R.1 | Accepted by design — AES-GCM encryption ties the blob to the passkey credential ID. Document this in threat model. |
-| Tamper.3.R.1 | Pin all security-critical packages to exact versions (`0.1.2` not `^0.1.2`). Enable `pnpm audit` in CI |
+| Tamper.3.R.1 | ⬜ Partial — review `@noble/post-quantum` semver pinning in `package.json` (P08, open) |
 | Repudiate.1.R.1 | Store a signed claim receipt (challenge hash + timestamp + user contract ID) in `rewards` table on every claim |
 | Repudiate.2.R.1 | Stellar ledger provides immutable event log — document how to query `distribute_reward` events via Stellar Explorer |
 | Info.1.R.1 | Audit all `console.log` / `console.error` calls in API routes — ensure no env vars are logged |
-| Info.2.R.1 | Change `CORS_HEADERS` in `verify-hybrid` to `Access-Control-Allow-Origin: https://zi-playground.vercel.app` |
-| Info.3.R.1 | Add `Content-Security-Policy` header to `vercel.json` restricting scripts to `'self'` |
+| Info.2.R.1 | ✅ **DONE 24 Apr 2026** — `CORS_HEADERS` in `verify-hybrid` now set to `Deno.env.get("ORIGIN")` (`https://zi-playground.vercel.app`) with `Vary: Origin` |
+| Info.3.R.1 | ✅ **DONE 24 Apr 2026** — Full `Content-Security-Policy` header added to `vercel.json`; restricts `connect-src`, `frame-src`, `object-src`, `base-uri` |
 | Info.4.R.1 | Accept as intended (public leaderboard). Document this decision explicitly |
-| DoS.1.R.1 | Add `upstash/ratelimit` or Vercel Edge Middleware rate limiting to `/api/airdrop` (max 3 req/min per IP) |
-| DoS.2.R.1 | Same rate limiting as DoS.1.R.1 for `/api/fund/[address]` |
-| DoS.3.R.1 | Add a registration rate limit per IP in the `auth` edge function |
-| Elev.1.R.1 | Change `users_insert_service` policy: remove `OR auth.role() = 'anon'` — only `service_role` should insert |
+| DoS.1.R.1 | ✅ **DONE 24 Apr 2026** — 60-second per-wallet cooldown enforced in `/api/airdrop/route.ts` via `rewards` table lookup |
+| DoS.2.R.1 | ✅ **DONE 24 Apr 2026** — JWT auth prevents unauthenticated spam on `/api/fund/[address]`; IP-level rate limiting recommended for P09 |
+| DoS.3.R.1 | ⬜ Add a registration rate limit per IP in the `auth` edge function (P09, open) |
+| Elev.1.R.1 | ✅ **DONE 24 Apr 2026** — Migration `20260424120000_fix_users_insert_policy.sql` removes `OR auth.role() = 'anon'`; only `service_role` may insert |
 | Elev.2.R.1 | Enable Supabase MFA for all dashboard users. Rotate service role key if any exposure suspected |
-| Elev.3.R.1 | Move smart contract admin to a multi-sig or hardware wallet key before mainnet. Document current SPOF risk |
+| Elev.3.R.1 | ⬜ Move smart contract admin to a multi-sig or hardware wallet key before mainnet (P12, open) |
 
 ### 6.4 Did we do a good job? (Complete after audit)
 
@@ -300,16 +300,16 @@ See Section 1 for data flow diagram.
 |---------|-----|--------|--------|
 | User endpoint devices | A.8.1 | ⬜ | Ensure dev machines have disk encryption |
 | Privileged access management | A.8.2 | ⬜ | MFA on Vercel + Supabase ✅ (confirm); rotate keys on offboarding |
-| Information access restriction | A.8.3 | ⬜ | RLS policies deployed ✅; fix `anon` insert issue |
+| Information access restriction | A.8.3 | ✅ | RLS policies deployed; `anon` insert removed from `users_insert_service` policy (fixed 24 Apr 2026) |
 | Access to source code | A.8.4 | ⬜ | Repo is public — ensure secrets never in code |
 | Secure authentication | A.8.5 | ✅ | WebAuthn passkey + hybrid PQC implemented |
-| Capacity management | A.8.6 | ⬜ | Rate limiting on API routes (see DoS remediations) |
+| Capacity management | A.8.6 | 🟡 | `/api/airdrop` 60s cooldown ✅; IP-level rate limiting still pending (P09) |
 | Protection against malware | A.8.7 | ⬜ | `pnpm audit` in CI |
 | Management of technical vulnerabilities | A.8.8 | ⬜ | Enable GitHub Dependabot; schedule monthly `pnpm audit` |
 | Configuration management | A.8.9 | ⬜ | All infra config in git (`vercel.json`, migrations) ✅ |
 | Deletion of information | A.8.10 | ⬜ | Document data deletion flow for offboarding users (GDPR if applicable) |
 | Data masking | A.8.11 | ⬜ | Ensure passkey private keys never enter logs |
-| Data leakage prevention | A.8.12 | ⬜ | Add CSP header; restrict CORS origin |
+| Data leakage prevention | A.8.12 | ✅ | CSP header added to `vercel.json`; CORS restricted to origin in `verify-hybrid` (fixed 24 Apr 2026) |
 | Monitoring activities | A.8.16 | ⬜ | Set up Vercel log drains / Supabase log alerts |
 | Web filtering | A.8.23 | ⬜ | Verify Vercel WAF rules |
 | Use of cryptography | A.8.24 | ✅ | AES-GCM (IndexedDB), HKDF-SHA-256, ML-DSA-65, secp256r1 |
@@ -363,20 +363,20 @@ See Section 1 for data flow diagram.
 
 *These were found during the codebase scan on 24 April 2026 and should be addressed first.*
 
-| Priority | ID | File | Issue | Fix |
-|----------|-----|------|-------|-----|
-| 🔴 CRITICAL | P01 | `src/app/api/airdrop/route.ts` | No authentication — any caller can drain funder wallet | Add JWT auth + rate limit |
-| 🔴 CRITICAL | P02 | `src/app/api/fund/[address]/route.ts` | No authentication — any caller can fund any address | Add JWT auth + rate limit |
-| 🔴 CRITICAL | P03 | `supabase/functions/verify-hybrid/index.ts` | Trusts client-submitted `pqcPublicKey` — must fetch from DB | Fetch `pqc_public_key` from `users` table by `contractId` |
-| 🟠 HIGH | P04 | `supabase/migrations/20260424104820_enable_rls_existing_tables.sql` | `users_insert_service` allows `anon` role to insert users | Remove `OR auth.role() = 'anon'` |
-| 🟠 HIGH | P05 | `supabase/functions/verify-hybrid/index.ts` | `Access-Control-Allow-Origin: *` | Restrict to `https://zi-playground.vercel.app` |
-| 🟠 HIGH | P06 | `vercel.json` | No `Content-Security-Policy` header | Add CSP restricting scripts/frames |
-| 🟡 MEDIUM | P07 | `src/lib/localKeyStorage.ts` | Unknown key storage path — audit whether this stores private keys insecurely | Review and remove or encrypt |
-| 🟡 MEDIUM | P08 | `package.json` | `@noble/post-quantum` may use `^` semver — supply chain risk | Pin to exact version |
-| 🟡 MEDIUM | P09 | All edge functions | No rate limiting on registration/auth | Add IP-based rate limit in auth edge function |
-| 🟢 LOW | P10 | `vercel.json` | HSTS header absent | Add `Strict-Transport-Security: max-age=31536000; includeSubDomains` |
-| 🟢 LOW | P11 | Supabase project | Daily backups not confirmed | Enable via Supabase Pro dashboard |
-| 🟢 LOW | P12 | Funder keypair | Single EOA key manages all contract ops | Plan multi-sig migration before mainnet |
+| Priority | ID | File | Issue | Fix | Status |
+|----------|-----|------|-------|-----|--------|
+| 🔴 CRITICAL | P01 | `src/app/api/airdrop/route.ts` | No authentication — any caller can drain funder wallet | Add JWT auth + rate limit | ✅ Fixed 24 Apr 2026 |
+| 🔴 CRITICAL | P02 | `src/app/api/fund/[address]/route.ts` | No authentication — any caller can fund any address | Add JWT auth + rate limit | ✅ Fixed 24 Apr 2026 |
+| 🔴 CRITICAL | P03 | `supabase/functions/verify-hybrid/index.ts` | Trusts client-submitted `pqcPublicKey` — must fetch from DB | Fetch `pqc_public_key` from `users` table by `contractId` | ✅ Fixed 24 Apr 2026 |
+| 🟠 HIGH | P04 | `supabase/migrations/20260424120000_fix_users_insert_policy.sql` | `users_insert_service` allows `anon` role to insert users | Remove `OR auth.role() = 'anon'` | ✅ Fixed 24 Apr 2026 |
+| 🟠 HIGH | P05 | `supabase/functions/verify-hybrid/index.ts` | `Access-Control-Allow-Origin: *` | Restrict to `https://zi-playground.vercel.app` | ✅ Fixed 24 Apr 2026 |
+| 🟠 HIGH | P06 | `vercel.json` | No `Content-Security-Policy` header | Add CSP restricting scripts/frames | ✅ Fixed 24 Apr 2026 |
+| 🟢 LOW | P10 | `vercel.json` | HSTS header absent | Add `Strict-Transport-Security: max-age=31536000; includeSubDomains` | ✅ Fixed 24 Apr 2026 |
+| 🟡 MEDIUM | P07 | `src/lib/localKeyStorage.ts` | Unknown key storage path — audit whether this stores private keys insecurely | Review and remove or encrypt | ⬜ Open |
+| 🟡 MEDIUM | P08 | `package.json` | `@noble/post-quantum` may use `^` semver — supply chain risk | Pin to exact version | ⬜ Open |
+| 🟡 MEDIUM | P09 | All edge functions | No rate limiting on registration/auth | Add IP-based rate limit in auth edge function | ⬜ Open |
+| 🟢 LOW | P11 | Supabase project | Daily backups not confirmed | Enable via Supabase Pro dashboard | ⬜ Open |
+| 🟢 LOW | P12 | Funder keypair | Single EOA key manages all contract ops | Plan multi-sig migration before mainnet | ⬜ Open |
 
 ---
 
@@ -384,7 +384,7 @@ See Section 1 for data flow diagram.
 
 | Phase | Auditor | Date | Status |
 |-------|---------|------|--------|
-| Code review (backend) | | | ⬜ |
+| Code review (backend) | Internal | 24 Apr 2026 | ✅ P01–P06, P10 resolved |
 | Code review (smart contract) | | | ⬜ |
 | Code review (frontend / PQC) | | | ⬜ |
 | STRIDE review | | | ⬜ |
