@@ -35,10 +35,15 @@ function fromBase64Url(b64: string): Uint8Array {
 const MAX_PROOF_AGE_MS = 5 * 60 * 1000; // 5 minutes
 
 // ── CORS headers ───────────────────────────────────────────────────────────
+// P05: Restrict to the known app origin — never wildcard on a security endpoint.
+const ALLOWED_ORIGIN =
+  Deno.env.get("ORIGIN") ?? "https://zi-playground.vercel.app";
+
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "Vary": "Origin",
 };
 
 const json = (body: unknown, status = 200) =>
@@ -95,23 +100,22 @@ Deno.serve(async (req: Request) => {
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  const { data: userRow } = await supabase
+  const { data: userRow, error: dbError } = await supabase
     .from("users")
     .select("pqc_public_key, pqc_algorithm")
     .eq("publicKey", contractId)
     .single();
 
-  // If a stored key exists, use it. Otherwise fall back to the supplied key
-  // (first-use scenario before the DB write from register-wallet completes).
-  const authorativePublicKey: string =
-    userRow?.pqc_public_key ?? pqcPublicKey;
-
-  if (!authorativePublicKey) {
+  // P03: Always use the DB-stored key. Never trust the client-supplied key.
+  // If no record exists the wallet has not completed registration — reject.
+  if (dbError || !userRow?.pqc_public_key) {
     return json(
-      { verified: false, reason: "No PQC public key on record for this wallet" },
+      { verified: false, reason: "No PQC public key on record for this wallet. Complete registration first." },
       400
     );
   }
+
+  const authorativePublicKey: string = userRow.pqc_public_key;
 
   // ── Cryptographic verification ──────────────────────────────────────────
   try {

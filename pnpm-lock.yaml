@@ -98,6 +98,9 @@ importers:
       html5-qrcode:
         specifier: ^2.3.8
         version: 2.3.8
+      jose:
+        specifier: ^6.2.2
+        version: 6.2.2
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -2828,6 +2831,9 @@ packages:
     peerDependenciesMeta:
       node-notifier:
         optional: true
+
+  jose@6.2.2:
+    resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -7711,6 +7717,8 @@ snapshots:
       - esbuild-register
       - supports-color
       - ts-node
+
+  jose@6.2.2: {}
 
   js-tokens@4.0.0: {}
 
