@@ -289,6 +289,51 @@ curl -L -X POST '<SUPABASE_URL>' \
 
 ---
 
+## 🔐 Mainnet Launch Checklist
+
+> **All keys in git history are testnet-only and have no real value.**
+> Before going live on mainnet, complete every item below.
+
+### Keys — Generate fresh, never reuse testnet keys
+
+- [ ] Generate new **Stellar funder keypair** (`FUNDER_PUBLIC_KEY` / `FUNDER_SECRET_KEY`) — fund with real XLM
+- [ ] Generate new **OpenZeppelin Relayer API key** (`NEXT_PUBLIC_RELAYER_API_KEY`) from [channels.openzeppelin.com](https://channels.openzeppelin.com)
+- [ ] Obtain new **Mercury JWT** (`MERCURY_JWT`) for mainnet Mercury project
+- [ ] Create a **new Supabase project** (separate from testnet) and copy fresh `SUPABASE_URL` + `SUPABASE_ANON_KEY`
+- [ ] Rotate `SECRET_KEY` used for JWT signing in Supabase edge functions
+
+### Contracts — Redeploy on mainnet
+
+- [ ] Deploy smart wallet factory contract → update `NEXT_PUBLIC_FACTORY_CONTRACT_ID`
+- [ ] Deploy/verify WASM → update `NEXT_PUBLIC_WALLET_WASM_HASH`
+- [ ] Deploy airdrop contract → update `NEXT_PUBLIC_AIRDROP_CONTRACT_ID`
+- [ ] Update `NEXT_PUBLIC_NETWORK_PASSPHRASE` to `Public Global Stellar Network ; September 2015`
+- [ ] Update `NEXT_PUBLIC_RPC_URL` to a mainnet RPC endpoint
+- [ ] Update Soroswap router + factory to mainnet addresses
+
+### Supabase
+
+- [ ] Run `supabase db push` against the new mainnet project (includes PQC migration)
+- [ ] Deploy all edge functions: `supabase functions deploy`
+- [ ] Set all Supabase secrets (`SECRET_KEY`, `FUNDER_SECRET_KEY`, `MERCURY_JWT`, etc.) via `supabase secrets set`
+- [ ] Enable Row Level Security (RLS) policies on `users`, `rewards`, `wallet_accounts` tables
+- [ ] Set `verify-hybrid` function secrets
+
+### Hosting (Vercel)
+
+- [ ] Add all `NEXT_PUBLIC_` vars to Vercel dashboard environment variables — **never commit them to files**
+- [ ] Verify `.env.example` contains no real values
+- [ ] Enable Vercel deployment protection for production branch
+
+### Security
+
+- [ ] Confirm `.gitignore` blocks all `.env*` patterns (already done ✅)
+- [ ] Run `git ls-tree -r HEAD --name-only | grep .env` — must return only `.env.example`
+- [ ] Review Supabase RLS policies before launch
+- [ ] Rotate any key that was ever in a committed `.env` file
+
+---
+
 ## Contributing
 
 - Fork the repository, make changes, and submit a pull request
