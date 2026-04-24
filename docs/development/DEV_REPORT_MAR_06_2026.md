@@ -123,3 +123,46 @@ server.launchtubeHeaders = {
 With the CORS fix applied, **all PasskeyID functionality is now working correctly**. The developers' core authentication and wallet management code is solid - they just missed the network configuration details.
 
 **Recommendation**: Update the header configuration and this implementation is production-ready.
+
+---
+
+## 🔐 Security Audit Update — 24 April 2026
+
+**Auditor**: Internal (Copilot Agent)  
+**Frameworks**: ISO/IEC 27001:2022 · Certra 4 A's · Stellar STRIDE  
+**Full plan**: `SECURITY AUDITS/SECURITY-AUDIT-ACTION-PLAN.md`  
+**Commit**: `d280003` → doc update `7842176`
+
+### Issues Resolved (P01–P06 + P10)
+
+| ID | Severity | Description | Fix Applied |
+|----|----------|-------------|-------------|
+| P01 | 🔴 Critical | `/api/airdrop` had no authentication — any caller could drain the funder wallet | Added JWT auth (`src/lib/api-auth.ts`) + 60s per-wallet cooldown via `rewards` table |
+| P02 | 🔴 Critical | `/api/fund/[address]` had no authentication — any caller could fund any address | Added JWT auth |
+| P03 | 🔴 Critical | `verify-hybrid` trusted client-submitted `pqcPublicKey` instead of fetching from DB | Server now always fetches `pqc_public_key` from `users` table by `contractId`; client value ignored |
+| P04 | 🟠 High | `users_insert_service` RLS policy allowed `anon` role to insert user rows | New migration `20260424120000_fix_users_insert_policy.sql` — only `service_role` may insert |
+| P05 | 🟠 High | `verify-hybrid` had `Access-Control-Allow-Origin: *` | Restricted to `Deno.env.get("ORIGIN")` (`https://zi-playground.vercel.app`) with `Vary: Origin` |
+| P06 | 🟠 High | No `Content-Security-Policy` header in `vercel.json` | Full CSP added restricting `connect-src`, `frame-src`, `object-src`, `base-uri` |
+| P10 | 🟢 Low | No `Strict-Transport-Security` header | `max-age=31536000; includeSubDomains` added to `vercel.json` |
+
+### New Shared Utility
+
+**`src/lib/api-auth.ts`** — JWT verification helper using `jose` (HS256).  
+`requireAuth(req)` returns verified payload or a 401 `NextResponse`. Used by both API routes above.
+
+### Open Items (Next Sprint)
+
+| ID | Priority | Description |
+|----|----------|-------------|
+| P07 | 🟡 Medium | Audit `src/lib/localKeyStorage.ts` for insecure private key storage |
+| P08 | 🟡 Medium | Pin `@noble/post-quantum` to exact semver (remove `^`) |
+| P09 | 🟡 Medium | Add IP-based rate limit to `auth` edge function registration path |
+| P11 | 🟢 Low | Enable Supabase daily backups (Pro tier required) |
+| P12 | 🟢 Low | Plan funder keypair → multi-sig migration before mainnet |
+
+### Deployment Status
+
+- ✅ All fixes committed and deployed to production
+- ✅ Live at **https://zi-playground.vercel.app**
+- ✅ Supabase migration applied to project `zijmstkpwrzwgibzqesg`
+- ✅ `verify-hybrid` edge function redeployed with CORS + key-binding fix
