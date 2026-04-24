@@ -11,15 +11,24 @@ build/
 dist/
 
 # Environment variables - CRITICAL SECURITY
+# NEVER commit real keys. All .env files are gitignored.
+# When going to mainnet: generate brand-new keys, add to hosting
+# platform secrets (Vercel/Netlify env vars), never store in files.
 .env
+.env.*
+.env.dev
 .env.local
 .env.development
 .env.production
+.env.staging
 .env.development.local
 .env.test.local
 .env.production.local
 .env.*.local
+supabase/.env
+supabase/.env.*
 supabase/.env.development
+supabase/.env.production
 
 # Testing
 coverage/
