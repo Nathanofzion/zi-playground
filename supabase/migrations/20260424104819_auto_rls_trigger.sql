@@ -10,13 +10,13 @@ DECLARE
   obj record;
 BEGIN
   FOR obj IN
-    SELECT schema_name, object_name
+    SELECT schema_name, object_identity
     FROM pg_event_trigger_ddl_commands()
     WHERE command_tag = 'CREATE TABLE'
       AND schema_name = 'public'
   LOOP
-    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', obj.object_name);
-    RAISE NOTICE 'RLS automatically enabled on table: public.%', obj.object_name;
+    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', obj.object_identity);
+    RAISE NOTICE 'RLS automatically enabled on table: %', obj.object_identity;
   END LOOP;
 END;
 $$;
