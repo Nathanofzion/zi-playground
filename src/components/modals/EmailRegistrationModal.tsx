@@ -116,9 +116,11 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
                   control={control}
                   render={({ field }) => (
                     <Input
-                      {...field}
                       type="email"
                       placeholder="Email"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                     />
                   )}
                 />
