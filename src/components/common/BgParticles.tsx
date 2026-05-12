@@ -57,10 +57,10 @@ const BgParticles = () => {
         width: 1,
       },
       move: {
-        direction: "none",
+        direction: "none" as const,
         enable: true,
         outModes: {
-          default: "bounce",
+          default: "bounce" as const,
         },
         random: false,
         speed: 2.5,
@@ -69,7 +69,7 @@ const BgParticles = () => {
       rotate: {
         value: 0,
         random: true,
-        direction: "clockwise",
+        direction: "clockwise" as const,
         animation: {
           enable: true,
           speed: 12,
