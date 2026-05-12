@@ -48,6 +48,10 @@ const BgSpaceInvaders = () => {
   // ✅ Cancellation flag
   let isMounted = true;
 
+  // Reset game state so a remount always starts at the title screen
+  State.state = "TITLESCREEN";
+  State.gameOverStep = 0;
+
   const canvas = canvasRef.current;
   const engine = new Engine(canvas, true);
   engineRef.current = engine;

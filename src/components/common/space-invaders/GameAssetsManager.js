@@ -72,7 +72,15 @@ export class GameAssetsManager {
   }
 
   loadModels() {
-    this.loadAsset("Alien_1.glb").then((assets) => {
+    const loadModel = (file, onLoad) => {
+      this.loadAsset(file).then(onLoad).catch((err) => {
+        console.error(`Failed to load model ${file}:`, err);
+        this.assetsLoaded++;
+        this.checkComplete();
+      });
+    };
+
+    loadModel("Alien_1.glb", (assets) => {
       assets.meshes[0].rotation = new Vector3(0, 0, 0); // root Mesh
       assets.meshes[1].position = new Vector3(0, -2000, -2000); // Alien
       this.pushToAssetsContainer(assets.meshes[0]);
@@ -81,7 +89,7 @@ export class GameAssetsManager {
       this.checkComplete();
     });
 
-    this.loadAsset("Alien_2.glb").then((assets) => {
+    loadModel("Alien_2.glb", (assets) => {
       assets.meshes[0].rotation = new Vector3(0, 0, 0);
       assets.meshes[1].position = new Vector3(0, -2000, -2000);
       this.pushToAssetsContainer(assets.meshes[0]);
@@ -90,7 +98,7 @@ export class GameAssetsManager {
       this.checkComplete();
     });
 
-    this.loadAsset("Alien_3.glb").then((assets) => {
+    loadModel("Alien_3.glb", (assets) => {
       assets.meshes[0].rotation = new Vector3(0, 0, 0);
       assets.meshes[1].position = new Vector3(0, -2000, -2000);
       this.pushToAssetsContainer(assets.meshes[0]);
@@ -99,7 +107,7 @@ export class GameAssetsManager {
       this.checkComplete();
     });
 
-    this.loadAsset("Player_1.glb").then((assets) => {
+    loadModel("Player_1.glb", (assets) => {
       assets.meshes[0].rotation = new Vector3(0, 0, 0);
       assets.meshes[1].position = new Vector3(0, -2000, -2000);
       this.pushToAssetsContainer(assets.meshes[0]);
@@ -108,7 +116,7 @@ export class GameAssetsManager {
       this.checkComplete();
     });
 
-    this.loadAsset("MotherShip.glb").then((assets) => {
+    loadModel("MotherShip.glb", (assets) => {
       assets.meshes[0].rotation = new Vector3(0, 0, 0);
       assets.meshes[1].position = new Vector3(0, -2000, -2000);
       this.pushToAssetsContainer(assets.meshes[0]);

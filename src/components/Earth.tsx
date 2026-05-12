@@ -230,10 +230,10 @@ export default function Viewer({ startAnimation }: Props) {
     useEffect(() => {
         const handleError = (event: ErrorEvent) => {
             const message = event.error?.message || event.message || '';
-            if (message.includes('WebGL') || 
-                message.includes('WebGLRenderer') ||
-                message.includes('context') ||
-                message.includes('canvas')) {
+            // Only catch actual WebGL context-loss errors, not generic 'context' mentions
+            if (message.includes('WebGLRenderer') ||
+                message.includes('WebGL context') ||
+                message.includes('CONTEXT_LOST_WEBGL')) {
                 console.warn('WebGL Error detected:', message);
                 setHasWebGLError(true);
                 event.preventDefault();
@@ -243,7 +243,7 @@ export default function Viewer({ startAnimation }: Props) {
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
             const message = event.reason?.message || event.reason || '';
             if (typeof message === 'string' && 
-                (message.includes('WebGL') || message.includes('context'))) {
+                (message.includes('WebGLRenderer') || message.includes('CONTEXT_LOST_WEBGL'))) {
                 console.warn('WebGL Promise rejection:', message);
                 setHasWebGLError(true);
                 event.preventDefault();
@@ -318,7 +318,6 @@ export default function Viewer({ startAnimation }: Props) {
                 camera={{ position: [5, 2, 0], fov: 55 }} 
                 onScroll={(e) => e.stopPropagation()}
                 onCreated={({ gl }) => {
-                    // Verify GL context was created successfully
                     if (!gl.getContext()) {
                         console.warn('WebGL context creation failed');
                         setHasWebGLError(true);
@@ -326,6 +325,7 @@ export default function Viewer({ startAnimation }: Props) {
                 }}
                 fallback={<div>Canvas Loading...</div>}
             >
+                {/* Earth and cube have their own Suspense so HDRI load doesn't hide them */}
                 <Suspense fallback={null}>
                     <group position={[0, 0.5, 0]}>
                         <Earth
@@ -335,12 +335,6 @@ export default function Viewer({ startAnimation }: Props) {
                         />
                         <TextOnFaces startAnimation={startAnimation} />
                     </group>
-                    <HDRIErrorBoundary>
-                        <Environment
-                            files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr"
-                            blur={1}
-                        />
-                    </HDRIErrorBoundary>
                     <AccumulativeShadows
                         color="lightblue"
                         position={[0, -1, 0]}
@@ -350,6 +344,15 @@ export default function Viewer({ startAnimation }: Props) {
                         <RandomizedLight radius={10} position={[-5, 5, 2]} />
                     </AccumulativeShadows>
                     <CameraControls />
+                </Suspense>
+                {/* Environment in its own Suspense — if HDRI suspends/fails it never blocks the Earth */}
+                <Suspense fallback={null}>
+                    <HDRIErrorBoundary>
+                        <Environment
+                            files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr"
+                            blur={1}
+                        />
+                    </HDRIErrorBoundary>
                 </Suspense>
                 <Preload all />
             </Canvas>
