@@ -52,6 +52,14 @@ const BgSpaceInvaders = () => {
   State.state = "TITLESCREEN";
   State.gameOverStep = 0;
 
+  // Reset config singleton so stale values from a previous mount don't persist
+  spaceinvadersConfig.actionCam = false;
+  spaceinvadersConfig.oldSchoolEffects.enabled = false;
+
+  // Apply the user's chosen mode BEFORE creating the Environment, because the
+  // Environment constructor reads spaceinvadersConfig.actionCam to set up the camera.
+  parseSelectedMode();
+
   const canvas = canvasRef.current;
   const engine = new Engine(canvas, true);
   engineRef.current = engine;
@@ -124,8 +132,6 @@ const BgSpaceInvaders = () => {
 
   const handleResize = () => engine.resize();
   window.addEventListener("resize", handleResize);
-
-  parseSelectedMode(); // move this function outside useEffect
 
   return () => {
     // ✅ Signal cancellation BEFORE disposing
