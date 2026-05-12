@@ -12,7 +12,33 @@ import {
 import { Canvas, GroupProps, useFrame } from "@react-three/fiber";
 import { Component, ErrorInfo, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
+
+// Use local Draco decoder instead of fetching from gstatic CDN
+useGLTF.setDecoderPath('/draco/');
+
+// Error boundary that silently suppresses HDRI/environment load failures
+// Prevents R3F from re-mounting Canvas on network errors, which floods WebGL contexts
+class HDRIErrorBoundary extends Component<
+    { children: ReactNode },
+    { failed: boolean }
+> {
+    constructor(props: { children: ReactNode }) {
+        super(props);
+        this.state = { failed: false };
+    }
+    static getDerivedStateFromError(): { failed: boolean } {
+        return { failed: true };
+    }
+    componentDidCatch(error: Error) {
+        console.warn('HDRI/Environment load failed (non-fatal):', error.message);
+    }
+    render() {
+        if (this.state.failed) return null;
+        return this.props.children;
+    }
+}
 
 // WebGL Support Detection
 function isWebGLSupported(): boolean {
@@ -114,7 +140,10 @@ const TextOnFaces = ({ startAnimation }: TextOnFacesProps) => {
         const cube = cubeRef.current;
 
         const addLogoToFace = (modelPath: string, position: any, rotation: any) => {
+            const dracoLoader = new DRACOLoader();
+            dracoLoader.setDecoderPath('/draco/');
             const loader = new GLTFLoader();
+            loader.setDRACOLoader(dracoLoader);
 
             loader.load(modelPath, function (gltf) {
                 const logo = gltf.scene;
@@ -306,10 +335,12 @@ export default function Viewer({ startAnimation }: Props) {
                         />
                         <TextOnFaces startAnimation={startAnimation} />
                     </group>
-                    <Environment
-                        files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr"
-                        blur={1}
-                    />
+                    <HDRIErrorBoundary>
+                        <Environment
+                            files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/dancing_hall_1k.hdr"
+                            blur={1}
+                        />
+                    </HDRIErrorBoundary>
                     <AccumulativeShadows
                         color="lightblue"
                         position={[0, -1, 0]}
