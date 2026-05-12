@@ -21,7 +21,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://soroban-testnet.stellar.org https://api.mercurydata.app https://channels.openzeppelin.com https://horizon-testnet.stellar.org; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'self';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://soroban-testnet.stellar.org https://api.mercurydata.app https://channels.openzeppelin.com https://horizon-testnet.stellar.org https://dl.polyhaven.org https://www.gstatic.com blob:; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'self';"
         }
       ]
     }
