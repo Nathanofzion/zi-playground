@@ -10,6 +10,8 @@ doctest = false
 
 [features]
 testutils = ["soroban-sdk/testutils"]
+# Enable on testnet builds: 12-hour lock represents 1 year for demo/testing purposes
+testnet-time = []
 
 [dependencies]
 soroban-sdk = { version = "21.0.0" }

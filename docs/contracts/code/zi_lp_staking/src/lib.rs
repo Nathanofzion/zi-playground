@@ -17,7 +17,12 @@ use soroban_sdk::{
 /// reward rate per second.
 const SECONDS_PER_YEAR: u64 = 365 * 24 * 60 * 60; // 31_536_000
 
-/// One year lock period in seconds (same as SECONDS_PER_YEAR).
+/// Lock period in seconds.
+/// Testnet: 12 hours (represents 1 year for demo purposes).
+/// Production: 1 full year.
+#[cfg(feature = "testnet-time")]
+const LOCK_PERIOD: u64 = 12 * 60 * 60; // 12 hours
+#[cfg(not(feature = "testnet-time"))]
 const LOCK_PERIOD: u64 = SECONDS_PER_YEAR;
 
 /// Fixed-point precision scalar.  All `reward_per_token` values are multiplied
