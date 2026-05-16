@@ -428,27 +428,23 @@ const passkey = () => {
 
           await ensureLocalSession(storedContractId, storedKeyId);
 
-          // Fund wallet if XLM balance is 0 (testnet only)
+          // Fund wallet via friendbot on reconnect (testnet only, no-op if already funded)
           const isTestnet = (process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "").includes("Test");
           if (isTestnet) {
             try {
-              const rpcForBalance = new StellarSdk.SorobanRpc.Server(
-                process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
-                { allowHttp: true }
-              );
-              const acct = await rpcForBalance.getAccount(storedContractId).catch(() => null);
-              const xlmBalance = acct ? parseFloat(acct.balances?.find((b: any) => b.asset_type === 'native')?.balance ?? '0') : 0;
-              if (xlmBalance === 0) {
-                console.log('XLM balance is 0, funding via friendbot...');
-                const fbRes = await fetch(`https://friendbot.stellar.org/?addr=${storedContractId}`);
-                if (fbRes.ok) {
-                  console.log('Friendbot funded passkey wallet successfully');
+              const fbRes = await fetch(`https://friendbot.stellar.org/?addr=${storedContractId}`);
+              if (fbRes.ok) {
+                console.log('Friendbot funded passkey wallet on reconnect');
+              } else {
+                const detail = await fbRes.json().catch(() => ({})) as Record<string, unknown>;
+                if (String(detail?.detail ?? '').includes('already funded')) {
+                  console.log('Passkey wallet already funded, skipping friendbot');
                 } else {
-                  console.warn('Friendbot funding skipped:', fbRes.status, await fbRes.text().catch(() => ''));
+                  console.warn('Friendbot on reconnect:', fbRes.status, detail?.detail ?? '');
                 }
               }
             } catch (fundErr: any) {
-              console.warn('Friendbot check on reconnect failed (non-critical):', fundErr.message);
+              console.warn('Friendbot on reconnect failed (non-critical):', fundErr.message);
             }
           }
 
