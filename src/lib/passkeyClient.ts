@@ -427,6 +427,31 @@ const passkey = () => {
           }
 
           await ensureLocalSession(storedContractId, storedKeyId);
+
+          // Fund wallet if XLM balance is 0 (testnet only)
+          const isTestnet = (process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "").includes("Test");
+          if (isTestnet) {
+            try {
+              const rpcForBalance = new StellarSdk.SorobanRpc.Server(
+                process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org",
+                { allowHttp: true }
+              );
+              const acct = await rpcForBalance.getAccount(storedContractId).catch(() => null);
+              const xlmBalance = acct ? parseFloat(acct.balances?.find((b: any) => b.asset_type === 'native')?.balance ?? '0') : 0;
+              if (xlmBalance === 0) {
+                console.log('XLM balance is 0, funding via friendbot...');
+                const fbRes = await fetch(`https://friendbot.stellar.org/?addr=${storedContractId}`);
+                if (fbRes.ok) {
+                  console.log('Friendbot funded passkey wallet successfully');
+                } else {
+                  console.warn('Friendbot funding skipped:', fbRes.status, await fbRes.text().catch(() => ''));
+                }
+              }
+            } catch (fundErr: any) {
+              console.warn('Friendbot check on reconnect failed (non-critical):', fundErr.message);
+            }
+          }
+
           return storedContractId;
         }
 
