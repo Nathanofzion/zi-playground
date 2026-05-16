@@ -428,26 +428,6 @@ const passkey = () => {
 
           await ensureLocalSession(storedContractId, storedKeyId);
 
-          // Fund wallet via friendbot on reconnect (testnet only, no-op if already funded)
-          const isTestnet = (process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "").includes("Test");
-          if (isTestnet) {
-            try {
-              const fbRes = await fetch(`https://friendbot.stellar.org/?addr=${storedContractId}`);
-              if (fbRes.ok) {
-                console.log('Friendbot funded passkey wallet on reconnect');
-              } else {
-                const detail = await fbRes.json().catch(() => ({})) as Record<string, unknown>;
-                if (String(detail?.detail ?? '').includes('already funded')) {
-                  console.log('Passkey wallet already funded, skipping friendbot');
-                } else {
-                  console.warn('Friendbot on reconnect:', fbRes.status, detail?.detail ?? '');
-                }
-              }
-            } catch (fundErr: any) {
-              console.warn('Friendbot on reconnect failed (non-critical):', fundErr.message);
-            }
-          }
-
           return storedContractId;
         }
 
@@ -583,46 +563,24 @@ const passkey = () => {
           isCAddress: contractId.startsWith('C'),
         });
 
-        // Fund wallet with XLM from friendbot (testnet only)
+        // Fund wallet with XLM via server-side XLM SAC transfer (testnet only)
         const isTestnet = (process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "").includes("Test");
         if (isTestnet) {
-          console.log('Funding passkey wallet with XLM from friendbot...');
+          console.log('Funding passkey wallet with XLM via /api/fund...');
           try {
-            // Wait a moment for the contract to be fully deployed
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Call friendbot API to fund the wallet
-            const friendbotUrl = `https://friendbot.stellar.org/?addr=${contractId}`;
-            const friendbotResponse = await fetch(friendbotUrl, {
-              method: 'GET',
-              headers: {
-                'Accept': 'application/json',
-              },
+            const fundToken = LocalKeyStorage.getToken();
+            const fundRes = await fetch(`/api/fund/${contractId}`, {
+              headers: fundToken ? { Authorization: `Bearer ${fundToken}` } : {},
             });
-
-            if (friendbotResponse.ok) {
-              const friendbotResult = await friendbotResponse.json().catch(() => ({}));
-              console.log('Wallet funded successfully via friendbot:', {
-                contractId: contractId.substring(0, 8) + '...',
-                transactionHash: friendbotResult.hash || 'N/A',
-              });
+            if (fundRes.ok) {
+              console.log('Wallet funded with XLM successfully');
             } else {
-              // Friendbot might return an error if account already exists or rate limited
-              const errorText = await friendbotResponse.text().catch(() => 'Unknown error');
-              console.warn('Friendbot funding response:', {
-                status: friendbotResponse.status,
-                statusText: friendbotResponse.statusText,
-                error: errorText.substring(0, 100),
-              });
-              // Don't throw - wallet creation was successful, funding is optional
+              const fundErr = await fundRes.json().catch(() => ({}));
+              console.warn('XLM funding via /api/fund failed (non-critical):', fundRes.status, fundErr);
             }
           } catch (fundingError: any) {
-            // Don't fail wallet creation if funding fails
-            console.warn('Friendbot funding failed (non-critical):', fundingError.message);
-            console.log('Wallet was created successfully. You can fund it manually if needed.');
+            console.warn('XLM funding failed (non-critical):', fundingError.message);
           }
-        } else {
-          console.log('Skipping friendbot funding (not on testnet)');
         }
 
         // Initialize ZION token trustline/balance for the new passkey wallet
@@ -791,46 +749,24 @@ const contractId = activeWallet.contractId;
              await sendToRpcDirectly(signedTx, rpcUrl);
         }
 
-        // Fund wallet with XLM from friendbot (testnet only)
+        // Fund wallet with XLM via server-side XLM SAC transfer (testnet only)
         const isTestnet = (process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "").includes("Test");
         if (isTestnet) {
-          console.log('Funding passkey wallet with XLM from friendbot...');
+          console.log('Funding passkey wallet with XLM via /api/fund...');
           try {
-            // Wait a moment for the contract to be fully deployed
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Call friendbot API to fund the wallet
-            const friendbotUrl = `https://friendbot.stellar.org/?addr=${contractId}`;
-            const friendbotResponse = await fetch(friendbotUrl, {
-              method: 'GET',
-              headers: {
-                'Accept': 'application/json',
-              },
+            const fundToken = LocalKeyStorage.getToken();
+            const fundRes = await fetch(`/api/fund/${contractId}`, {
+              headers: fundToken ? { Authorization: `Bearer ${fundToken}` } : {},
             });
-
-            if (friendbotResponse.ok) {
-              const friendbotResult = await friendbotResponse.json().catch(() => ({}));
-              console.log('Wallet funded successfully via friendbot:', {
-                contractId: contractId.substring(0, 8) + '...',
-                transactionHash: friendbotResult.hash || 'N/A',
-              });
+            if (fundRes.ok) {
+              console.log('Wallet funded with XLM successfully');
             } else {
-              // Friendbot might return an error if account already exists or rate limited
-              const errorText = await friendbotResponse.text().catch(() => 'Unknown error');
-              console.warn('Friendbot funding response:', {
-                status: friendbotResponse.status,
-                statusText: friendbotResponse.statusText,
-                error: errorText.substring(0, 100),
-              });
-              // Don't throw - wallet creation was successful, funding is optional
+              const fundErr = await fundRes.json().catch(() => ({}));
+              console.warn('XLM funding via /api/fund failed (non-critical):', fundRes.status, fundErr);
             }
           } catch (fundingError: any) {
-            // Don't fail wallet creation if funding fails
-            console.warn('Friendbot funding failed (non-critical):', fundingError.message);
-            console.log('Wallet was created successfully. You can fund it manually if needed.');
+            console.warn('XLM funding failed (non-critical):', fundingError.message);
           }
-        } else {
-          console.log('Skipping friendbot funding (not on testnet)');
         }
 
         // Initialize ZION token

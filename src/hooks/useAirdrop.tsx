@@ -52,7 +52,10 @@ const useAirdrop = () => {
     try {
       setIsLoading(true);
       if (!address) throw new Error("Please connect wallet to get airdrop.");
-      await axios.post("/api/airdrop", { address, action });
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      await axios.post("/api/airdrop", { address, action }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       queryClient.invalidateQueries({
         queryKey: ["balance", address, zionToken.contract],
       });
