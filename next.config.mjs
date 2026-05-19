@@ -4,6 +4,7 @@ const nextConfig = {
         optimizePackageImports: ["@chakra-ui/react"],
         serverComponentsExternalPackages: [
             '@stellar/stellar-sdk',
+            '@stellar/stellar-sdk-v14',
             '@stellar/stellar-base',
             'sodium-native'
         ],
