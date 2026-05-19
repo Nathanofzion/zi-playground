@@ -416,14 +416,23 @@ const passkey = () => {
 
         // Returning user: localStorage has full session
         if (storedKeyId && storedContractId) {
-          console.log('Found stored passkey session, reconnecting without WebAuthn prompt...');
+          console.log('Found stored passkey session, reconnecting...');
           setPasskeyStatus(null);
 
+          // connectWithFactory() called with no keyId → browser shows ALL available
+          // passkeys (from any dapp), enabling cross-dapp passkey sharing with Liquiplex.
           const connectResult: any = await connectWithFactory();
-  
-          // Verify the returned keyId matches what we expect
+
           if (connectResult.keyIdBase64 !== storedKeyId) {
-            throw new Error('Wrong passkey used. Please select the correct credential.');
+            // User selected a different passkey (e.g. one created on Liquiplex DEX).
+            // The factory already resolved its contractId — switch to that session.
+            if (!connectResult?.contractId) {
+              throw new Error('Passkey recovery returned incomplete data.');
+            }
+            console.log('Different passkey selected, switching wallet to:', connectResult.contractId.substring(0, 8) + '...');
+            await persistSession(connectResult.contractId, connectResult.keyIdBase64);
+            setPasskeyStatus(null);
+            return connectResult.contractId;
           }
 
           await ensureLocalSession(storedContractId, storedKeyId);
