@@ -142,6 +142,8 @@ const StakingModal: FC<ModalProps> = (props) => {
         p={8}
         w="full"
         maxW={{ base: "320px", lg: "440px" }}
+        maxH={{ base: "80vh", lg: "90vh" }}
+        overflowY="auto"
         direction="column"
         gap={4}
       >

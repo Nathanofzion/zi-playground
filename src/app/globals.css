@@ -22,6 +22,17 @@ body {
   flex-direction: column;
 }
 
+/* Reserve space for the fixed nav button row + footer on mobile */
+@media (max-width: 1023px) {
+  .app-layout > *:not(footer):last-of-type {
+    padding-bottom: 0;
+  }
+  /* Push main content up so it doesn't hide behind fixed buttons */
+  main, [class*="page"], .page-content {
+    padding-bottom: 120px;
+  }
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

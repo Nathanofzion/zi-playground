@@ -67,7 +67,7 @@ const Header = () => {
           <Flex
             position={{ base: "fixed", lg: "static" }}
             left="50%"
-            bottom={4}
+            bottom={{ base: "60px", lg: 4 }}
             zIndex={1020}
             transform="auto"
             translateX={{ base: "-50%", lg: "unset" }}
