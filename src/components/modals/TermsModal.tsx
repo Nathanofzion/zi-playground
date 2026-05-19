@@ -44,60 +44,68 @@ const TermsModal: FC<ModalProps> = ({ isOpen, onClose }) => {
         <ModalCloseButton />
 
         <Text fontSize="22px" fontWeight="bold" color={headingColor} mb="4px">
-          Terms and Conditions
+          Terms of Use
         </Text>
         <Text fontSize="13px" color={bodyColor} mb="20px">
-          Welcome to Zig3 — please read carefully before connecting.
+          Last Updated: May 2026 — please read carefully before connecting.
         </Text>
 
         <Box overflowY="auto" flex="1" pr="4px">
           <Flex direction="column" gap="12px">
             <Text fontSize="13px" color={bodyColor} lineHeight="1.7">
-              These terms and conditions outline the rules and regulations for the use of Zig3 (Zioncoin Foundation) Website. By accessing this website we assume you accept these terms and conditions. Do not continue to use Zig3 if you do not agree to take all of the terms and conditions stated on this page.
+              Welcome to Zig3, operated by Zioncoin Foundation (&quot;Zig3&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). These Terms of Use (&quot;Terms&quot;) govern your access to and use of the Zig3 website and application (the &quot;Platform&quot;). By accessing or using Zig3, you agree to be bound by these Terms. If you do not agree, please do not use the Platform.
             </Text>
 
-            <Text fontSize="13px" color={bodyColor} lineHeight="1.7">
-              The following terminology applies to these Terms and Conditions, Privacy Statement and Disclaimer Notice and all Agreements: &quot;Client&quot;, &quot;You&quot; and &quot;Your&quot; refers to you, the person logged on this website and compliant to the Foundation&apos;s terms and conditions. &quot;The Foundation&quot;, &quot;Ourselves&quot;, &quot;We&quot;, &quot;Our&quot; and &quot;Us&quot;, refers to our Company. All terms refer to the offer, acceptance and consideration of payment necessary to undertake the process of our assistance to the Client in the most appropriate manner, in accordance with and subject to, prevailing law of Netherlands.
-            </Text>
-
-            <Section title="Cookies">
-              We employ the use of cookies. By accessing Zig3, you agreed to use cookies in agreement with Zig3&apos;s Privacy Policy. Most interactive websites use cookies to let us retrieve the user&apos;s details for each visit. Cookies are used by our website to enable the functionality of certain areas to make it easier for people visiting our website.
+            <Section title="1. Services">
+              Zig3 is a user interface and front-end application for interacting with the Stellar blockchain and its decentralized exchange (DEX). Zig3 is not an exchange, a broker, or a custodian of funds. It allows users to create accounts, establish trustlines (including for the native Zioncoin Zi token), and interact directly with the Stellar network via the Horizon API operated by the Stellar Development Foundation.
             </Section>
 
-            <Section title="License">
-              Unless otherwise stated, Zioncoin Foundation and/or its licensors own the intellectual property rights for all material on Website Zig3. All intellectual property rights are reserved. You may access this from Website Zig3 for your own personal use subjected to restrictions set in these terms and conditions.
+            <Section title="2. Eligibility">
+              You must be at least 18 years old or the legal age of majority in your jurisdiction. By using Zig3, you represent and warrant that you meet this requirement and are not located in, or a resident of, any jurisdiction where the use of decentralized cryptocurrency services is prohibited or restricted.
             </Section>
 
-            <Section title="iFrames">
-              Without prior approval and written permission, you may not create frames around our Webpages that alter in any way the visual presentation or appearance of our Website.
+            <Section title="3. Geographic Restrictions">
+              Zig3 is not offered in jurisdictions where its use would violate applicable laws or regulations (including sanctions lists administered by OFAC or similar authorities). You agree not to use Zig3 if you are in such a restricted jurisdiction.
             </Section>
 
-            <Section title="Content Liability">
-              We shall not be held responsible for any content that appears on your Website. You agree to protect and defend us against all claims that are rising on your Website. No link(s) should appear on any Website that may be interpreted as libelous, obscene or criminal, or which infringes or otherwise violates any third party rights.
+            <Section title="4. Cryptocurrency Risks">
+              Cryptocurrency assets are highly volatile and subject to significant market risks. Past performance is not indicative of future results. You may lose part or all of your investment. Zig3 does not provide financial, investment, tax, or legal advice. You are solely responsible for your own research and investment decisions. Zig3 is not responsible for any investment losses. Cryptocurrencies, tokens, and decentralized exchanges operate in an unregulated or lightly regulated environment in many jurisdictions and lack governmental oversight.
             </Section>
 
-            <Section title="Reservation of Rights">
-              We reserve the right to request that you remove all links or any particular link to our Website. We also reserve the right to amend these terms and conditions and its linking policy at any time. By continuously linking to our Website, you agree to be bound to and follow these linking terms and conditions.
+            <Section title="5. Stellar Network">
+              The Stellar network is entirely separate from Zig3. Zig3 does not operate, control, or own the Stellar blockchain. When using Zig3, you directly interact with the Stellar network via its public Horizon API. Transactions on Stellar are irreversible. Zig3 has no ability to reverse, cancel, or modify transactions once submitted.
             </Section>
 
-            <Section title="Removal of links from our website">
-              If you find any link on our Website that is offensive for any reason, you are free to contact and inform us at any moment. We will consider requests to remove links but we are not obligated to do so or to respond to you directly. We do not ensure that the information on this website is correct, we do not warrant its completeness or accuracy.
+            <Section title="6. Non-Custodial Service">
+              Zig3 is a fully non-custodial platform. We do not hold, control, or have access to your private keys, secret seeds, funds, or assets. All assets remain in your own wallet at all times. You are solely responsible for the security of your wallet and private keys.
             </Section>
 
-            <Section title="Cryptocurrency Risks">
-              Cryptocurrency assets are subject to high market risks and volatility. Past performance is not indicative of future results. Investments in blockchain assets may result in loss of part or all of your investment. Please do your own research and use caution. You are solely responsible for your actions on the Stellar network. Zig3 is not responsible for your investment losses. Cryptocurrency assets and the Stellar decentralized exchange are unregulated and do not have governmental oversight.
+            <Section title="7. User Responsibilities and Conduct">
+              You are solely responsible for compliance with all applicable laws, regulations, and tax obligations in your jurisdiction; maintaining the security of your private keys and backups; and all transactions you initiate. You agree not to use Zig3 for any illegal purpose, including money laundering, fraud, market manipulation, or trading of prohibited assets.
             </Section>
 
-            <Section title="The Stellar Network (separate from Zig3)">
-              Zig3 is not an exchange. By using the Zig3 app or creating a new account, you are agreeing to create a Zioncoin Zi Trustline (Zi is the Zig3 native token). Zig3 is only a user interface to the Stellar DEX and does not operate the Stellar network. Zig3 is unable to control the actions of others on the Stellar network. When using Zig3, you are directly communicating with the Horizon Stellar API operated by the Stellar Development Foundation. Transactions on the Stellar network are irreversible.
+            <Section title="8. Intellectual Property">
+              Zioncoin Foundation and/or its licensors own all intellectual property rights in the Zig3 Platform (except for open-source components). You are granted a limited, revocable license to access and use Zig3 for personal use only, subject to these Terms. You may not create iFrames or otherwise alter the visual presentation of our website without prior written permission.
             </Section>
 
-            <Section title="Your Own Responsibilities">
-              You, the user, are solely responsible for ensuring your own compliance with laws and taxes in your jurisdiction. Cryptocurrencies may be illegal in your area. You are solely responsible for your own security including keeping your account secret keys safe and backed up.
+            <Section title="9. Open Source">
+              Zig3 is based on open-source software (Stellar demo wallet, WebAuthn, and related components). The source code is publicly viewable.
             </Section>
 
-            <Section title="Zig3 Does Not Endorse Anything">
-              Zig3 is open source software — a monorepo of Stellar demo wallet, WebAuthn and social login bar the UI. As part of the open source community, it is viewable to anyone who wishes to do so.
+            <Section title="10. Limitation of Liability">
+              To the maximum extent permitted by law, Zig3 and Zioncoin Foundation shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising out of or related to your use of the Platform, including loss of funds, data, or profits.
+            </Section>
+
+            <Section title="12. Cookies">
+              We use cookies and similar technologies. By using Zig3, you consent to our use of cookies as described in our Privacy Policy (/privacy).
+            </Section>
+
+            <Section title="13. Modifications">
+              We reserve the right to modify these Terms at any time. Continued use of Zig3 after changes constitutes acceptance of the updated Terms.
+            </Section>
+
+            <Section title="14. Governing Law">
+              These Terms are governed by the laws of the Netherlands. Any disputes shall be subject to the exclusive jurisdiction of the courts of the Netherlands.
             </Section>
 
             <Box
@@ -108,10 +116,10 @@ const TermsModal: FC<ModalProps> = ({ isOpen, onClose }) => {
               rounded="12px"
             >
               <Text fontWeight="700" fontSize="14px" color={useColorModeValue('#9a3412', '#fb923c')} mb="8px">
-                Disclaimer of Warranty
+                11. Disclaimer of Warranty
               </Text>
               <Text fontSize="13px" color={bodyColor} lineHeight="1.7">
-                This website is provided &quot;as is&quot; without any representations or warranties, express or implied. Zioncoin Foundation makes no representations or warranties in relation to this website or the information and materials provided on this website. Nothing on this website constitutes, or is meant to constitute, advice of any kind.
+                The Platform is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without any warranties of any kind. We disclaim all warranties, express or implied, including merchantability, fitness for a particular purpose, and non-infringement.
               </Text>
             </Box>
           </Flex>
