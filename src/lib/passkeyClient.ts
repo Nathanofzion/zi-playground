@@ -813,14 +813,26 @@ const contractId = activeWallet.contractId;
 
 export const requestPasskeyRecovery = () => {
   LocalKeyStorage.clearPasskeyStatus();
-  // Clear active session to force re-evaluation/discovery if needed
-  // But usually this is just a UI signal or cleanup
 };
 export const requestNewWalletCreation = () => {
   LocalKeyStorage.clearPasskeyStatus();
 };
 export const resolveWalletContract = async (keyId: string) => {
     return connectWithFactory(keyId);
+};
+
+/**
+ * Show the browser's native passkey picker for ALL passkeys on the device
+ * (not just ones created by this dapp). Uses factory to resolve contractId
+ * from the selected keyId, then persists the session.
+ */
+export const connectWithAnyPasskey = async (): Promise<{ contractId: string; keyIdBase64: string }> => {
+  const connectResult: any = await connectWithFactory(); // no keyId → shows all device passkeys
+  if (!connectResult?.contractId || !connectResult?.keyIdBase64) {
+    throw new Error('Passkey recovery returned incomplete data.');
+  }
+  await persistSession(connectResult.contractId, connectResult.keyIdBase64);
+  return { contractId: connectResult.contractId, keyIdBase64: connectResult.keyIdBase64 };
 };
 
 export default passkey;

@@ -29,6 +29,7 @@ import {
   formatWalletAddress,
   WalletInfo 
 } from '@/lib/walletManager';
+import { connectWithAnyPasskey } from '@/lib/passkeyClient';
 import { toaster } from "@/components/ui/toaster";
 
 interface SimpleWalletModalProps {
@@ -72,8 +73,31 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
     onClose();
   };
 
-  const handleChooseWallet = () => {
-    setView('choose');
+  const handleChooseWallet = async () => {
+    // Trigger the browser's native passkey picker — shows ALL device passkeys
+    // (from any dapp, not just zi-playground) and resolves contractId via factory.
+    setIsLoading(true);
+    try {
+      const { contractId } = await connectWithAnyPasskey();
+      if (activateConnector) await activateConnector();
+      toaster.create({
+        title: 'Wallet connected',
+        description: `Connected to ${contractId.substring(0, 8)}...`,
+        type: 'success',
+      });
+      onSuccess();
+      handleClose();
+    } catch (error: any) {
+      if (error?.name !== 'NotAllowedError' && !error?.message?.toLowerCase().includes('cancel')) {
+        toaster.create({
+          title: 'Connection failed',
+          description: error.message || 'Could not connect passkey',
+          type: 'error',
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCreateWallet = () => {
@@ -197,19 +221,24 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
         gap="8px"
         bg={cardBg}
         rounded="16px"
-        cursor="pointer"
-        onClick={handleChooseWallet}
-        opacity={wallets.length === 0 ? 0.5 : 1}
-        pointerEvents={wallets.length === 0 ? 'none' : 'auto'}
-        _hover={{ transform: wallets.length > 0 ? 'translateY(-2px)' : 'none' }}
+        cursor={isLoading ? 'not-allowed' : 'pointer'}
+        onClick={!isLoading ? handleChooseWallet : undefined}
+        opacity={isLoading ? 0.7 : 1}
+        _hover={{ transform: !isLoading ? 'translateY(-2px)' : 'none' }}
         transition="all 0.2s"
       >
         <Flex justify="space-between" align="center">
-          <Text fontWeight="bold">Choose Wallet from list</Text>
-          <Text fontSize="xs" opacity={0.8}>
-            {wallets.length} wallet{wallets.length !== 1 ? 's' : ''} available
-          </Text>
+          <Flex align="center" gap={2}>
+            {isLoading && <Spinner size="sm" />}
+            <Text fontWeight="bold">
+              {isLoading ? 'Opening passkey picker...' : 'Connect with Passkey'}
+            </Text>
+          </Flex>
+          <Text fontSize="xs" opacity={0.8}>All device passkeys</Text>
         </Flex>
+        <Text fontSize="xs" color="gray.500">
+          Shows all passkeys on your device (from any app)
+        </Text>
       </Flex>
 
       <Flex
