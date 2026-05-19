@@ -25,9 +25,10 @@ interface Props extends FlexProps {
   wallet?: IWallet;
   onConnect?: () => void;
   onOpenTerms?: () => void;
+  infoUrl?: string;
 }
 
-const WalletConnectButton: FC<Props> = ({ wallet, onConnect, onOpenTerms, ...props }) => {
+const WalletConnectButton: FC<Props> = ({ wallet, onConnect, onOpenTerms, infoUrl, ...props }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [passkeyStatus, setPasskeyStatus] = useState<string | null>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
@@ -127,11 +128,11 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, onOpenTerms, ...pro
           ) : (
             <Text color="#F66B3C">Install</Text>
           )}
-          {onOpenTerms && (
+          {infoUrl && (
             <button
               type="button"
-              title="View Terms and Conditions"
-              onClick={(e) => { e.stopPropagation(); onOpenTerms(); }}
+              title="Learn more"
+              onClick={(e) => { e.stopPropagation(); window.open(infoUrl, '_blank', 'noopener,noreferrer'); }}
               style={{
                 width: 20,
                 height: 20,

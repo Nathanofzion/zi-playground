@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import dynamic from "next/dynamic";
 
 import Background from "@/components/common/Background";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import Provider from "@/providers";
 
 import "./globals.css";
 import { ToastContainer, toast } from 'react-toastify';
+
+const PlexChat = dynamic(() => import("@/components/PlexChat"), { ssr: false });
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -38,7 +42,9 @@ export default function RootLayout({
           <div className="app-layout">
             <Header />
             {children}
+            <Footer />
           </div>
+          <PlexChat />
         </Provider>
       </body>
     </html>

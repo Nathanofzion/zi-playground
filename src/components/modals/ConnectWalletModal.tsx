@@ -7,6 +7,12 @@ import { useColorModeValue } from "../ui/color-mode";
 import { WalletConnectButton } from "../wallet";
 import TermsModal from "./TermsModal";
 
+const WALLET_INFO_URLS: Record<string, string> = {
+  passkey: 'http://passkeyid.org/',
+  freighter: 'https://www.freighter.app/',
+  lobstr: 'https://lobstr.co/trade/native/Zi:GDBNNE67F54PTUZTCTOQYT5CQZFXA2AX6O5DCA5BVR653OP6KCWGG2Z7',
+};
+
 const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   const wallets = useWallets();
   const [termsAgreed, setTermsAgreed] = useState(false);
@@ -41,7 +47,7 @@ const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
                 <WalletConnectButton
                   wallet={wallet}
                   onConnect={onClose}
-                  onOpenTerms={() => setShowTerms(true)}
+                  infoUrl={WALLET_INFO_URLS[wallet.id] ?? WALLET_INFO_URLS[wallet.sname?.toLowerCase() ?? '']}
                 />
               </Flex>
             )}
