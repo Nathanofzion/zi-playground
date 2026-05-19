@@ -24,9 +24,10 @@ import { useColorModeValue } from "../ui/color-mode";
 interface Props extends FlexProps {
   wallet?: IWallet;
   onConnect?: () => void;
+  onOpenTerms?: () => void;
 }
 
-const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
+const WalletConnectButton: FC<Props> = ({ wallet, onConnect, onOpenTerms, ...props }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [passkeyStatus, setPasskeyStatus] = useState<string | null>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
@@ -125,6 +126,31 @@ const WalletConnectButton: FC<Props> = ({ wallet, onConnect, ...props }) => {
             </Text>
           ) : (
             <Text color="#F66B3C">Install</Text>
+          )}
+          {onOpenTerms && (
+            <button
+              type="button"
+              title="View Terms and Conditions"
+              onClick={(e) => { e.stopPropagation(); onOpenTerms(); }}
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                border: '1.5px solid #9ca3af',
+                background: 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                fontSize: 11,
+                fontWeight: 'bold',
+                lineHeight: 1,
+                padding: 0,
+              }}
+            >
+              ?
+            </button>
           )}
         </HStack>
       </Flex>
