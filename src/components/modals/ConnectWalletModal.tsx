@@ -17,6 +17,7 @@ const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   const wallets = useWallets();
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const accentColor = useColorModeValue('#F66B3C', '#B4EFAF');
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -64,8 +65,8 @@ const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
             <Checkbox.HiddenInput />
             <Checkbox.Control
               border="1.5px solid"
-              borderColor={termsAgreed ? '#F66B3C' : 'gray.400'}
-              bg={termsAgreed ? '#F66B3C' : 'transparent'}
+              borderColor={termsAgreed ? accentColor : 'gray.400'}
+              bg={termsAgreed ? accentColor : 'transparent'}
               rounded="4px"
               w="16px"
               h="16px"
@@ -77,7 +78,7 @@ const ConnectWalletModal: FC<ModalProps> = ({ isOpen, onClose }) => {
           <Text fontSize="12px" color={useColorModeValue('#374151', '#9ca3af')}>
             I agree to the{' '}
             <Link
-              color={useColorModeValue('#F66B3C', '#F66B3C')}
+              color={accentColor}
               cursor="pointer"
               onClick={() => setShowTerms(true)}
               textDecoration="underline"
