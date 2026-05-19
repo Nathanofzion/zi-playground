@@ -257,27 +257,6 @@ const SimpleWalletModal: FC<SimpleWalletModalProps> = ({ isOpen, onClose, onSucc
           <Text fontSize="xs" opacity={0.8}>Add a new PasskeyID wallet</Text>
         </Flex>
       </Flex>
-
-      <Flex
-        p="16px"
-        direction="column"
-        gap="8px"
-        bg={cardBg}
-        rounded="16px"
-        cursor="pointer"
-        onClick={handleDeleteWallet}
-        opacity={wallets.length === 0 ? 0.5 : 1}
-        pointerEvents={wallets.length === 0 ? 'none' : 'auto'}
-        _hover={{ transform: wallets.length > 0 ? 'translateY(-2px)' : 'none' }}
-        transition="all 0.2s"
-      >
-        <Flex justify="space-between" align="center">
-          <Text fontWeight="bold" color={wallets.length === 0 ? 'gray.400' : 'red.500'}>
-            Delete wallet from list
-          </Text>
-          <Text fontSize="xs" opacity={0.8}>Remove an existing wallet</Text>
-        </Flex>
-      </Flex>
     </VStack>
   );
 
