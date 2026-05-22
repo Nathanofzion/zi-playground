@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stellarServer } from '@/lib/stellar-server-only';
-import { requireAuth, isAuthError } from '@/lib/api-auth';
 import { createClient } from '@supabase/supabase-js';
 
 export const runtime = 'nodejs';
@@ -20,10 +19,6 @@ async function getContractInvoke() {
 }
 
 export async function POST(req: NextRequest) {
-  // P01: Require authenticated user
-  const auth = await requireAuth(req);
-  if (isAuthError(auth)) return auth;
-
   try {
     const { address, action = 1 } = await req.json();
 
@@ -82,7 +77,7 @@ export async function POST(req: NextRequest) {
     const { data: recentClaim } = await supabase
       .from('rewards')
       .select('created_at')
-      .eq('user_id', auth.id)
+      .eq('user_id', address)
       .gte('created_at', cutoff)
       .limit(1)
       .single();

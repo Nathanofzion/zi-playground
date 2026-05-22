@@ -28,7 +28,7 @@ export async function GET(
   console.log(`[fund] Funder: ${funderPublicKey.substring(0, 8)}...`);
 
   try {
-    console.log(`[fund] Funding ${address.substring(0, 8)}... with 10 XLM`);
+    console.log(`[fund] Funding ${address.substring(0, 8)}... with 10,000 XLM`);
     const fromScVal = new Address(funderPublicKey).toScVal();
     const toScVal = new Address(address).toScVal();
 
@@ -39,7 +39,7 @@ export async function GET(
       args: [
         fromScVal,
         toScVal,
-        nativeToScVal(10 * 1e7, { type: "i128" }),
+        nativeToScVal(10000 * 1e7, { type: "i128" }),
       ],
     });
 
