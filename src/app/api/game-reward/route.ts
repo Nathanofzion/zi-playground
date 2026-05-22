@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Address, Keypair, nativeToScVal } from '@stellar/stellar-sdk-v14';
+import { createClient } from '@supabase/supabase-js';
 import { contractInvoke } from '@/lib/contract';
 import zionToken from '@/constants/zionToken';
 
@@ -11,8 +12,15 @@ const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 // 0.000001 ZI per point = 10 raw units (ZI has 7 decimals: 1e-6 * 1e7 = 10)
 const ZI_STROOPS_PER_POINT = 10n;
 
-// Maximum reward per game session: 10 ZI = 100_000_000 stroops
-const MAX_ZI_REWARD = 100_000_000n;
+// Hard lifetime cap: 10 ZI total per wallet address, ever
+const LIFETIME_CAP_STROOPS = 100_000_000n; // 10 ZI
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,9 +46,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Reward funder not configured' }, { status: 500 });
     }
 
-    // Calculate ZI amount — cap to prevent abuse
+    // ── Lifetime cap check ────────────────────────────────────────────────────
+    const supabase = getSupabase();
+    const { data: row, error: fetchErr } = await supabase
+      .from('game_rewards_earned')
+      .select('total_stroops')
+      .eq('address', address)
+      .maybeSingle();
+
+    if (fetchErr) {
+      console.error('[game-reward] supabase fetch error:', fetchErr.message);
+      return NextResponse.json({ error: 'Could not check reward cap' }, { status: 500 });
+    }
+
+    const alreadyEarned = BigInt(row?.total_stroops ?? 0);
+
+    if (alreadyEarned >= LIFETIME_CAP_STROOPS) {
+      return NextResponse.json(
+        {
+          error: 'Lifetime cap reached',
+          message: 'This wallet has already earned the maximum 10 ZI from games.',
+          lifetimeCapReached: true,
+        },
+        { status: 429 }
+      );
+    }
+
+    // Calculate reward, clamped so total never exceeds lifetime cap
+    const remaining = LIFETIME_CAP_STROOPS - alreadyEarned;
     const rawAmount = BigInt(Math.floor(score)) * ZI_STROOPS_PER_POINT;
-    const clampedAmount = rawAmount > MAX_ZI_REWARD ? MAX_ZI_REWARD : rawAmount;
+    const clampedAmount = rawAmount > remaining ? remaining : rawAmount;
+
+    if (clampedAmount === 0n) {
+      return NextResponse.json(
+        { error: 'No reward available', lifetimeCapReached: true },
+        { status: 429 }
+      );
+    }
 
     const funderPublicKey = Keypair.fromSecret(funderSecretKey).publicKey();
     const fromScVal = new Address(funderPublicKey).toScVal();
@@ -55,6 +97,22 @@ export async function POST(req: NextRequest) {
       args: [fromScVal, toScVal, amountScVal],
     });
 
+    // ── Record the earned amount (atomic increment via upsert) ────────────────
+    const newTotal = alreadyEarned + clampedAmount;
+    const { error: upsertErr } = await supabase
+      .from('game_rewards_earned')
+      .upsert(
+        { address, total_stroops: Number(newTotal), updated_at: new Date().toISOString() },
+        { onConflict: 'address' }
+      );
+
+    if (upsertErr) {
+      // Transfer already happened — log but don't fail the response
+      console.error('[game-reward] supabase upsert error:', upsertErr.message);
+    }
+
+    const lifetimeCapReached = newTotal >= LIFETIME_CAP_STROOPS;
+
     return NextResponse.json({
       success: true,
       message: 'Game reward distributed successfully',
@@ -63,6 +121,8 @@ export async function POST(req: NextRequest) {
         score,
         ziRewarded: clampedAmount.toString(),
         ziRewardedFormatted: (Number(clampedAmount) / Math.pow(10, zionToken.decimals)).toFixed(7),
+        lifetimeTotal: newTotal.toString(),
+        lifetimeCapReached,
         ...(result as any),
       },
     });
@@ -74,4 +134,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
 
