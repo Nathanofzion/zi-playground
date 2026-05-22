@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { Address, nativeToScVal } from "@stellar/stellar-sdk-v14";
+import { Address, Keypair, nativeToScVal } from "@stellar/stellar-sdk-v14";
 
 import nativeToken from "@/constants/nativeToken";
 import { contractInvoke } from "@/lib/contract";
 
-const funderPublicKey = process.env.FUNDER_PUBLIC_KEY!;
 const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 
 // Testnet-only XLM funder — no JWT auth required (testnet has no real value).
@@ -19,10 +18,14 @@ export async function GET(
     return NextResponse.json({ error: "Invalid contract address" }, { status: 400 });
   }
 
-  if (!funderSecretKey || !funderPublicKey) {
-    console.error("[fund] FUNDER_SECRET_KEY or FUNDER_PUBLIC_KEY not set");
+  if (!funderSecretKey) {
+    console.error("[fund] FUNDER_SECRET_KEY not set");
     return NextResponse.json({ error: "Funder not configured" }, { status: 500 });
   }
+
+  // Derive public key from secret key — avoids any FUNDER_PUBLIC_KEY mismatch
+  const funderPublicKey = Keypair.fromSecret(funderSecretKey).publicKey();
+  console.log(`[fund] Funder: ${funderPublicKey.substring(0, 8)}...`);
 
   try {
     console.log(`[fund] Funding ${address.substring(0, 8)}... with 10 XLM`);
