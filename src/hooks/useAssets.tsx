@@ -82,8 +82,9 @@ const useAssets = () => {
         }
       },
       enabled: !!address,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      staleTime: 30_000, // Treat data as fresh for 30s to avoid hammering RPC
       // Add retry configuration to prevent excessive retries
       retry: (failureCount: number, error: any) => {
         // Don't retry for trustline/contract errors
