@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toaster } from "@/components/ui/toaster";
 import { GameType } from "@/enums";
 import { supabase } from "@/lib/supabase";
+import zionToken from "@/constants/zionToken";
 
 export interface IScore {
   id: string;
@@ -61,6 +62,23 @@ const useScore = (type: string) => {
       if (error) {
         throw new Error(error.message);
       }
+
+      // Distribute ZI reward: 0.000001 ZI per point via server-side transfer
+      try {
+        await fetch("/api/game-reward", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, score, gameType: type }),
+        });
+        // Invalidate balance so it refreshes after reward
+        queryClient.invalidateQueries({
+          queryKey: ["balance", address, zionToken.contract],
+        });
+      } catch (rewardErr: any) {
+        // Non-fatal — score was saved, reward may retry next game
+        console.warn("ZI reward distribution failed:", rewardErr?.message ?? rewardErr);
+      }
+
       return data;
     },
     onSuccess: (data) => {

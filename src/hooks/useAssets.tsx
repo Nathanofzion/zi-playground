@@ -7,8 +7,6 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 
 import zionToken from "@/constants/zionToken";
 import { IAsset } from "@/interfaces";
-import { tokenBalance } from "@/services/contract";
-import * as StellarSdk from "@stellar/stellar-sdk";
 
 const useAssets = () => {
   const sorobanContext = useSorobanReact();
@@ -55,28 +53,13 @@ const useAssets = () => {
       queryKey: ["balance", address, asset.contract],
       queryFn: async () => {
         try {
-          const balance = await tokenBalance(sorobanContext, asset.contract);
-          console.log("Parsed Balance : ",balance);
-          
-          return (balance ?? 0) / Math.pow(10, asset.decimals);
+          const res = await axios.get<{ balance: string }>(
+            `/api/stellar/token-balance`,
+            { params: { address, contract: asset.contract } }
+          );
+          const raw = BigInt(res.data.balance ?? '0');
+          return Number(raw) / Math.pow(10, asset.decimals);
         } catch (err: any) {
-          // Handle specific error types gracefully
-          if (err?.message?.includes("trustline")) {
-            console.warn(`No trustline for ${asset.name || asset.contract}:`, err.message);
-            return 0;
-          }
-          
-          if (err?.message?.includes("MissingValue") || err?.message?.includes("contract instance")) {
-            console.warn(`Contract not found for ${asset.name || asset.contract}:`, err.message);
-            return 0;
-          }
-          
-          if (err?.message?.includes("Contract, #13")) {
-            console.warn(`Trustline missing for ${asset.name || asset.contract}:`, err.message);
-            return 0;
-          }
-          
-          // Log other errors but don't crash
           console.warn(`Balance fetch failed for ${asset.name || asset.contract}:`, err.message || err);
           return 0;
         }
@@ -84,19 +67,9 @@ const useAssets = () => {
       enabled: !!address,
       refetchOnMount: true,
       refetchOnWindowFocus: true,
-      staleTime: 30_000, // Treat data as fresh for 30s to avoid hammering RPC
-      // Add retry configuration to prevent excessive retries
-      retry: (failureCount: number, error: any) => {
-        // Don't retry for trustline/contract errors
-        if (error?.message?.includes("trustline") || 
-            error?.message?.includes("MissingValue") ||
-            error?.message?.includes("Contract, #13")) {
-          return false;
-        }
-        // Only retry network errors, max 2 times
-        return failureCount < 2;
-      },
-      retryDelay: 2000, // Wait 2 seconds between retries
+      staleTime: 30_000,
+      retry: 1,
+      retryDelay: 2000,
     })),
   });
 
