@@ -18,6 +18,11 @@ import {
 
 const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID || "";
 
+// Tracks when persistSession() last ran so getPublicKey() can skip re-auth
+// during the same sign-in flow (avoids double WebAuthn prompt).
+let _freshSessionTimestamp: number | null = null;
+const FRESH_SESSION_WINDOW_MS = 30_000; // 30 seconds
+
 /**
  * Alternative server send that bypasses OpenZapplinRelayer's strict timebounds
  */
@@ -134,6 +139,9 @@ const storeSessionToken = (token: string) => {
 };
 
 const persistSession = async (contractId: string, keyIdBase64: string) => {
+  // Mark session as freshly established to suppress redundant re-auth in getPublicKey
+  _freshSessionTimestamp = Date.now();
+
   LocalKeyStorage.storePasskeyKeyId(keyIdBase64);
   LocalKeyStorage.storePasskeyContractId(contractId);
 
@@ -418,6 +426,19 @@ const passkey = () => {
         if (storedKeyId && storedContractId) {
           console.log('Found stored passkey session, reconnecting...');
           setPasskeyStatus(null);
+
+          // Skip re-authentication if session was just established (e.g. by connectWithAnyPasskey
+          // in the same sign-in flow). Without this guard, the user would see two WebAuthn prompts.
+          const isFreshSession =
+            _freshSessionTimestamp !== null &&
+            Date.now() - _freshSessionTimestamp < FRESH_SESSION_WINDOW_MS;
+
+          if (isFreshSession) {
+            _freshSessionTimestamp = null; // consume the flag
+            console.log('Session freshly established, skipping re-auth prompt.');
+            await ensureLocalSession(storedContractId, storedKeyId);
+            return storedContractId;
+          }
 
           // connectWithFactory() called with no keyId → browser shows ALL available
           // passkeys (from any dapp), enabling cross-dapp passkey sharing with Liquiplex.
