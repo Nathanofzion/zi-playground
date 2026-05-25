@@ -104,21 +104,17 @@ const Footer: FC = () => {
               }}
               _hover={{ color: linkHover }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://communityfund.stellar.org/favicon.ico"
-                alt="SCF"
-                width={16}
-                height={16}
-                style={{ display: 'block', flexShrink: 0 }}
-                onError={e => {
-                  (e.currentTarget as HTMLImageElement).src =
-                    'https://stellar.org/favicon.ico';
-                }}
-              />
               <Text as="span" fontSize="11px" fontWeight="600" whiteSpace="nowrap">
                 Stellar Award Winning Dapp
               </Text>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://communityfund.stellar.org/_next/image?url=%2Fsvg%2FSCFLogo.svg&w=96&q=75"
+                alt="SCF"
+                width={20}
+                height={20}
+                style={{ display: 'block', flexShrink: 0 }}
+              />
             </Link>
 
             {/* GitHub */}
