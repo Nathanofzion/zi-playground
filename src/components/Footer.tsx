@@ -87,6 +87,40 @@ const Footer: FC = () => {
 
           {/* Right: social icons */}
           <Flex align="center" gap="20px">
+            {/* SCF Award */}
+            <Link
+              href="https://communityfund.stellar.org/project/zig3v2-j3u"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Stellar Award Winning Dapp"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                color: linkColor,
+                transition: 'color 0.15s',
+                textDecoration: 'none',
+                lineHeight: 1,
+              }}
+              _hover={{ color: linkHover }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://communityfund.stellar.org/favicon.ico"
+                alt="SCF"
+                width={16}
+                height={16}
+                style={{ display: 'block', flexShrink: 0 }}
+                onError={e => {
+                  (e.currentTarget as HTMLImageElement).src =
+                    'https://stellar.org/favicon.ico';
+                }}
+              />
+              <Text as="span" fontSize="11px" fontWeight="600" whiteSpace="nowrap">
+                Stellar Award Winning Dapp
+              </Text>
+            </Link>
+
             {/* GitHub */}
             <Link
               href="https://github.com/Nathanofzion/zi-playground"
