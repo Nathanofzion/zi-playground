@@ -12,7 +12,10 @@ export class MobileInputs {
 
   constructor(scene) {
     this.scene = scene;
-    this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const uaMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isIPadDesktopUa = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+    const isTouchTablet = navigator.maxTouchPoints > 0 && window.innerWidth <= 1366;
+    this.isMobile = uaMobile || isIPadDesktopUa || isTouchTablet;
   }
 
   enable(texture) {
