@@ -20,7 +20,7 @@ const useScore = (type: string) => {
   const { address } = sorobanContext;
 
   const { data } = useQuery<IScore[]>({
-    queryKey: ["score", address],
+    queryKey: ["score", type],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("score", {
         method: "POST",
@@ -87,7 +87,7 @@ const useScore = (type: string) => {
         type: "success",
         title: "Your score has been submitted.",
       });
-      queryClient.invalidateQueries({ queryKey: ["score", address] });
+      queryClient.invalidateQueries({ queryKey: ["score", type] });
     },
     onError: (error) => {
       toaster.create({

@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 // Whitelist of valid game action IDs defined in the smart contract
-const VALID_ACTIONS = new Set([1, 2, 3]);
+const VALID_ACTIONS = new Set([1, 2, 3, 4, 5, 6]);
 // Minimum seconds between claims per wallet
 const COOLDOWN_SECONDS = 60;
 
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const parsedAction = parseInt(action);
     if (!VALID_ACTIONS.has(parsedAction)) {
       return NextResponse.json(
-        { error: 'Invalid action. Must be 1, 2, or 3.' },
+        { error: 'Invalid action. Must be between 1 and 6.' },
         { status: 400 }
       );
     }

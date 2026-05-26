@@ -57,11 +57,10 @@ const useAssets = () => {
             `/api/stellar/token-balance`,
             { params: { address, contract: asset.contract } }
           );
-          const raw = BigInt(res.data.balance ?? '0');
-          return Number(raw) / Math.pow(10, asset.decimals);
+          return res.data.balance ?? '0';
         } catch (err: any) {
           console.warn(`Balance fetch failed for ${asset.name || asset.contract}:`, err.message || err);
-          return 0;
+          return '0';
         }
       },
       enabled: !!address,
@@ -77,7 +76,7 @@ const useAssets = () => {
     return (data ?? []).map((asset, index) => {
       return {
         ...asset,
-        balance: balanceTable[index].data ?? 0,
+        rawBalance: balanceTable[index].data ?? '0',
         // Add loading and error states for better UX
         isLoadingBalance: balanceTable[index].isLoading,
         balanceError: balanceTable[index].error,

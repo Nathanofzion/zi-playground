@@ -4,7 +4,7 @@ import { Flex, HStack, Image, Link, Spinner, Text } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
 import useAssets from "@/hooks/useAssets";
-import { formatNumber, truncateAddress } from "@/utils";
+import { formatTokenAmount, truncateAddress } from "@/utils";
 import { explorerLink } from "../../lib/chain";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import { ModalProps } from "../common/Modal";
@@ -77,8 +77,10 @@ const BalanceModal: FC<ModalProps> = (props) => {
                   </Flex>
                 </Flex>
                 <Flex pr={4} direction="column" justify="space-around">
-                  {asset.balance != undefined ? (
-                    <Text fontSize="sm">{formatNumber(asset.balance, asset.decimals ?? 7)}</Text>
+                  {asset.rawBalance != undefined ? (
+                    <Text fontSize="sm">
+                      {formatTokenAmount(asset.rawBalance, asset.decimals ?? 7)}
+                    </Text>
                   ) : (
                     <Spinner size="sm" />
                   )}

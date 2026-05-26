@@ -31,6 +31,33 @@ export const formatNumber = (
   return "0";
 };
 
+export const formatTokenAmount = (
+  rawValue: string | number | bigint,
+  decimals: number = 7
+): string => {
+  try {
+    const raw = BigInt(rawValue);
+    const negative = raw < 0n;
+    const absolute = negative ? -raw : raw;
+    const divisor = 10n ** BigInt(decimals);
+    const whole = absolute / divisor;
+    const fraction = absolute % divisor;
+
+    if (fraction === 0n) {
+      return `${negative ? '-' : ''}${whole.toString()}`;
+    }
+
+    const fractionText = fraction
+      .toString()
+      .padStart(decimals, '0')
+      .replace(/0+$/, '');
+
+    return `${negative ? '-' : ''}${whole.toString()}.${fractionText}`;
+  } catch {
+    return '0';
+  }
+};
+
 export const formatCurrency = (
   value: number | string,
   currency: string = "XLM",
