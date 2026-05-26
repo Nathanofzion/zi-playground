@@ -78,7 +78,7 @@ const BalanceModal: FC<ModalProps> = (props) => {
                 </Flex>
                 <Flex pr={4} direction="column" justify="space-around">
                   {asset.balance != undefined ? (
-                    <Text fontSize="sm">{formatNumber(asset.balance, 2)}</Text>
+                    <Text fontSize="sm">{formatNumber(asset.balance, asset.decimals ?? 7)}</Text>
                   ) : (
                     <Spinner size="sm" />
                   )}

@@ -82,22 +82,29 @@ const createScore = async (createScoreDto: any) => {
 
   const rewardStrops = Math.min(data.score * STROPS_PER_POINT, remainingCap);
 
-  const result = await contractInvoke({
-    contractAddress: zionTokenAddress,
-    method: "transfer",
-    secretKey: funderSecretKey,
-    args: [
-      nativeToScVal(funderPublicKey, { type: "address" }),
-      nativeToScVal(data.publicKey, { type: "address" }),
-      nativeToScVal(rewardStrops, { type: "i128" }),
-    ],
-  });
+  try {
+    const result = await contractInvoke({
+      contractAddress: zionTokenAddress,
+      method: "transfer",
+      secretKey: funderSecretKey,
+      args: [
+        nativeToScVal(funderPublicKey, { type: "address" }),
+        nativeToScVal(data.publicKey, { type: "address" }),
+        nativeToScVal(rewardStrops, { type: "i128" }),
+      ],
+    });
 
-  if (result.status != "SUCCESS") {
-    throw new Error("Failed to transfer reward");
+    if (result.status != "SUCCESS") {
+      console.warn("ZI reward transfer did not succeed:", result.status);
+      return { ...data, reward: 0, reason: "Reward transfer not successful" };
+    }
+
+    return { ...data, reward: rewardStrops };
+  } catch (rewardErr: any) {
+    // Non-fatal — score is saved; reward will be distributed via /api/game-reward
+    console.warn("ZI reward transfer failed (non-fatal):", rewardErr?.message ?? rewardErr);
+    return { ...data, reward: 0, reason: "Reward transfer failed" };
   }
-
-  return { ...data, reward: rewardStrops };
 };
 
 const readScore = async (type: string) => {
@@ -105,7 +112,7 @@ const readScore = async (type: string) => {
     .from("scores")
     .select()
     .eq("type", type)
-    .order("created_at", { ascending: false })
+    .order("score", { ascending: false })
     .limit(10);
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Failed to read score");
