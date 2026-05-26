@@ -74,9 +74,12 @@ const useAssets = () => {
 
   const assets = useMemo(() => {
     return (data ?? []).map((asset, index) => {
+      const rawBalance = balanceTable[index].data ?? '0';
+
       return {
         ...asset,
-        rawBalance: balanceTable[index].data ?? '0',
+        balance: Number(rawBalance) / Math.pow(10, asset.decimals),
+        rawBalance,
         // Add loading and error states for better UX
         isLoadingBalance: balanceTable[index].isLoading,
         balanceError: balanceTable[index].error,

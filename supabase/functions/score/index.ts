@@ -9,7 +9,8 @@ import {
 import { contractInvoke } from "../contract.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-const supabasekey = Deno.env.get("SUPABASE_ANON_KEY")!;
+const supabasekey =
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
 
 const supabase = createClient(supabaseUrl, supabasekey);
 

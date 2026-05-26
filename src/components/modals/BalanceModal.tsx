@@ -79,7 +79,7 @@ const BalanceModal: FC<ModalProps> = (props) => {
                 <Flex pr={4} direction="column" justify="space-around">
                   {asset.rawBalance != undefined ? (
                     <Text fontSize="sm">
-                      {formatTokenAmount(asset.rawBalance, asset.decimals ?? 7)}
+                      {formatTokenAmount(asset.rawBalance, asset.decimals ?? 7, 8)}
                     </Text>
                   ) : (
                     <Spinner size="sm" />

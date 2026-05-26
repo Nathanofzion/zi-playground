@@ -33,7 +33,8 @@ export const formatNumber = (
 
 export const formatTokenAmount = (
   rawValue: string | number | bigint,
-  decimals: number = 7
+  decimals: number = 7,
+  displayDecimals: number = decimals
 ): string => {
   try {
     const raw = BigInt(rawValue);
@@ -43,16 +44,16 @@ export const formatTokenAmount = (
     const whole = absolute / divisor;
     const fraction = absolute % divisor;
 
-    if (fraction === 0n) {
-      return `${negative ? '-' : ''}${whole.toString()}`;
+    const baseFraction = fraction.toString().padStart(decimals, '0');
+    let fixedFraction = baseFraction;
+
+    if (displayDecimals > decimals) {
+      fixedFraction = `${baseFraction}${'0'.repeat(displayDecimals - decimals)}`;
+    } else if (displayDecimals < decimals) {
+      fixedFraction = baseFraction.slice(0, displayDecimals);
     }
 
-    const fractionText = fraction
-      .toString()
-      .padStart(decimals, '0')
-      .replace(/0+$/, '');
-
-    return `${negative ? '-' : ''}${whole.toString()}.${fractionText}`;
+    return `${negative ? '-' : ''}${whole.toString()}.${fixedFraction}`;
   } catch {
     return '0';
   }
