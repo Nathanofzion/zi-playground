@@ -6,6 +6,7 @@ import nativeToken from "@/constants/nativeToken";
 import { contractInvoke } from "@/lib/contract";
 
 const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
+const FUND_AMOUNTS_XLM = [10000, 1000, 100, 10, 1] as const;
 
 // Testnet-only XLM funder — no JWT auth required (testnet has no real value).
 // Protected by server-side FUNDER_SECRET_KEY only being available server-side.
@@ -28,23 +29,40 @@ export async function GET(
   console.log(`[fund] Funder: ${funderPublicKey.substring(0, 8)}...`);
 
   try {
-    console.log(`[fund] Funding ${address.substring(0, 8)}... with 10000 XLM`);
     const fromScVal = new Address(funderPublicKey).toScVal();
     const toScVal = new Address(address).toScVal();
+    let lastError: any;
 
-    const result: any = await contractInvoke({
-      contractAddress: nativeToken.contract,
-      secretKey: funderSecretKey,
-      method: "transfer",
-      args: [
-        fromScVal,
-        toScVal,
-        nativeToScVal(10000 * 1e7, { type: "i128" }),
-      ],
-    });
+    for (const amountXlm of FUND_AMOUNTS_XLM) {
+      try {
+        console.log(`[fund] Funding ${address.substring(0, 8)}... with ${amountXlm} XLM`);
 
-    console.log(`[fund] Funded ${address.substring(0, 8)}... successfully`);
-    return NextResponse.json(result);
+        const result: any = await contractInvoke({
+          contractAddress: nativeToken.contract,
+          secretKey: funderSecretKey,
+          method: "transfer",
+          args: [
+            fromScVal,
+            toScVal,
+            nativeToScVal(amountXlm * 1e7, { type: "i128" }),
+          ],
+        });
+
+        console.log(`[fund] Funded ${address.substring(0, 8)}... with ${amountXlm} XLM`);
+        return NextResponse.json({
+          ...result,
+          fundedAmountXlm: amountXlm,
+        });
+      } catch (error: any) {
+        lastError = error;
+        console.warn(
+          `[fund] Funding ${address.substring(0, 8)}... with ${amountXlm} XLM failed:`,
+          error?.message ?? error
+        );
+      }
+    }
+
+    throw lastError ?? new Error("Funding failed for all fallback amounts");
   } catch (error: any) {
     console.error(`[fund] Failed to fund ${address.substring(0, 8)}...:`, error?.message ?? error);
     return NextResponse.json(

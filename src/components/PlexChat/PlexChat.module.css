@@ -1,7 +1,7 @@
 /* ── Floating trigger ─────────────────────────────────────────────────────── */
 .trigger {
   position: fixed;
-  bottom: 28px;
+  bottom: 86px;
   right: 28px;
   z-index: 9999;
   display: flex;
@@ -32,7 +32,7 @@
 /* ── Panel ────────────────────────────────────────────────────────────────── */
 .panel {
   position: fixed;
-  bottom: 90px;
+  bottom: 150px;
   right: 28px;
   z-index: 9999;
   width: 380px;

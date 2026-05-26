@@ -201,7 +201,7 @@ const Controller: FC<ControllerProps> = ({ move, down, release, ...props }) => {
     <Flex
       position="absolute"
       bottom={0}
-      display={{ base: "flex", md: "none" }}
+      display={{ base: "flex", xl: "none" }}
       px={4}
       w="full"
       h="full"
@@ -323,7 +323,7 @@ const BgTetris = () => {
         >
           <Flex direction="column" align="center" gap={2}>
             <Button
-              display={{ base: "none", md: "flex" }}
+              display={{ base: "none", xl: "flex" }}
               mb={2}
               onClick={handleGameStart}
             >
@@ -334,7 +334,7 @@ const BgTetris = () => {
           <Controller move={move} down={down} release={release} />
           <Button
             position="absolute"
-            display={{ base: "flex", md: "none" }}
+            display={{ base: "flex", xl: "none" }}
             bottom={0}
             left={4}
             onClick={handleGameStart}
