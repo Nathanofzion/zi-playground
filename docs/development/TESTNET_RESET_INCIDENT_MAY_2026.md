@@ -2,7 +2,7 @@
 
 **Date discovered:** May 25, 2026  
 **Root cause:** Stellar testnet reset + post-reset redeployment mismatch  
-**Status:** Resolved (commit `be40b32`)
+**Status:** Resolved + hardened (commits `be40b32`, `fe098d8`, `3da7aea`, `815c5ae`)
 
 ---
 
@@ -35,11 +35,46 @@ The balance modal queried the new SAC → always returned 0.
 **Root cause:**  
 After the testnet reset the funder account (`GBNNJVN6...`) was re-funded via Friendbot (10,000 XLM). However, `src/app/api/fund/[address]/route.ts` was still set to send **10,000 XLM per new wallet** — the entire funder balance in a single transfer. After just one or two new wallets were created, the funder was drained to ~7 XLM (below the ledger minimum reserve + fee threshold), causing every subsequent funding attempt to throw a `tx_insufficient_balance` error.
 
-**Fix:**
+**Initial fix:**
 1. Topped up funder via Friendbot → ~18,880 XLM
 2. Reduced transfer amount: `nativeToScVal(10000 * 1e7)` → `nativeToScVal(100 * 1e7)` (100 XLM per wallet)
 
 100 XLM is more than enough for a testnet smart wallet to cover fees for years.
+
+**Current behavior (hardened):**
+The funding endpoint now tries fallback transfer sizes in order: `10000 → 1000 → 100 → 10 → 1 XLM`.
+This prevents onboarding failures when the funder balance is lower than 10,000 XLM.
+
+---
+
+### Issue 3 — Airdrop claims and game leaderboard scores intermittently failing
+
+**Symptoms:**
+- Atomic tutorial airdrops failed while Particle claims worked.
+- Game scores were not always recorded, and leaderboards stayed empty.
+
+**Root causes:**
+1. Airdrop API action whitelist allowed only `1..3` (Particle), but Atomic actions are `4..6`.
+2. `scores` table RLS policy allowed insert only for `service_role`, while score function traffic came through anon context.
+
+**Fixes:**
+1. Expanded airdrop action whitelist to include `1..6`.
+2. Added migration `20260526000001_fix_scores_insert_policy_for_edge_fn.sql` to allow inserts into `public.scores` from the edge function path.
+3. Deployed updated score edge function and verified live `create` + `read` requests.
+
+---
+
+### Issue 4 — Balance modal formatting did not show fixed decimal zeros
+
+**Symptom:**
+Balance modal values trimmed trailing zeros and did not consistently display fixed decimal precision.
+
+**Example expected display:**
+- `Zi 40.00000096`
+- `XLM 10000.00000096`
+
+**Fix:**
+Updated balance formatting to preserve fixed decimal precision in modal display using raw stroop values.
 
 ---
 
@@ -62,9 +97,11 @@ If different parts of the stack are updated to different new addresses, a mismat
 2. **Update ALL contract address env vars in Vercel** — run `vercel env ls` and check every `*_CONTRACT_ID` and `*_SAC_ID` variable
 3. **Make sure the airdrop contract and `NEXT_PUBLIC_ZI_SAC_ID` point to the same ZI SAC** — this is the most common mismatch
 4. **Re-fund the funder account** via Friendbot: `https://friendbot.stellar.org/?addr=<FUNDER_PUBLIC_KEY>`
-5. **Verify funder balance** is well above the fund-per-wallet amount (currently 100 XLM × expected signups)
-6. **Check fund-per-wallet amount** in `src/app/api/fund/[address]/route.ts` — currently 100 XLM; keep ≤ 1% of funder balance
-7. **Test end-to-end**: create new wallet → XLM funding → claim airdrop → check balance modal shows ZI
+5. **Verify funder balance** is healthy and can cover expected signups
+6. **Check funding fallback logic** in `src/app/api/fund/[address]/route.ts` (currently `10000/1000/100/10/1` XLM)
+7. **Validate all airdrop actions** (`1..6`) return success in API route
+8. **Verify score write path** by posting a test score and confirming leaderboard read returns rows
+9. **Test end-to-end**: create new wallet → XLM funding → claim airdrop → play both games → leaderboard updates → balance modal shows fixed decimals
 
 ---
 
@@ -82,10 +119,16 @@ If different parts of the stack are updated to different new addresses, a mismat
 
 ---
 
-## Files Changed in Fix
+## Files Changed in Fixes
 
 | File | Change |
 |---|---|
 | `src/constants/zionToken.ts` | Default fallback changed from new SAC → old SAC |
-| `src/app/api/fund/[address]/route.ts` | Fund amount `10000 * 1e7` → `100 * 1e7` |
+| `src/app/api/fund/[address]/route.ts` | Funding logic hardened with fallback amounts (`10000/1000/100/10/1`) |
+| `src/app/api/airdrop/route.ts` | Action whitelist expanded to include Atomic actions (`4..6`) |
+| `src/hooks/useScore.tsx` | Score query/invalidation keyed by game type to stabilize leaderboard data |
+| `src/components/modals/BalanceModal.tsx` | Uses fixed-decimal token formatting for display |
+| `src/utils/index.ts` | Added fixed-decimal token formatter behavior |
+| `supabase/functions/score/index.ts` | Score function updated for non-fatal reward path and env-key fallback |
+| `supabase/migrations/20260526000001_fix_scores_insert_policy_for_edge_fn.sql` | Opened `scores` insert policy for edge-function path |
 | Vercel env | `NEXT_PUBLIC_ZI_SAC_ID` updated to old SAC address |
