@@ -96,28 +96,63 @@ const InfoModal: FC<ModalProps> = (props) => {
 
         <Separator />
 
-        <Flex direction="column" align="center" gap={3}>
+        {/* ── Photo gallery ─────────────────────────────────────────────── */}
+        <Flex direction="column" gap={5}>
           <Heading as="h3" size="sm" textAlign="center">
-            \ud83c\udfc6 Stellar Community Fund #11 Winner
+            📸 Stellar Meridian London &amp; Team
           </Heading>
-          {/* Place the SCF winner banner at public/assets/images/scf-award.png */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/assets/images/scf-award.png"
-            alt="Zig3 — SCF #11 Winner"
-            style={{ width: "100%", maxWidth: 420, borderRadius: 12 }}
-          />
-          <Text fontSize="xs" color="gray.400" textAlign="center">
-            Nathaniel Denny (Founder) \u00b7 Saad Hassan (UI Lead, Zig3 Dev)
-          </Text>
+
+          {/* Image 1 – NathanOfZion + Stellar team photobooth */}
+          <Flex direction="column" align="center" gap={1}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/images/stellar-meridian-team.png"
+              alt="NathanOfZion with the Stellar team at Meridian London"
+              style={{ width: "100%", maxWidth: 420, borderRadius: 12 }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            />
+            <Text fontSize="xs" color="gray.400" textAlign="center">
+              NathanOfZion &amp; the Stellar team · Meridian London
+            </Text>
+          </Flex>
+
+          {/* Image 2 – NathanOfZion & Jed McCaleb */}
+          <Flex direction="column" align="center" gap={1}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/images/jed-mccaleb-meridian.png"
+              alt="NathanOfZion (Zioncoin Founder) and Jed McCaleb (Stellar Co-Founder)"
+              style={{ width: "100%", maxWidth: 420, borderRadius: 12 }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            />
+            <Text fontSize="xs" color="gray.400" textAlign="center">
+              NathanOfZion (Zioncoin Founder) · Jed McCaleb (Stellar Co-Founder) · Meridian London
+            </Text>
+          </Flex>
+
+          {/* Image 3 – SCF winner banner: NathanOfZion & Saad Hassan */}
+          <Flex direction="column" align="center" gap={1}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/assets/images/scf-award.png"
+              alt="Zig3 SCF #11 Winner — NathanOfZion and Saad Hassan"
+              style={{ width: "100%", maxWidth: 420, borderRadius: 12 }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            />
+            <Text fontSize="xs" color="gray.400" textAlign="center">
+              🏆 SCF #11 Winner · NathanOfZion (left) · Saad Hassan, UI Lead (right)
+            </Text>
+          </Flex>
+
           <Link
             href="https://communityfund.stellar.org/project/zig3v2-j3u"
             target="_blank"
             rel="noopener noreferrer"
             fontSize="xs"
             color="blue.300"
+            textAlign="center"
           >
-            View SCF project page \u2192
+            View SCF project page →
           </Link>
         </Flex>
 
