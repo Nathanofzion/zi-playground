@@ -62,7 +62,8 @@ const ChainPicker: FC<ChainPickerProps> = ({ label, selectedKey, onSelect }) => 
 };
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
-const BridgeModal: FC<ModalProps> = ({ onClose, ...props }) => {
+const BridgeModal: FC<ModalProps> = (props) => {
+  const { onClose } = props;
   const {
     srcChain, setSrcChain,
     dstChain, setDstChain,
@@ -85,7 +86,7 @@ const BridgeModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const canBridge = status === "quote_ready" && !!quote && !isBusy;
 
   return (
-    <Modal onClose={() => { reset(); onClose?.(); }} {...props}>
+    <Modal {...props} onClose={() => { reset(); onClose?.(); }}>
       <ModalOverlay />
       <ModalContent
         px={{ base: 4, lg: 8 }}
