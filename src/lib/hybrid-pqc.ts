@@ -138,10 +138,13 @@ async function encryptSecretKey(
 ): Promise<{ ciphertext: string; iv: string }> {
   const key = await deriveEncryptionKey(credentialIdBase64);
   const iv = crypto.getRandomValues(new Uint8Array(12));
+  // TS 5.9: copy into a plain ArrayBuffer-backed Uint8Array to satisfy BufferSource
+  const secretKeyBuffer = new Uint8Array(secretKey.length);
+  secretKeyBuffer.set(secretKey);
   const cipherBuf = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     key,
-    secretKey
+    secretKeyBuffer
   );
   return {
     ciphertext: toBase64url(new Uint8Array(cipherBuf)),
@@ -174,11 +177,13 @@ function toBase64url(bytes: Uint8Array): string {
     .replace(/=+$/, "");
 }
 
-function fromBase64url(b64: string): Uint8Array {
+function fromBase64url(b64: string): Uint8Array<ArrayBuffer> {
   const padded = b64.replace(/-/g, "+").replace(/_/g, "/");
   const padding = (4 - (padded.length % 4)) % 4;
   const binary = atob(padded + "=".repeat(padding));
-  return Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  const buf = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) buf[i] = binary.charCodeAt(i);
+  return buf;
 }
 
 // ---------------------------------------------------------------------------
