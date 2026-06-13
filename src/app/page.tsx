@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { Grid } from "@chakra-ui/react";
 import { useSorobanReact } from "@soroban-react/core";
 
-import Viewer from "@/components/Earth";
+import Viewer from "@/components/EarthClient";
 import { Theme } from "@/enums";
 import { AppContext } from "@/providers/AppProvider";
 

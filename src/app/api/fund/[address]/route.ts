@@ -8,12 +8,19 @@ import { contractInvoke } from "@/lib/contract";
 const funderSecretKey = process.env.FUNDER_SECRET_KEY!;
 const FUND_AMOUNTS_XLM = [10000, 1000, 100, 10, 1] as const;
 
+// Next 15: GET route handlers are uncached by default. This is a live testnet
+// funding call that must never be cached — make it explicit.
+export const dynamic = "force-dynamic";
+
 // Testnet-only XLM funder — no JWT auth required (testnet has no real value).
 // Protected by server-side FUNDER_SECRET_KEY only being available server-side.
-export async function GET(
-  req: NextRequest,
-  { params: { address } }: { params: { address: string } }
-) {
+export async function GET(req: NextRequest, props: { params: Promise<{ address: string }> }) {
+  const params = await props.params;
+
+  const {
+    address
+  } = params;
+
   // Basic address validation — must be a 56-char C-address (smart contract)
   if (!address || !address.startsWith("C") || address.length !== 56) {
     return NextResponse.json({ error: "Invalid contract address" }, { status: 400 });
