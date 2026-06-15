@@ -5,15 +5,19 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig = {
+    // Pin the workspace root so Next 15 doesn't infer a stray parent-dir
+    // lockfile as the root (breaks output file tracing on deploy).
+    outputFileTracingRoot: __dirname,
     experimental: {
         optimizePackageImports: ["@chakra-ui/react"],
-        serverComponentsExternalPackages: [
-            '@stellar/stellar-sdk',
-            '@stellar/stellar-sdk-v14',
-            '@stellar/stellar-base',
-            'sodium-native'
-        ],
     },
+    // Next 15: renamed from experimental.serverComponentsExternalPackages.
+    serverExternalPackages: [
+        '@stellar/stellar-sdk',
+        '@stellar/stellar-sdk-v14',
+        '@stellar/stellar-base',
+        'sodium-native'
+    ],
     transpilePackages: [
         'passkey-kit',
         'passkey-factory-sdk',

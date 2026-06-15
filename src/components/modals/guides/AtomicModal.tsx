@@ -13,7 +13,7 @@ import {
 import Button from "@/components/common/Button";
 import GetAirdropButton from "@/components/common/GetAirdropButton";
 import Modal, { ModalProps } from "@/components/common/Modal";
-import Viewer from "@/components/Earth";
+import Viewer from "@/components/EarthClient";
 import { MouseClickIcon } from "@/components/icons";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { WalletConnectButton } from "@/components/wallet";
