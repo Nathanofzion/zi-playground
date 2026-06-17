@@ -65,6 +65,8 @@ const supabaseUrl =
   Deno.env.get("APP_SUPABASE_URL") ?? Deno.env.get("SUPABASE_URL");
 const supabasekey =
   Deno.env.get("APP_SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY");
+const supabaseServiceKey =
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 if (!supabaseUrl || !supabasekey) {
   throw new Error(
@@ -73,6 +75,10 @@ if (!supabaseUrl || !supabasekey) {
 }
 
 const supabase = createClient(supabaseUrl, supabasekey);
+// Service role client for elevated operations (user inserts, updates)
+const supabaseAdmin = supabaseServiceKey 
+  ? createClient(supabaseUrl, supabaseServiceKey)
+  : supabase;
 
 const rpName = Deno.env.get("RP_NAME")!;
 const rpID = Deno.env.get("RP_ID")!;
@@ -238,7 +244,7 @@ async function handleRegistrationVerification(
     );
 
     const credential = verification.registrationInfo!.credential;
-    const { error } = await supabase.from("users").insert({
+    const { error } = await supabaseAdmin.from("users").insert({
       user_id: user_id,
       publicKey: keypair.publicKey(),
       secretKey: keypair.secret(),
@@ -253,7 +259,7 @@ async function handleRegistrationVerification(
     }
 
     if (referrer) {
-      const { data: user, error: userError } = await supabase
+      const { data: user, error: userError } = await supabaseAdmin
         .from("users")
         .select("id, referral_count")
         .eq("publicKey", referrer)
@@ -261,7 +267,7 @@ async function handleRegistrationVerification(
       if (userError) {
         throw new Error(userError.message);
       }
-      const { error: updateError } = await supabase
+      const { error: updateError } = await supabaseAdmin
         .from("users")
         .update({
           referral_count: user.referral_count + 1,
@@ -270,7 +276,7 @@ async function handleRegistrationVerification(
       if (updateError) {
         throw new Error(updateError.message);
       }
-      const { error: rewardError } = await supabase.from("rewards").insert({
+      const { error: rewardError } = await supabaseAdmin.from("rewards").insert({
         user_id: user.id,
         type: "invited",
         amount: 1,
@@ -403,7 +409,7 @@ const handleRegisterWallet = async (data: any, referrer?: string) => {
     throw new BadRequestException("contractId is required");
   }
 
-  const { data: existingUser } = await supabase
+  const { data: existingUser } = await supabaseAdmin
     .from("users")
     .select("id, publicKey")
     .eq("publicKey", contractId)
@@ -413,7 +419,7 @@ const handleRegisterWallet = async (data: any, referrer?: string) => {
     // If PQC public key provided, update the record (e.g., after key rotation or
     // first PQC-capable login on an existing account).
     if (pqcPublicKey) {
-      await supabase
+      await supabaseAdmin
         .from("users")
         .update({
           pqc_public_key: pqcPublicKey,
@@ -426,7 +432,7 @@ const handleRegisterWallet = async (data: any, referrer?: string) => {
     return { publicKey: contractId, token };
   }
 
-  const { error } = await supabase.from("users").insert({
+  const { error } = await supabaseAdmin.from("users").insert({
     user_id: contractId,
     publicKey: contractId,
     ...(pqcPublicKey
@@ -443,19 +449,19 @@ const handleRegisterWallet = async (data: any, referrer?: string) => {
   }
 
   if (referrer) {
-    const { data: referrerUser, error: referrerError } = await supabase
+    const { data: referrerUser, error: referrerError } = await supabaseAdmin
       .from("users")
       .select("id, referral_count")
       .eq("publicKey", referrer)
       .single();
 
     if (!referrerError && referrerUser) {
-      await supabase
+      await supabaseAdmin
         .from("users")
         .update({ referral_count: (referrerUser.referral_count || 0) + 1 })
         .eq("publicKey", referrer);
 
-      await supabase.from("rewards").insert({
+      await supabaseAdmin.from("rewards").insert({
         user_id: referrerUser.id,
         type: "invited",
         amount: 1,
@@ -472,7 +478,7 @@ const handleUpdateProfile = async (data: any) => {
 
   const decoded = jwt.verify(token, secretKey);
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await supabaseAdmin
     .from("users")
     .update({ email })
     .eq("user_id", decoded.id);
