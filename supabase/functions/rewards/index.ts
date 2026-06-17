@@ -38,6 +38,15 @@ Deno.serve((req) =>
     if (req.method === "POST") {
       const { action, token } = await req.json();
 
+      if (!action || typeof action !== "string") {
+        throw new BadRequestException("Action is required");
+      }
+
+      // Read-only list endpoint can be queried without auth token.
+      if (action === "get-rewards-list") {
+        return await withTimeout(handleGetRewardsList(), 8000, "Get rewards list timed out");
+      }
+
       if (!token) {
         throw new BadRequestException("Token is required");
       }
@@ -46,7 +55,7 @@ Deno.serve((req) =>
       if (typeof token !== "string") {
         throw new BadRequestException("Token must be a string");
       }
-      
+
       const parts = token.split(".");
       if (parts.length !== 3) {
         throw new BadRequestException("Invalid JWT format");
@@ -68,8 +77,6 @@ Deno.serve((req) =>
       switch (action) {
         case "get-rewards":
           return await withTimeout(handleGetRewards((decoded as any).id), 8000, "Get rewards timed out");
-        case "get-rewards-list":
-          return await withTimeout(handleGetRewardsList(), 8000, "Get rewards list timed out");
         case "claim-rewards":
           return await withTimeout(handleClaimRewards((decoded as any).id), 15000, "Claim rewards timed out");
         default:

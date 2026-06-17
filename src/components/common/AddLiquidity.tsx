@@ -54,39 +54,44 @@ const AddLiquidity = () => {
     amount1: string | undefined,
     amount2: string | undefined
   ) => {
-    if (!asset1 && !asset2) {
+    if (!asset1 || !asset2) {
       return;
     }
 
-    if(!amount1 || !amount2){
-      setAmount1("")
-      setAmount2("")
-    }
-
-    if (amount1) {
-      if(parseInt(amount1) <= 0){
-        setAmount1("")
-      }
+    if (amount1 !== undefined) {
+      // Allow only decimal numeric typing while user edits.
+      if (!/^\d*(\.\d*)?$/.test(amount1)) return;
       setAmount1(amount1);
-      if (reserves && parseInt(amount1!) >= 0) {
-        const amount2 = BigNumber(amount1)
+
+      if (!amount1) {
+        setAmount2("");
+        return;
+      }
+
+      if (reserves && BigNumber(amount1).isFinite()) {
+        const nextAmount2 = BigNumber(amount1)
           .times(reserves[1])
           .div(reserves[0])
           .toString();
-        setAmount2(amount2);
+        setAmount2(nextAmount2);
       }
     }
-    if (amount2) {
-      if(parseInt(amount2) <= 0){
-        setAmount1("")
-      }
+
+    if (amount2 !== undefined) {
+      if (!/^\d*(\.\d*)?$/.test(amount2)) return;
       setAmount2(amount2);
-      if (reserves && parseInt(amount2!) >= 0) {
-        const amount1 = BigNumber(amount2)
+
+      if (!amount2) {
+        setAmount1("");
+        return;
+      }
+
+      if (reserves && BigNumber(amount2).isFinite()) {
+        const nextAmount1 = BigNumber(amount2)
           .times(reserves[0])
           .div(reserves[1])
           .toString();
-        setAmount1(amount1);
+        setAmount1(nextAmount1);
       }
     }
   };
@@ -128,8 +133,16 @@ const AddLiquidity = () => {
 
   const handleAddLiquidity = async () => {
     try {
-
-      if(!amount1 || !amount2 || amount1 == "0" || amount2 == "0") return;
+      if (
+        !amount1 ||
+        !amount2 ||
+        !BigNumber(amount1).isFinite() ||
+        !BigNumber(amount2).isFinite() ||
+        BigNumber(amount1).lte(0) ||
+        BigNumber(amount2).lte(0)
+      ) {
+        return;
+      }
 
       if(
         (asset2?.balance != null && BigNumber(amount2).gt(asset2.balance)) ||

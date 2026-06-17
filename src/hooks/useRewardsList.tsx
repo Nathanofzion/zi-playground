@@ -6,18 +6,23 @@ const useRewardsList = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["rewards"],
     queryFn: async () => {
+      const token = localStorage.getItem("token");
       const { data, error } = await supabase.functions.invoke("rewards", {
         method: "POST",
         body: {
           action: "get-rewards-list",
-          token: localStorage.getItem("token"),
+          ...(token ? { token } : {}),
         },
       });
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.warn("Failed to fetch rewards list:", error.message);
+        return [];
+      }
 
       return data;
     },
+    retry: 1,
   });
 
   return { rewardsList: data ?? [], isLoading, error };
