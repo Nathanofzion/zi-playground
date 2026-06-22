@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 
 import Background from "@/components/common/Background";
 import Header from "@/components/Header";
@@ -40,10 +41,11 @@ export default function RootLayout({
           <div className="app-layout">
             <Header />
             {children}
-            <Footer />
           </div>
+<<<<<<< HEAD
           <ClientPlexChat />
         </Provider>
+        <Analytics />
       </body>
     </html>
   );
