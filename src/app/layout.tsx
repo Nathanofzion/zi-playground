@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   title: "Zi Airdrop Playground",
   description: "",
   verification: {
-    google: "I93bfMOKoj-Fvf40sc0C6MW85DP4PVFnBfLhECSQnDk",
+    google: "-5TR5Ptnmlpn-8eEIyJwlGMl7vTMpCKJa_xw-UVZmK8",
   },
 };
 
