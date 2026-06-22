@@ -24,7 +24,7 @@
     "@iarna/toml": "^2.2.5",
     "@noble/post-quantum": "^0.6.0",
     "@react-three/drei": "^9.120.9",
-    "@react-three/fiber": "^8.17.10",
+    "@react-three/fiber": "^9.6.1",
     "@simplewebauthn/browser": "^13.1.0",
     "@soroban-react/chains": "^9.1.13",
     "@soroban-react/contracts": "^9.3.0",

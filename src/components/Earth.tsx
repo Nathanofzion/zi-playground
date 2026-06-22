@@ -9,7 +9,7 @@ import {
     RoundedBox,
     useGLTF
 } from "@react-three/drei";
-import { Canvas, GroupProps, useFrame } from "@react-three/fiber";
+import { Canvas, ThreeElements, useFrame } from "@react-three/fiber";
 import { Component, ErrorInfo, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
@@ -86,9 +86,7 @@ class WebGLErrorBoundary extends Component<
     }
 }
 
-interface EarthProps extends GroupProps {
-    startAnimation?: boolean;
-}
+type EarthProps = ThreeElements['group'] & { startAnimation?: boolean };
 
 function Earth({ startAnimation, ...props }: EarthProps) {
     const ref = useRef<THREE.Mesh>(null);
