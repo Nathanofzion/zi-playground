@@ -25,6 +25,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Zi Airdrop Playground",
   description: "",
+  verification: {
+    google: "I93bfMOKoj-Fvf40sc0C6MW85DP4PVFnBfLhECSQnDk",
+  },
 };
 
 export default function RootLayout({
@@ -42,7 +45,6 @@ export default function RootLayout({
             <Header />
             {children}
           </div>
-<<<<<<< HEAD
           <ClientPlexChat />
         </Provider>
         <Analytics />
