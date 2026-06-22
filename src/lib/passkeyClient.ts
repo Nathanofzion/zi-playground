@@ -18,11 +18,6 @@ import {
 
 const FACTORY_CONTRACT_ID = process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID || "";
 
-// Tracks when persistSession() last ran so getPublicKey() can skip re-auth
-// during the same sign-in flow (avoids double WebAuthn prompt).
-let _freshSessionTimestamp: number | null = null;
-const FRESH_SESSION_WINDOW_MS = 30_000; // 30 seconds
-
 /**
  * Alternative server send that bypasses OpenZapplinRelayer's strict timebounds
  */
@@ -139,9 +134,6 @@ const storeSessionToken = (token: string) => {
 };
 
 const persistSession = async (contractId: string, keyIdBase64: string) => {
-  // Mark session as freshly established to suppress redundant re-auth in getPublicKey
-  _freshSessionTimestamp = Date.now();
-
   LocalKeyStorage.storePasskeyKeyId(keyIdBase64);
   LocalKeyStorage.storePasskeyContractId(contractId);
 
@@ -427,37 +419,17 @@ const passkey = () => {
           console.log('Found stored passkey session, reconnecting...');
           setPasskeyStatus(null);
 
-          // Skip re-authentication if session was just established (e.g. by connectWithAnyPasskey
-          // in the same sign-in flow). Without this guard, the user would see two WebAuthn prompts.
-          const isFreshSession =
-            _freshSessionTimestamp !== null &&
-            Date.now() - _freshSessionTimestamp < FRESH_SESSION_WINDOW_MS;
-
-          if (isFreshSession) {
-            _freshSessionTimestamp = null; // consume the flag
-            console.log('Session freshly established, skipping re-auth prompt.');
-            await ensureLocalSession(storedContractId, storedKeyId);
-            return storedContractId;
-          }
-
-          // connectWithFactory() called with no keyId → browser shows ALL available
-          // passkeys (from any dapp), enabling cross-dapp passkey sharing with Liquiplex.
-          const connectResult: any = await connectWithFactory();
-
+          // Pass storedKeyId so Chrome populates allowCredentials and can find
+          // the credential without requiring it to be a discoverable/resident key.
+          // Safari is lenient and works without this; Chrome requires it.
+          const connectResult: any = await connectWithFactory(storedKeyId);
+  
+          // Verify the returned keyId matches what we expect
           if (connectResult.keyIdBase64 !== storedKeyId) {
-            // User selected a different passkey (e.g. one created on Liquiplex DEX).
-            // The factory already resolved its contractId — switch to that session.
-            if (!connectResult?.contractId) {
-              throw new Error('Passkey recovery returned incomplete data.');
-            }
-            console.log('Different passkey selected, switching wallet to:', connectResult.contractId.substring(0, 8) + '...');
-            await persistSession(connectResult.contractId, connectResult.keyIdBase64);
-            setPasskeyStatus(null);
-            return connectResult.contractId;
+            throw new Error('Wrong passkey used. Please select the correct credential.');
           }
 
           await ensureLocalSession(storedContractId, storedKeyId);
-
           return storedContractId;
         }
 
@@ -593,24 +565,46 @@ const passkey = () => {
           isCAddress: contractId.startsWith('C'),
         });
 
-        // Fund wallet with XLM via server-side XLM SAC transfer (testnet only)
+        // Fund wallet with XLM from friendbot (testnet only)
         const isTestnet = (process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "").includes("Test");
         if (isTestnet) {
-          console.log('Funding passkey wallet with XLM via /api/fund...');
+          console.log('Funding passkey wallet with XLM from friendbot...');
           try {
-            const fundToken = LocalKeyStorage.getToken();
-            const fundRes = await fetch(`/api/fund/${contractId}`, {
-              headers: fundToken ? { Authorization: `Bearer ${fundToken}` } : {},
+            // Wait a moment for the contract to be fully deployed
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Call friendbot API to fund the wallet
+            const friendbotUrl = `https://friendbot.stellar.org/?addr=${contractId}`;
+            const friendbotResponse = await fetch(friendbotUrl, {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+              },
             });
-            if (fundRes.ok) {
-              console.log('Wallet funded with XLM successfully');
+
+            if (friendbotResponse.ok) {
+              const friendbotResult = await friendbotResponse.json().catch(() => ({}));
+              console.log('Wallet funded successfully via friendbot:', {
+                contractId: contractId.substring(0, 8) + '...',
+                transactionHash: friendbotResult.hash || 'N/A',
+              });
             } else {
-              const fundErr = await fundRes.json().catch(() => ({}));
-              console.warn('XLM funding via /api/fund failed (non-critical):', fundRes.status, fundErr);
+              // Friendbot might return an error if account already exists or rate limited
+              const errorText = await friendbotResponse.text().catch(() => 'Unknown error');
+              console.warn('Friendbot funding response:', {
+                status: friendbotResponse.status,
+                statusText: friendbotResponse.statusText,
+                error: errorText.substring(0, 100),
+              });
+              // Don't throw - wallet creation was successful, funding is optional
             }
           } catch (fundingError: any) {
-            console.warn('XLM funding failed (non-critical):', fundingError.message);
+            // Don't fail wallet creation if funding fails
+            console.warn('Friendbot funding failed (non-critical):', fundingError.message);
+            console.log('Wallet was created successfully. You can fund it manually if needed.');
           }
+        } else {
+          console.log('Skipping friendbot funding (not on testnet)');
         }
 
         // Initialize ZION token trustline/balance for the new passkey wallet
@@ -779,24 +773,46 @@ const contractId = activeWallet.contractId;
              await sendToRpcDirectly(signedTx, rpcUrl);
         }
 
-        // Fund wallet with XLM via server-side XLM SAC transfer (testnet only)
+        // Fund wallet with XLM from friendbot (testnet only)
         const isTestnet = (process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE || "").includes("Test");
         if (isTestnet) {
-          console.log('Funding passkey wallet with XLM via /api/fund...');
+          console.log('Funding passkey wallet with XLM from friendbot...');
           try {
-            const fundToken = LocalKeyStorage.getToken();
-            const fundRes = await fetch(`/api/fund/${contractId}`, {
-              headers: fundToken ? { Authorization: `Bearer ${fundToken}` } : {},
+            // Wait a moment for the contract to be fully deployed
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Call friendbot API to fund the wallet
+            const friendbotUrl = `https://friendbot.stellar.org/?addr=${contractId}`;
+            const friendbotResponse = await fetch(friendbotUrl, {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+              },
             });
-            if (fundRes.ok) {
-              console.log('Wallet funded with XLM successfully');
+
+            if (friendbotResponse.ok) {
+              const friendbotResult = await friendbotResponse.json().catch(() => ({}));
+              console.log('Wallet funded successfully via friendbot:', {
+                contractId: contractId.substring(0, 8) + '...',
+                transactionHash: friendbotResult.hash || 'N/A',
+              });
             } else {
-              const fundErr = await fundRes.json().catch(() => ({}));
-              console.warn('XLM funding via /api/fund failed (non-critical):', fundRes.status, fundErr);
+              // Friendbot might return an error if account already exists or rate limited
+              const errorText = await friendbotResponse.text().catch(() => 'Unknown error');
+              console.warn('Friendbot funding response:', {
+                status: friendbotResponse.status,
+                statusText: friendbotResponse.statusText,
+                error: errorText.substring(0, 100),
+              });
+              // Don't throw - wallet creation was successful, funding is optional
             }
           } catch (fundingError: any) {
-            console.warn('XLM funding failed (non-critical):', fundingError.message);
+            // Don't fail wallet creation if funding fails
+            console.warn('Friendbot funding failed (non-critical):', fundingError.message);
+            console.log('Wallet was created successfully. You can fund it manually if needed.');
           }
+        } else {
+          console.log('Skipping friendbot funding (not on testnet)');
         }
 
         // Initialize ZION token
@@ -834,6 +850,8 @@ const contractId = activeWallet.contractId;
 
 export const requestPasskeyRecovery = () => {
   LocalKeyStorage.clearPasskeyStatus();
+  // Clear active session to force re-evaluation/discovery if needed
+  // But usually this is just a UI signal or cleanup
 };
 export const requestNewWalletCreation = () => {
   LocalKeyStorage.clearPasskeyStatus();
@@ -842,18 +860,9 @@ export const resolveWalletContract = async (keyId: string) => {
     return connectWithFactory(keyId);
 };
 
-/**
- * Show the browser's native passkey picker for ALL passkeys on the device
- * (not just ones created by this dapp). Uses factory to resolve contractId
- * from the selected keyId, then persists the session.
- */
-export const connectWithAnyPasskey = async (): Promise<{ contractId: string; keyIdBase64: string }> => {
-  const connectResult: any = await connectWithFactory(); // no keyId → shows all device passkeys
-  if (!connectResult?.contractId || !connectResult?.keyIdBase64) {
-    throw new Error('Passkey recovery returned incomplete data.');
-  }
-  await persistSession(connectResult.contractId, connectResult.keyIdBase64);
-  return { contractId: connectResult.contractId, keyIdBase64: connectResult.keyIdBase64 };
+export const connectWithAnyPasskey = async () => {
+  const result: any = await connectWithFactory();
+  return { contractId: result?.contractId, keyIdBase64: result?.keyIdBase64 };
 };
 
 export default passkey;

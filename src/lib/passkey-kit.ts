@@ -36,6 +36,14 @@ const passkeyKitOptions = {
     optionsJSON: {
       ...options.optionsJSON,
       pubKeyCredParams: merged,
+      // Ensure passkeys are created as discoverable/resident credentials so
+      // Chrome can find them without an explicit allowCredentials list.
+      authenticatorSelection: {
+        ...options.optionsJSON.authenticatorSelection,
+        residentKey: "required" as const,
+        requireResidentKey: true,
+        userVerification: "required" as const,
+      },
     },
   };
 

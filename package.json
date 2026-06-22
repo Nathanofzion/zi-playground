@@ -42,6 +42,8 @@
     "@tanstack/react-query-devtools": "^5.66.9",
     "@tsparticles/engine": "^4.2.1",
     "@tsparticles/react": "^4.2.1",
+    "@tsparticles/shape-image": "^4.2.1",
+    "@tsparticles/slim": "^4.2.1",
     "@vercel/analytics": "^2.0.1",
     "axios": "^1.15.2",
     "bignumber.js": "^9.3.0",

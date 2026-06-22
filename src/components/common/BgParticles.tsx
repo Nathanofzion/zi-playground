@@ -6,8 +6,8 @@ import type { Engine } from "@tsparticles/engine";
 import { useColorModeValue } from "../ui/color-mode";
 
 async function initEngine(engine: Engine) {
-  const { loadSlim } = await import("tsparticles-slim");
-  const { loadImageShape } = await import("tsparticles-shape-image");
+  const { loadSlim } = await import("@tsparticles/slim");
+  const { loadImageShape } = await import("@tsparticles/shape-image");
   await loadSlim(engine as any);
   await loadImageShape(engine as any);
 }

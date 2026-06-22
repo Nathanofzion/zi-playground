@@ -104,7 +104,7 @@ export default function PlexChat() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (adminToken) headers['Authorization'] = `Bearer ${adminToken}`;
 
-      const res = await fetch(`${PLEX_URL}/api/chat`, {
+      const res = await fetch(`${PLEX_URL}/chat`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -118,7 +118,7 @@ export default function PlexChat() {
       }
 
       const data = await res.json();
-      const reply: string = data?.data?.text || "Sorry, I couldn't get a response. Please try again.";
+      const reply: string = data?.reply || data?.data?.text || "Sorry, I couldn't get a response. Please try again.";
       setHistory((h) => [...h, { role: 'assistant', content: reply }]);
     } catch {
       setHistory((h) => [
