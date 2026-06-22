@@ -26,6 +26,8 @@ const nextConfig = {
         '@soroban-react/core',
         '@soroban-react/types',
         'react-social-icons',
+        'react-particles',
+        'tsparticles-slim',
     ],
     
     webpack: (config, { isServer }) => {
