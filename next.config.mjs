@@ -25,6 +25,7 @@ const nextConfig = {
         'sac-sdk',
         '@soroban-react/core',
         '@soroban-react/types',
+        'react-social-icons',
     ],
     
     webpack: (config, { isServer }) => {
@@ -54,18 +55,6 @@ const nextConfig = {
           ...config.resolve.alias,
           [missingPkgJson]: actualPkgJson,
         };
-
-        // Force all packages to use a single React instance on the client
-        // (prevents "Cannot read properties of undefined (reading 'ReactCurrentBatchConfig')")
-        if (!isServer) {
-          config.resolve.alias = {
-            ...config.resolve.alias,
-            'react': path.resolve(__dirname, 'node_modules/react'),
-            'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
-            'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime'),
-            'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/react/jsx-dev-runtime'),
-          };
-        }
 
         return config;
       },
