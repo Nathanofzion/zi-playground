@@ -21,6 +21,7 @@ const Header = () => {
     openAirdropModal,
     openStakingModal,
     openRewardsModal,
+    openEmailRegistrationModal,
   } = useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
