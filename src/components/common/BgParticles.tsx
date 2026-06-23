@@ -15,11 +15,11 @@ async function initEngine(engine: Engine) {
 }
 
 const BgParticles = () => {
-  // Background follows theme; particles/links use #0F1016 (dark theme colour) in
-  // light mode so they're visible, and white in dark mode so they're visible.
-  const bgColor = useColorModeValue("#ffffff", "#0F1016");
-  const particleColor = useColorModeValue("#0F1016", "#ffffff");
-  const linkColor = useColorModeValue("#0F1016", "#ffffff");
+  // Match Chakra UI defaultSystem dark bg.DEFAULT → colors.black = #09090b
+  // Light bg.DEFAULT → colors.white = #ffffff
+  const bgColor = useColorModeValue("#ffffff", "#09090b");
+  const particleColor = useColorModeValue("#09090b", "#ffffff");
+  const linkColor = useColorModeValue("#09090b", "#ffffff");
 
   const clickCountRef = useRef(0);
   const containerRef = useRef<Container | null>(null);
