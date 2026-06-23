@@ -3,8 +3,6 @@ import { useMemo } from "react";
 import { Particles, ParticlesProvider } from "@tsparticles/react";
 import type { Engine } from "@tsparticles/engine";
 
-import { useColorModeValue } from "../ui/color-mode";
-
 async function initEngine(engine: Engine) {
   const { loadSlim } = await import("@tsparticles/slim");
   const { loadImageShape } = await import("@tsparticles/shape-image");
@@ -13,12 +11,8 @@ async function initEngine(engine: Engine) {
 }
 
 const BgParticles = () => {
-  const bgColor = useColorModeValue("#fff", "#0F1016");
-  const particleColor = useColorModeValue("#fff", "#000");
-  const linkColor = useColorModeValue("#000", "#fff");
-
   const options = useMemo(() => ({
-    background: { color: { value: bgColor } },
+    background: { color: { value: "#000000" } },
     fpsLimit: 60,
     interactivity: {
       events: {
@@ -32,8 +26,8 @@ const BgParticles = () => {
       },
     },
     particles: {
-      color: { value: particleColor },
-      links: { color: linkColor, distance: 150, enable: true, opacity: 0.5, width: 1 },
+      color: { value: "#ffffff" },
+      links: { color: "#ffffff", distance: 150, enable: true, opacity: 0.5, width: 1 },
       move: {
         direction: "none" as const,
         enable: true,
@@ -57,7 +51,7 @@ const BgParticles = () => {
       size: { value: { min: 2.5, max: 6.5 } },
     },
     detectRetina: true,
-  }), [bgColor, particleColor, linkColor]);
+  }), []);
 
   return (
     <ParticlesProvider init={initEngine}>
