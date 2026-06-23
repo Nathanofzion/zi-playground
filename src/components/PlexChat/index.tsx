@@ -98,30 +98,24 @@ export default function PlexChat() {
     setSending(true);
 
     try {
-      const adminToken = process.env.NEXT_PUBLIC_PLEX_ADMIN_TOKEN;
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (adminToken) headers['Authorization'] = `Bearer ${adminToken}`;
-
       const body = JSON.stringify({
         message: text,
         history: history.slice(-8).map((m) => ({ role: m.role, content: m.content })),
       });
 
-      let res = await fetch(`${PLEX_URL}/chat`, { method: 'POST', headers, body });
-      let data = await res.json();
+      const res = await fetch(`${PLEX_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      });
 
-      // If admin token is expired/invalid, retry without it
-      if (data?.error && typeof data.error === 'string' && data.error.toLowerCase().includes('token')) {
-        const fallbackHeaders = { 'Content-Type': 'application/json' };
-        res = await fetch(`${PLEX_URL}/chat`, { method: 'POST', headers: fallbackHeaders, body });
-        data = await res.json();
+      const data = await res.json();
+
+      if (!res.ok || data?.error) {
+        throw new Error(data?.error || `HTTP ${res.status}`);
       }
 
-      if (!res.ok && !data?.reply) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const reply: string = data?.reply || data?.data?.text || "Sorry, I couldn't get a response. Please try again.";
+      const reply: string = data?.reply || "Sorry, I couldn't get a response. Please try again.";
       setHistory((h) => [...h, { role: 'assistant', content: reply }]);
     } catch {
       setHistory((h) => [

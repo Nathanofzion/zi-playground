@@ -122,3 +122,4 @@ keypairs.json
 # Backup files
 *.backup
 *.bak
+.env*.local
