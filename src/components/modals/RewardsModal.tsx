@@ -68,7 +68,7 @@ const RewardsModal: FC<ModalProps> = (props) => {
           <Text fontSize="xs" color="gray.500" mb={1}>
             Registered email
           </Text>
-          {hasEmail ? (
+          {user?.email ? (
             <Text fontWeight="semibold" fontSize="sm">
               {user!.email}
             </Text>
@@ -120,61 +120,59 @@ const RewardsModal: FC<ModalProps> = (props) => {
         <Separator />
 
         {/* Invite link + QR + share — user has registered email to reach here */}
-        <>
-          {/* Invite link + QR */}
-          <Flex direction="column" gap={3}>
-              <Text fontWeight="semibold" fontSize="sm">
-                Your magic invite link
-              </Text>
-              <Flex align="center" gap={2}>
-                <Text fontSize="xs" truncate flex="1" color="gray.600">
-                  {inviteLink}
-                </Text>
-                <ClipboardRoot value={inviteLink}>
-                  <ClipboardIconButton />
-                </ClipboardRoot>
-              </Flex>
-              {inviteLink && (
-                <Flex justify="center" pt={1}>
-                  <Suspense fallback={<Spinner size="sm" />}>
-                    <Box
-                      p={3}
-                      bg="white"
-                      rounded="md"
-                      shadow="sm"
-                      border="1px solid"
-                      borderColor="gray.200"
-                    >
-                      <QRCodeSVG
-                        value={inviteLink}
-                        size={140}
-                        level="M"
-                        includeMargin={false}
-                      />
-                    </Box>
-                  </Suspense>
-                </Flex>
-              )}
+        {/* Invite link + QR */}
+        <Flex direction="column" gap={3}>
+          <Text fontWeight="semibold" fontSize="sm">
+            Your magic invite link
+          </Text>
+          <Flex align="center" gap={2}>
+            <Text fontSize="xs" truncate flex="1" color="gray.600">
+              {inviteLink}
+            </Text>
+            <ClipboardRoot value={inviteLink}>
+              <ClipboardIconButton />
+            </ClipboardRoot>
+          </Flex>
+          {inviteLink && (
+            <Flex justify="center" pt={1}>
+              <Suspense fallback={<Spinner size="sm" />}>
+                <Box
+                  p={3}
+                  bg="white"
+                  rounded="md"
+                  shadow="sm"
+                  border="1px solid"
+                  borderColor="gray.200"
+                >
+                  <QRCodeSVG
+                    value={inviteLink}
+                    size={140}
+                    level="M"
+                    includeMargin={false}
+                  />
+                </Box>
+              </Suspense>
             </Flex>
+          )}
+        </Flex>
 
-            {/* Share socials */}
-            <Box>
-              <Text fontWeight="semibold" fontSize="sm" mb={2}>
-                Share with friends
-              </Text>
-              <HStack spaceX={5}>
-                <Box cursor="pointer" onClick={() => handleShare("x")}>
-                  <SocialIcon network="x" url="" style={{ width: 36, height: 36 }} />
-                </Box>
-                <Box cursor="pointer" onClick={() => handleShare("whatsapp")}>
-                  <SocialIcon network="whatsapp" url="" style={{ width: 36, height: 36 }} />
-                </Box>
-                <Box cursor="pointer" onClick={() => handleShare("facebook")}>
-                  <SocialIcon network="facebook" url="" style={{ width: 36, height: 36 }} />
-                </Box>
-              </HStack>
+        {/* Share socials */}
+        <Box>
+          <Text fontWeight="semibold" fontSize="sm" mb={2}>
+            Share with friends
+          </Text>
+          <HStack spaceX={5}>
+            <Box cursor="pointer" onClick={() => handleShare("x")}>
+              <SocialIcon network="x" url="" style={{ width: 36, height: 36 }} />
             </Box>
-          </>
+            <Box cursor="pointer" onClick={() => handleShare("whatsapp")}>
+              <SocialIcon network="whatsapp" url="" style={{ width: 36, height: 36 }} />
+            </Box>
+            <Box cursor="pointer" onClick={() => handleShare("facebook")}>
+              <SocialIcon network="facebook" url="" style={{ width: 36, height: 36 }} />
+            </Box>
+          </HStack>
+        </Box>
 
         {/* Actions */}
         <Flex justify="end" gap={2} pt={2}>
