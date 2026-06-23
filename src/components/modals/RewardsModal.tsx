@@ -21,14 +21,12 @@ const RewardsModal: FC<ModalProps> = (props) => {
   const router = useRouter();
   const { address } = useSorobanReact();
   const { rewards, claimRewards, isClaiming } = useRewards();
-  const { user, openEmailRegistrationModal } = useContext(AppContext);
+  const { user } = useContext(AppContext);
 
   const inviteLink =
     address && typeof window !== "undefined"
       ? `${window.location.origin}/?ref=${address}`
       : "";
-
-  const hasEmail = !!user?.email;
 
   const shareText = "Join me on Zi Playground and earn ZI tokens!";
 
@@ -121,11 +119,10 @@ const RewardsModal: FC<ModalProps> = (props) => {
 
         <Separator />
 
-        {/* Invite link + QR + share — only available after email registration */}
-        {hasEmail && (
-          <>
-            {/* Invite link + QR */}
-            <Flex direction="column" gap={3}>
+        {/* Invite link + QR + share — user has registered email to reach here */}
+        <>
+          {/* Invite link + QR */}
+          <Flex direction="column" gap={3}>
               <Text fontWeight="semibold" fontSize="sm">
                 Your magic invite link
               </Text>
@@ -178,31 +175,18 @@ const RewardsModal: FC<ModalProps> = (props) => {
               </HStack>
             </Box>
           </>
-        )}
 
-        {/* Actions — Dashboard replaces Register Email once email is set */}
+        {/* Actions */}
         <Flex justify="end" gap={2} pt={2}>
-          {hasEmail ? (
-            <Button
-              variant="outline"
-              onClick={() => {
-                router.push("/dashboard");
-                props.onClose?.();
-              }}
-            >
-              Dashboard
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              onClick={() => {
-                props.onClose?.();
-                openEmailRegistrationModal?.();
-              }}
-            >
-              Register Email
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            onClick={() => {
+              router.push("/dashboard");
+              props.onClose?.();
+            }}
+          >
+            Dashboard
+          </Button>
           <Button
             disabled={rewards.remaining_rewards === 0 || isClaiming}
             loading={isClaiming}

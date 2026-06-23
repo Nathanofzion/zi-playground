@@ -36,7 +36,11 @@ const Header = () => {
       setShowConnectWalletModal(true);
       return;
     }
-    openRewardsModal?.();
+    if (user?.email) {
+      openRewardsModal?.();
+    } else {
+      openEmailRegistrationModal?.();
+    }
   };
 
   const handleDisconnect = async () => {
@@ -45,7 +49,7 @@ const Header = () => {
 
   return (
     <>
-      <Flex position="sticky" top={0} zIndex={5} px="16px" direction="column">
+      <Flex position="sticky" top={0} zIndex={1350} px="16px" direction="column">
         <Flex
           p={{ base: "24px 0px", lg: "24px 64px" }}
           justify="space-between"
