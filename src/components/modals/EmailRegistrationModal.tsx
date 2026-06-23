@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { SocialIcon } from "react-social-icons";
 import { z } from "zod";
@@ -10,6 +10,7 @@ import { useSorobanReact } from "@soroban-react/core";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase";
+import useUser from "@/hooks/useUser";
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from "../common";
 import Button from "../common/Button";
 import Input from "../common/Input";
@@ -25,18 +26,30 @@ type EmailRegistrationFormData = z.infer<typeof emailRegistrationSchema>;
 const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const queryClient = useQueryClient();
   const { address } = useSorobanReact();
+  const { user } = useUser();
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const existingEmail: string | null = user?.email ?? null;
+  const showForm = !existingEmail || isEditing;
+
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<EmailRegistrationFormData>({
     resolver: zodResolver(emailRegistrationSchema),
     mode: "onChange",
-    defaultValues: {
-      email: "",
-    },
+    defaultValues: { email: existingEmail ?? "" },
   });
+
+  // Pre-populate form when user data loads
+  useEffect(() => {
+    if (existingEmail) {
+      reset({ email: existingEmail });
+    }
+  }, [existingEmail, reset]);
 
   const onSubmit = async (data: EmailRegistrationFormData) => {
     try {
@@ -61,11 +74,14 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
 
       toaster.create({
         type: "success",
-        title: "You have successfully signed up",
+        title: existingEmail ? "Email updated successfully" : "You have successfully signed up",
       });
-      onClose?.();
+      setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ["user", address] });
-      router.push("/dashboard");
+      if (!existingEmail) {
+        onClose?.();
+        router.push("/dashboard");
+      }
     } catch (error) {
       console.error("Error signing up:", error);
       toaster.create({
@@ -105,36 +121,60 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
       >
         <ModalCloseButton />
         <Heading as="h2" textAlign="center" size="lg">
-          WELCOME
+          {existingEmail && !isEditing ? "WELCOME BACK" : "WELCOME"}
         </Heading>
         <Flex w="full" direction="column" align="center" gap={6}>
-          <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
-            <Flex w="full" direction="column" align="center" gap={4}>
-              <Flex w="full" direction="column" gap={2}>
-                <Controller
-                  name="email"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                    />
-                  )}
-                />
-                {errors.email && (
-                  <Text color="red.500" fontSize="sm">
-                    {errors.email.message}
-                  </Text>
-                )}
-              </Flex>
-              <Button w="80%" type="submit" loading={isSubmitting}>
-                Register email
+          {existingEmail && !isEditing ? (
+            <Flex direction="column" align="center" gap={2} w="full">
+              <Text fontSize="sm" color="gray.500">Registered email</Text>
+              <Text fontWeight="semibold">{existingEmail}</Text>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+              >
+                Change email
               </Button>
             </Flex>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+              <Flex w="full" direction="column" align="center" gap={4}>
+                <Flex w="full" direction="column" gap={2}>
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="email"
+                        placeholder="Email"
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      />
+                    )}
+                  />
+                  {errors.email && (
+                    <Text color="red.500" fontSize="sm">
+                      {errors.email.message}
+                    </Text>
+                  )}
+                </Flex>
+                <Flex gap={2} w="80%" justify="center">
+                  {isEditing && (
+                    <Button
+                      variant="outline"
+                      onClick={() => { setIsEditing(false); reset({ email: existingEmail ?? "" }); }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                  <Button w={isEditing ? "auto" : "full"} type="submit" loading={isSubmitting}>
+                    {existingEmail ? "Update email" : "Register email"}
+                  </Button>
+                </Flex>
+              </Flex>
+            </form>
+          )}
           <Box
             w="90%"
             h="0.3rem"
