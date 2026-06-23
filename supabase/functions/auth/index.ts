@@ -135,6 +135,8 @@ Deno.serve((req) =>
           return await withTimeout(handleProfile(data), 5000, "Profile fetch timed out");
         case "update-profile":
           return await withTimeout(handleUpdateProfile(data), 10000, "Profile update timed out");
+        case "verify-email-token":
+          return await withTimeout(handleVerifyEmailToken(data), 10000, "Email verification timed out");
         case "generate-registration-options":
           return await withTimeout(handleRegistration(), 10000, "Registration options generation timed out");
         case "verify-registration":
@@ -188,7 +190,7 @@ async function handleProfile(data: any) {
 
   const { data: user, error } = await supabase
     .from("users")
-    .select("id, publicKey, email, role")
+    .select("id, publicKey, email, email_verified, role")
     .eq("user_id", decoded.id)
     .single();
   if (error) {
@@ -478,16 +480,68 @@ const handleUpdateProfile = async (data: any) => {
 
   const decoded = jwt.verify(token, secretKey);
 
+  // Generate a verification token (expires in 24h)
+  const verificationToken = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
   const { error: updateError } = await supabaseAdmin
     .from("users")
-    .update({ email })
+    .update({
+      email,
+      email_verified: false,
+      email_verification_token: verificationToken,
+      email_verification_expires_at: expiresAt,
+    })
     .eq("user_id", decoded.id);
 
   if (updateError) {
     throw new Error(updateError.message);
   }
 
+  const siteUrl = Deno.env.get("SITE_URL") || "https://zi-playground.vercel.app";
+  const verificationUrl = `${siteUrl}/api/verify-email?token=${verificationToken}`;
+
   return {
     message: "Profile updated successfully",
+    verificationUrl,
   };
+};
+
+const handleVerifyEmailToken = async (data: any) => {
+  const { token } = data;
+
+  if (!token || typeof token !== "string") {
+    throw new BadRequestException("Verification token is required");
+  }
+
+  const now = new Date().toISOString();
+
+  const { data: user, error } = await supabaseAdmin
+    .from("users")
+    .select("id, email_verified, email_verification_expires_at")
+    .eq("email_verification_token", token)
+    .single();
+
+  if (error || !user) {
+    throw new BadRequestException("Invalid or expired verification token");
+  }
+
+  if (user.email_verified) {
+    return { message: "Email already verified" };
+  }
+
+  if (user.email_verification_expires_at && user.email_verification_expires_at < now) {
+    throw new BadRequestException("Verification token has expired. Please request a new one.");
+  }
+
+  await supabaseAdmin
+    .from("users")
+    .update({
+      email_verified: true,
+      email_verification_token: null,
+      email_verification_expires_at: null,
+    })
+    .eq("id", user.id);
+
+  return { message: "Email verified successfully" };
 };

@@ -12,6 +12,7 @@ export interface IUser {
   id: string;
   publicKey: string;
   email: string;
+  email_verified?: boolean;
   role: Role;
 }
 

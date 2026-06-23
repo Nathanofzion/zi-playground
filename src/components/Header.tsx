@@ -49,7 +49,7 @@ const Header = () => {
 
   return (
     <>
-      <Flex position="sticky" top={0} zIndex={1350} px="16px" direction="column">
+      <Flex position="sticky" top={0} zIndex={1500} px="16px" direction="column">
         <Flex
           p={{ base: "24px 0px", lg: "24px 64px" }}
           justify="space-between"

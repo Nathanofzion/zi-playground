@@ -69,15 +69,29 @@ const RewardsModal: FC<ModalProps> = (props) => {
             Registered email
           </Text>
           {user?.email ? (
-            <Text fontWeight="semibold" fontSize="sm">
-              {user!.email}
-            </Text>
+            <Flex align="center" justify="space-between" gap={2}>
+              <Text fontWeight="semibold" fontSize="sm">{user.email}</Text>
+              {user?.email_verified ? (
+                <Text fontSize="xs" color="green.500" fontWeight="medium">✓ Verified</Text>
+              ) : (
+                <Text fontSize="xs" color="orange.400" fontWeight="medium">⚠ Unverified</Text>
+              )}
+            </Flex>
           ) : (
             <Text fontSize="sm" color="orange.500">
               No email registered — add one to secure your rewards
             </Text>
           )}
         </Box>
+
+        {/* Verification notice */}
+        {user?.email && !user?.email_verified && (
+          <Box bg="orange.50" _dark={{ bg: "orange.900" }} rounded="lg" px={4} py={2}>
+            <Text fontSize="xs" color="orange.600" _dark={{ color: "orange.200" }}>
+              Check your inbox for a verification link. Rewards cannot be claimed until your email is verified.
+            </Text>
+          </Box>
+        )}
 
         {/* Stats */}
         <Flex direction="column" gap={2}>
@@ -186,9 +200,10 @@ const RewardsModal: FC<ModalProps> = (props) => {
             Dashboard
           </Button>
           <Button
-            disabled={rewards.remaining_rewards === 0 || isClaiming}
+            disabled={rewards.remaining_rewards === 0 || isClaiming || !user?.email_verified}
             loading={isClaiming}
             onClick={() => claimRewards()}
+            title={!user?.email_verified ? "Verify your email to claim rewards" : undefined}
           >
             Claim {rewards.remaining_rewards} ZI
           </Button>

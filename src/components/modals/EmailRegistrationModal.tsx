@@ -1,9 +1,10 @@
 import { useRouter } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { SocialIcon } from "react-social-icons";
 import { z } from "zod";
 
-import { Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, HStack, Text } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSorobanReact } from "@soroban-react/core";
 import { useQueryClient } from "@tanstack/react-query";
@@ -90,6 +91,24 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
     }
   };
 
+  const inviteLink = address
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/?ref=${address}`
+    : "";
+
+  const shareText = "Join me on Zi Playground and earn ZI tokens!";
+
+  const handleShare = (platform: "facebook" | "whatsapp" | "x") => {
+    if (!inviteLink) return;
+    const encodedLink = encodeURIComponent(inviteLink);
+    const encodedText = encodeURIComponent(shareText);
+    const urls: Record<string, string> = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`,
+      whatsapp: `https://wa.me/?text=${encodedText}%20${encodedLink}`,
+      x: `https://x.com/intent/tweet?text=${encodedText}&url=${encodedLink}`,
+    };
+    window.open(urls[platform], "_blank", "noopener,noreferrer");
+  };
+
   return (
     <Modal onClose={onClose} {...props}>
       <ModalOverlay />
@@ -156,6 +175,26 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
               </Flex>
             </form>
           )}
+          <Box
+            w="90%"
+            h="0.3rem"
+            bg="linear-gradient(to bottom right, #a588e4, #b7fee0)"
+            rounded="0.8rem"
+          />
+          <Text textAlign="center" fontWeight="medium">
+            Share with friends
+          </Text>
+          <HStack spaceX={6} justify="center">
+            <Box cursor="pointer" onClick={() => handleShare("facebook")}>
+              <SocialIcon network="facebook" url="" />
+            </Box>
+            <Box cursor="pointer" onClick={() => handleShare("whatsapp")}>
+              <SocialIcon network="whatsapp" url="" />
+            </Box>
+            <Box cursor="pointer" onClick={() => handleShare("x")}>
+              <SocialIcon network="x" url="" />
+            </Box>
+          </HStack>
         </Flex>
       </ModalContent>
     </Modal>

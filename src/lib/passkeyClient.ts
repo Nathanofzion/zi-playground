@@ -312,31 +312,11 @@ async function initializeZionTokenTrustline(contractId: string, keyId: string) {
       await rpc.simulateTransaction(tx);
       console.log('ZION token balance storage initialized (simulated)');
     } catch (_simError: any) {
-      // If simulation fails, try to actually call balance with signing
-      // This will create the storage entry
-      console.log('Balance simulation failed, attempting to initialize with signed transaction...');
-
-      // Prepare transaction
-      const preparedTx = await rpc.prepareTransaction(tx);
-
-      // Sign with passkey
-      const signedTx = await account.sign(preparedTx as any, { keyId });
-
-      // Send via PasskeyServer (OpenZapplinRelayer)
-      try {
-        await server.send(signedTx);
-        console.log('ZION token balance initialization transaction submitted successfully');
-      } catch (_sendError: any) {
-        // If OpenZapplinRelayer fails, try direct RPC
-        console.warn('OpenZapplinRelayer submission failed, trying direct RPC...');
-        const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://soroban-testnet.stellar.org";
-        await sendToRpcDirectly(signedTx, rpcUrl);
-        console.log('ZION token balance initialization submitted via direct RPC');
-      }
+      // Simulation failed — token storage will be initialised lazily on first use.
+      // Do NOT fall back to account.sign() here: that would trigger a second
+      // WebAuthn prompt immediately after wallet creation.
+      console.warn('ZION token balance simulation failed (non-critical, will initialise on first use):', _simError?.message);
     }
-
-    // Wait a moment for the transaction to be processed
-    await new Promise(resolve => setTimeout(resolve, 1000));
 
   } catch (error: any) {
     console.error('Failed to initialize ZION token trustline:', error);
