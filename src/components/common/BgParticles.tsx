@@ -1,7 +1,11 @@
 "use client"
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { Particles, ParticlesProvider } from "@tsparticles/react";
-import type { Engine } from "@tsparticles/engine";
+import type { Container, Engine } from "@tsparticles/engine";
+
+import { useColorModeValue } from "../ui/color-mode";
+
+const CLICK_LIMIT = 40;
 
 async function initEngine(engine: Engine) {
   const { loadSlim } = await import("@tsparticles/slim");
@@ -11,8 +15,30 @@ async function initEngine(engine: Engine) {
 }
 
 const BgParticles = () => {
+  // Background follows theme; particles/links use #0F1016 (dark theme colour) in
+  // light mode so they're visible, and white in dark mode so they're visible.
+  const bgColor = useColorModeValue("#ffffff", "#0F1016");
+  const particleColor = useColorModeValue("#0F1016", "#ffffff");
+  const linkColor = useColorModeValue("#0F1016", "#ffffff");
+
+  const clickCountRef = useRef(0);
+  const containerRef = useRef<Container | null>(null);
+
+  const handleParticlesLoaded = useCallback((container?: Container) => {
+    containerRef.current = container ?? null;
+  }, []);
+
+  // Track clicks on the canvas; after CLICK_LIMIT resets particle count to base
+  const handleClick = useCallback(() => {
+    clickCountRef.current += 1;
+    if (clickCountRef.current >= CLICK_LIMIT) {
+      clickCountRef.current = 0;
+      containerRef.current?.refresh();
+    }
+  }, []);
+
   const options = useMemo(() => ({
-    background: { color: { value: "#000000" } },
+    background: { color: { value: bgColor } },
     fpsLimit: 60,
     interactivity: {
       events: {
@@ -26,8 +52,8 @@ const BgParticles = () => {
       },
     },
     particles: {
-      color: { value: "#ffffff" },
-      links: { color: "#ffffff", distance: 150, enable: true, opacity: 0.5, width: 1 },
+      color: { value: particleColor },
+      links: { color: linkColor, distance: 150, enable: true, opacity: 0.5, width: 1 },
       move: {
         direction: "none" as const,
         enable: true,
@@ -51,11 +77,17 @@ const BgParticles = () => {
       size: { value: { min: 2.5, max: 6.5 } },
     },
     detectRetina: true,
-  }), []);
+  }), [bgColor, particleColor, linkColor]);
 
   return (
     <ParticlesProvider init={initEngine}>
-      <Particles id="tsparticles" options={options} />
+      <div onClick={handleClick} style={{ position: "absolute", inset: 0 }}>
+        <Particles
+          id="tsparticles"
+          options={options}
+          particlesLoaded={handleParticlesLoaded}
+        />
+      </div>
     </ParticlesProvider>
   );
 }
