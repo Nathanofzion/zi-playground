@@ -21,7 +21,6 @@ const Header = () => {
     openAirdropModal,
     openStakingModal,
     openRewardsModal,
-    openEmailRegistrationModal,
   } = useContext(AppContext);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
@@ -36,11 +35,7 @@ const Header = () => {
       setShowConnectWalletModal(true);
       return;
     }
-    if (user?.email) {
-      openRewardsModal?.();
-    } else {
-      openEmailRegistrationModal?.();
-    }
+    openRewardsModal?.();
   };
 
   const handleDisconnect = async () => {
