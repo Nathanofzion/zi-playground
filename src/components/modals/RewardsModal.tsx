@@ -2,7 +2,8 @@
 import { FC, Suspense, lazy, useContext } from "react";
 import { useRouter } from "next/navigation";
 
-import { Badge, Box, Flex, Heading, Separator, Spinner, Text } from "@chakra-ui/react";
+import { Badge, Box, Flex, Heading, HStack, Separator, Spinner, Text } from "@chakra-ui/react";
+import { SocialIcon } from "react-social-icons";
 import { useSorobanReact } from "@soroban-react/core";
 
 import useRewards from "@/hooks/useRewards";
@@ -28,6 +29,20 @@ const RewardsModal: FC<ModalProps> = (props) => {
       : "";
 
   const hasEmail = !!user?.email;
+
+  const shareText = "Join me on Zi Playground and earn ZI tokens!";
+
+  const handleShare = (platform: "facebook" | "whatsapp" | "x") => {
+    if (!inviteLink) return;
+    const encodedLink = encodeURIComponent(inviteLink);
+    const encodedText = encodeURIComponent(shareText);
+    const urls: Record<string, string> = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`,
+      whatsapp: `https://wa.me/?text=${encodedText}%20${encodedLink}`,
+      x: `https://x.com/intent/tweet?text=${encodedText}&url=${encodedLink}`,
+    };
+    window.open(urls[platform], "_blank", "noopener,noreferrer");
+  };
 
   return (
     <Modal {...props}>
@@ -106,41 +121,64 @@ const RewardsModal: FC<ModalProps> = (props) => {
 
         <Separator />
 
-        {/* Invite link + QR */}
-        <Flex direction="column" gap={3}>
-          <Text fontWeight="semibold" fontSize="sm">
-            Your magic invite link
-          </Text>
-          <Flex align="center" gap={2}>
-            <Text fontSize="xs" truncate flex="1" color="gray.600">
-              {inviteLink}
-            </Text>
-            <ClipboardRoot value={inviteLink}>
-              <ClipboardIconButton />
-            </ClipboardRoot>
-          </Flex>
-          {inviteLink && (
-            <Flex justify="center" pt={1}>
-              <Suspense fallback={<Spinner size="sm" />}>
-                <Box
-                  p={3}
-                  bg="white"
-                  rounded="md"
-                  shadow="sm"
-                  border="1px solid"
-                  borderColor="gray.200"
-                >
-                  <QRCodeSVG
-                    value={inviteLink}
-                    size={140}
-                    level="M"
-                    includeMargin={false}
-                  />
-                </Box>
-              </Suspense>
+        {/* Invite link + QR + share — only available after email registration */}
+        {hasEmail && (
+          <>
+            {/* Invite link + QR */}
+            <Flex direction="column" gap={3}>
+              <Text fontWeight="semibold" fontSize="sm">
+                Your magic invite link
+              </Text>
+              <Flex align="center" gap={2}>
+                <Text fontSize="xs" truncate flex="1" color="gray.600">
+                  {inviteLink}
+                </Text>
+                <ClipboardRoot value={inviteLink}>
+                  <ClipboardIconButton />
+                </ClipboardRoot>
+              </Flex>
+              {inviteLink && (
+                <Flex justify="center" pt={1}>
+                  <Suspense fallback={<Spinner size="sm" />}>
+                    <Box
+                      p={3}
+                      bg="white"
+                      rounded="md"
+                      shadow="sm"
+                      border="1px solid"
+                      borderColor="gray.200"
+                    >
+                      <QRCodeSVG
+                        value={inviteLink}
+                        size={140}
+                        level="M"
+                        includeMargin={false}
+                      />
+                    </Box>
+                  </Suspense>
+                </Flex>
+              )}
             </Flex>
-          )}
-        </Flex>
+
+            {/* Share socials */}
+            <Box>
+              <Text fontWeight="semibold" fontSize="sm" mb={2}>
+                Share with friends
+              </Text>
+              <HStack spaceX={5}>
+                <Box cursor="pointer" onClick={() => handleShare("x")}>
+                  <SocialIcon network="x" url="" style={{ width: 36, height: 36 }} />
+                </Box>
+                <Box cursor="pointer" onClick={() => handleShare("whatsapp")}>
+                  <SocialIcon network="whatsapp" url="" style={{ width: 36, height: 36 }} />
+                </Box>
+                <Box cursor="pointer" onClick={() => handleShare("facebook")}>
+                  <SocialIcon network="facebook" url="" style={{ width: 36, height: 36 }} />
+                </Box>
+              </HStack>
+            </Box>
+          </>
+        )}
 
         {/* Actions — Dashboard replaces Register Email once email is set */}
         <Flex justify="end" gap={2} pt={2}>
