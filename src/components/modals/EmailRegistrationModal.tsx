@@ -30,6 +30,8 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState<boolean | null>(null);
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
   const existingEmail: string | null = user?.email ?? null;
   const showForm = !existingEmail || isEditing;
@@ -73,20 +75,26 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         throw new Error(error.message || "Failed to register email");
       }
 
-      // Store verification URL so user can verify directly in the modal
+      // Attempt to send verification email and track whether it succeeded
       if (authData?.verificationUrl) {
         setVerificationUrl(authData.verificationUrl);
-        // Also attempt to send email in the background (non-blocking)
-        fetch("/api/send-verification", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: data.email, verificationUrl: authData.verificationUrl }),
-        }).catch((e) => console.warn("[send-verification] non-critical:", e));
+        setSubmittedEmail(data.email);
+        try {
+          const sendRes = await fetch("/api/send-verification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: data.email, verificationUrl: authData.verificationUrl }),
+          });
+          const sendData = await sendRes.json().catch(() => ({ sent: false }));
+          setEmailSent(sendData.sent === true);
+        } catch {
+          setEmailSent(false);
+        }
       }
 
       toaster.create({
         type: "success",
-        title: existingEmail ? "Email updated — verify below" : "Email registered — verify below to claim rewards",
+        title: existingEmail ? "Email updated" : "Email registered — check your inbox to verify",
       });
       setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ["user", address] });
@@ -184,8 +192,18 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
             </form>
           )}
 
-          {/* Inline verification button — shown after email is saved */}
-          {verificationUrl && (
+          {/* Verification status — shown after email is saved */}
+          {verificationUrl && emailSent === true && (
+            <Box w="90%" bg="green.50" _dark={{ bg: "green.900" }} rounded="lg" px={4} py={3}>
+              <Text fontSize="sm" color="green.700" _dark={{ color: "green.200" }} fontWeight="medium">
+                ✉ Check your inbox!
+              </Text>
+              <Text fontSize="xs" color="green.600" _dark={{ color: "green.300" }} mt={1}>
+                We sent a verification link to {submittedEmail}. Click it to unlock rewards.
+              </Text>
+            </Box>
+          )}
+          {verificationUrl && emailSent === false && (
             <Box w="90%" bg="orange.50" _dark={{ bg: "orange.900" }} rounded="lg" px={4} py={3}>
               <Text fontSize="sm" color="orange.700" _dark={{ color: "orange.200" }} mb={2} fontWeight="medium">
                 One step left — verify your email:
@@ -197,9 +215,6 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
               >
                 ✓ Click here to verify
               </Button>
-              <Text fontSize="xs" color="orange.500" mt={2}>
-                A verification email was also sent to your inbox.
-              </Text>
             </Box>
           )}
           <Box

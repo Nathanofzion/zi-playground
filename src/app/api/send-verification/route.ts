@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const FROM_EMAIL = process.env.SMTP_FROM || "noreply@zi-playground.com";
+// To enable real email delivery:
+//   1. Sign up at https://resend.com (free — 100 emails/day, no credit card)
+//   2. Add RESEND_API_KEY=re_xxxx to Vercel env vars → Redeploy
+//   3. Optionally set SMTP_FROM=noreply@zig3.uk after verifying zig3.uk in Resend DNS settings
+//      (without domain verification, Resend only allows "onboarding@resend.dev" as the sender)
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const FROM_EMAIL = process.env.SMTP_FROM || "onboarding@resend.dev";
 const SUBJECT = "Verify your email — Zi Playground";
 
 function buildEmailHtml(verificationUrl: string): string {
@@ -31,31 +36,12 @@ function buildEmailHtml(verificationUrl: string): string {
 </html>`;
 }
 
-function createTransporter() {
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || "587", 10);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (!host || !user || !pass) return null;
-
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,   // true = SSL (465), false = STARTTLS (25/587)
-    requireTLS: port !== 465, // force STARTTLS upgrade on port 25 / 587
-    auth: { user, pass },
-    tls: { rejectUnauthorized: false }, // ICUK uses self-signed certs on some servers
-  });
-}
-
 /**
  * POST /api/send-verification
  * Body: { email: string, verificationUrl: string }
  *
- * Sends a verification email via ICUK SMTP (nodemailer).
- * If SMTP env vars are not set, returns the verificationUrl in the response
- * so it can be used for manual testing.
+ * Sends a verification email via Resend's HTTP API (works on Vercel/AWS — no SMTP ports needed).
+ * Returns { sent: true } on success, or { sent: false, verificationUrl } if RESEND_API_KEY not set.
  */
 export async function POST(req: NextRequest) {
   let email: string;
@@ -77,34 +63,53 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
   }
 
-  // Ensure the link points to our own domain to prevent open redirect abuse
+  // Security: ensure the link points to our own domain (prevent open redirect abuse)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zi-playground.vercel.app";
   if (!verificationUrl.startsWith(appUrl) && !verificationUrl.startsWith("http://localhost")) {
     return NextResponse.json({ error: "Invalid verification URL" }, { status: 400 });
   }
 
-  const transporter = createTransporter();
-
-  if (!transporter) {
-    console.log(`[send-verification] SMTP not configured. Verification URL for ${email}:`, verificationUrl);
+  if (!RESEND_API_KEY) {
+    // No email service configured — caller falls back to showing the inline link in the UI
+    console.log(`[send-verification] No RESEND_API_KEY. Verification URL for ${email}:`, verificationUrl);
     return NextResponse.json({
       sent: false,
-      message: "SMTP not configured — use verificationUrl to verify manually",
+      message: "Add RESEND_API_KEY to Vercel env vars to enable email delivery",
       verificationUrl,
     });
   }
 
   try {
-    await transporter.sendMail({
-      from: FROM_EMAIL,
-      to: email,
-      subject: SUBJECT,
-      html: buildEmailHtml(verificationUrl),
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: [email],
+        subject: SUBJECT,
+        html: buildEmailHtml(verificationUrl),
+      }),
     });
 
-    return NextResponse.json({ sent: true });
-  } catch (err: any) {
-    console.error("[send-verification] SMTP error:", err?.message);
-    return NextResponse.json({ error: "Failed to send email", details: err?.message }, { status: 502 });
+    if (res.ok) {
+      return NextResponse.json({ sent: true });
+    }
+
+    const errBody = await res.json().catch(() => ({}));
+    console.error("[send-verification] Resend error:", errBody);
+    return NextResponse.json(
+      { sent: false, error: "Failed to send email", verificationUrl },
+      { status: 502 }
+    );
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[send-verification] error:", message);
+    return NextResponse.json(
+      { sent: false, error: message, verificationUrl },
+      { status: 502 }
+    );
   }
 }

@@ -24,9 +24,14 @@ export async function GET(req: NextRequest) {
   if (!serviceKey) {
     // Fallback: call Supabase edge function if service key not available
     try {
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
       const res = await fetch(`${supabaseUrl}/functions/v1/auth`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! },
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": anonKey,
+          "Authorization": `Bearer ${anonKey}`,
+        },
         body: JSON.stringify({ action: "verify-email-token", data: { token } }),
       });
       const result = await res.json();
