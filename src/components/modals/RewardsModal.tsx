@@ -86,10 +86,29 @@ const RewardsModal: FC<ModalProps> = (props) => {
 
         {/* Verification notice */}
         {user?.email && !user?.email_verified && (
-          <Box bg="orange.50" _dark={{ bg: "orange.900" }} rounded="lg" px={4} py={2}>
-            <Text fontSize="xs" color="orange.600" _dark={{ color: "orange.200" }}>
-              Check your inbox for a verification link. Rewards cannot be claimed until your email is verified.
+          <Box bg="orange.50" _dark={{ bg: "orange.900" }} rounded="lg" px={4} py={3}>
+            <Text fontSize="xs" color="orange.600" _dark={{ color: "orange.200" }} mb={2}>
+              Your email is not verified. Rewards cannot be claimed until verified.
             </Text>
+            <Button
+              size="sm"
+              w="full"
+              onClick={async () => {
+                try {
+                  const { supabase } = await import("@/lib/supabase");
+                  const { data, error } = await supabase.functions.invoke("auth", {
+                    method: "POST",
+                    body: { action: "update-profile", data: { token: localStorage.getItem("token"), email: user.email } },
+                  });
+                  if (error) throw error;
+                  if (data?.verificationUrl) window.open(data.verificationUrl, "_blank", "noopener,noreferrer");
+                } catch (e) {
+                  console.error("Verify error:", e);
+                }
+              }}
+            >
+              Click here to verify
+            </Button>
           </Box>
         )}
 
