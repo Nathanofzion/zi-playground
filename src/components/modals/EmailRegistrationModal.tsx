@@ -29,6 +29,7 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
   const { user } = useUser();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
 
   const existingEmail: string | null = user?.email ?? null;
   const showForm = !existingEmail || isEditing;
@@ -72,8 +73,10 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         throw new Error(error.message || "Failed to register email");
       }
 
-      // Send verification email in the background — don't block the UX
+      // Store verification URL so user can verify directly in the modal
       if (authData?.verificationUrl) {
+        setVerificationUrl(authData.verificationUrl);
+        // Also attempt to send email in the background (non-blocking)
         fetch("/api/send-verification", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -83,14 +86,10 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
 
       toaster.create({
         type: "success",
-        title: existingEmail ? "Email updated — check your inbox to verify" : "Signed up! Check your inbox to verify your email",
+        title: existingEmail ? "Email updated — verify below" : "Email registered — verify below to claim rewards",
       });
       setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ["user", address] });
-      if (!existingEmail) {
-        onClose?.();
-        router.push("/dashboard");
-      }
     } catch (error) {
       console.error("Error signing up:", error);
       toaster.create({
@@ -183,6 +182,25 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
                 </Flex>
               </Flex>
             </form>
+          )}
+
+          {/* Inline verification button — shown after email is saved */}
+          {verificationUrl && (
+            <Box w="90%" bg="orange.50" _dark={{ bg: "orange.900" }} rounded="lg" px={4} py={3}>
+              <Text fontSize="sm" color="orange.700" _dark={{ color: "orange.200" }} mb={2} fontWeight="medium">
+                One step left — verify your email:
+              </Text>
+              <Button
+                w="full"
+                size="sm"
+                onClick={() => { window.open(verificationUrl, "_blank", "noopener,noreferrer"); }}
+              >
+                ✓ Click here to verify
+              </Button>
+              <Text fontSize="xs" color="orange.500" mt={2}>
+                A verification email was also sent to your inbox.
+              </Text>
+            </Box>
           )}
           <Box
             w="90%"

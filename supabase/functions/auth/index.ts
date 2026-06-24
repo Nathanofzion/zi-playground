@@ -134,7 +134,7 @@ Deno.serve((req) =>
           }
           return await withTimeout(handleProfile(data), 5000, "Profile fetch timed out");
         case "update-profile":
-          return await withTimeout(handleUpdateProfile(data), 10000, "Profile update timed out");
+          return await withTimeout(handleUpdateProfile(data), 20000, "Profile update timed out");
         case "verify-email-token":
           return await withTimeout(handleVerifyEmailToken(data), 10000, "Email verification timed out");
         case "generate-registration-options":
