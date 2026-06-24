@@ -501,6 +501,13 @@ const handleUpdateProfile = async (data: any) => {
   const siteUrl = Deno.env.get("SITE_URL") || "https://zi-playground.vercel.app";
   const verificationUrl = `${siteUrl}/api/verify-email?token=${verificationToken}`;
 
+  // Send verification email via ICUK SMTP (non-fatal — verificationUrl always returned as fallback)
+  try {
+    await sendVerificationEmail(email, verificationUrl);
+  } catch (e) {
+    console.error("[email] send failed:", e instanceof Error ? e.message : String(e));
+  }
+
   return {
     message: "Profile updated successfully",
     verificationUrl,
@@ -545,3 +552,49 @@ const handleVerifyEmailToken = async (data: any) => {
 
   return { message: "Email verified successfully" };
 };
+
+/**
+ * Send a verification email via ICUK SMTP.
+ * Uses denomailer (Deno-native SMTP client — no Node.js APIs, works in Supabase edge functions).
+ * Supabase edge functions run on their own infrastructure and are NOT subject to the
+ * outbound TCP port blocks that Vercel/AWS impose.
+ *
+ * Required secrets (set via `supabase secrets set`):
+ *   SMTP_HOST  — smtp.interdns.co.uk
+ *   SMTP_USER  — noreply@zig3.uk
+ *   SMTP_PASS  — (already set)
+ *   SMTP_PORT  — 587 (default) or 465 for implicit TLS
+ */
+async function sendVerificationEmail(to: string, verificationUrl: string): Promise<void> {
+  const smtpHost = Deno.env.get("SMTP_HOST");
+  const smtpUser = Deno.env.get("SMTP_USER");
+  const smtpPass = Deno.env.get("SMTP_PASS");
+  const smtpPort = parseInt(Deno.env.get("SMTP_PORT") || "587", 10);
+
+  if (!smtpHost || !smtpUser || !smtpPass) {
+    console.log("[email] SMTP_HOST/SMTP_USER/SMTP_PASS not configured — skipping email send");
+    return;
+  }
+
+  // denomailer is a Deno-native SMTP client (uses Deno.connect, not Node.js net/tls)
+  const { SmtpClient } = await import("https://deno.land/x/denomailer@0.12.0/mod.ts");
+  const client = new SmtpClient();
+
+  const connectConfig = { hostname: smtpHost, port: smtpPort, username: smtpUser, password: smtpPass };
+  if (smtpPort === 465) {
+    await client.connectTLS(connectConfig);  // implicit TLS
+  } else {
+    await client.connect(connectConfig);     // STARTTLS on port 587 / 25
+  }
+
+  await client.send({
+    from: smtpUser,
+    to,
+    subject: "Verify your email — Zi Playground",
+    content: `Verify your Zi Playground email: ${verificationUrl}\n\nThis link expires in 24 hours.`,
+    html: `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#0a0a0a;padding:40px"><div style="max-width:480px;margin:0 auto;background:#111;border-radius:12px;padding:32px;border:1px solid #333"><h1 style="color:#a78bfa;margin-top:0">Verify your email</h1><p style="color:#ccc">Click the button below to verify your email and unlock your Zi token rewards.</p><a href="${verificationUrl}" style="display:inline-block;margin:24px 0;padding:14px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">Verify Email</a><p style="color:#666;font-size:12px">This link expires in 24 hours. If you did not register, ignore this email.</p><p style="color:#555;font-size:11px">Or copy: <span style="color:#888;word-break:break-all">${verificationUrl}</span></p></div></body></html>`,
+  });
+
+  await client.close();
+  console.log("[email] Verification email sent to", to);
+}
