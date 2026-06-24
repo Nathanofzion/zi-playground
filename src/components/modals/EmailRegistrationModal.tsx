@@ -57,7 +57,7 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         throw new Error("Please connect your wallet to sign up");
       }
 
-      const { error } = await supabase.functions.invoke("auth", {
+      const { data: authData, error } = await supabase.functions.invoke("auth", {
         method: "POST",
         body: {
           action: "update-profile",
@@ -72,9 +72,18 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         throw new Error(error.message || "Failed to register email");
       }
 
+      // Send verification email in the background — don't block the UX
+      if (authData?.verificationUrl) {
+        fetch("/api/send-verification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: data.email, verificationUrl: authData.verificationUrl }),
+        }).catch((e) => console.warn("[send-verification] non-critical:", e));
+      }
+
       toaster.create({
         type: "success",
-        title: existingEmail ? "Email updated successfully" : "You have successfully signed up",
+        title: existingEmail ? "Email updated — check your inbox to verify" : "Signed up! Check your inbox to verify your email",
       });
       setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ["user", address] });
