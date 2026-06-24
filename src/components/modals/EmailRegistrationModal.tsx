@@ -75,20 +75,27 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         throw new Error(error.message || "Failed to register email");
       }
 
-      // Attempt to send verification email and track whether it succeeded
+      // Track whether an email was actually sent
       if (authData?.verificationUrl) {
         setVerificationUrl(authData.verificationUrl);
         setSubmittedEmail(data.email);
-        try {
-          const sendRes = await fetch("/api/send-verification", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: data.email, verificationUrl: authData.verificationUrl }),
-          });
-          const sendData = await sendRes.json().catch(() => ({ sent: false }));
-          setEmailSent(sendData.sent === true);
-        } catch {
-          setEmailSent(false);
+
+        // 1. Check if the edge function sent it via ICUK SMTP
+        if (authData.emailSent === true) {
+          setEmailSent(true);
+        } else {
+          // 2. Fallback: try Resend HTTP API (requires RESEND_API_KEY in Vercel env vars)
+          try {
+            const sendRes = await fetch("/api/send-verification", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: data.email, verificationUrl: authData.verificationUrl }),
+            });
+            const sendData = await sendRes.json().catch(() => ({ sent: false }));
+            setEmailSent(sendData.sent === true);
+          } catch {
+            setEmailSent(false);
+          }
         }
       }
 
