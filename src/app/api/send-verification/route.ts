@@ -42,8 +42,10 @@ function createTransporter() {
   return nodemailer.createTransport({
     host,
     port,
-    secure: port === 465,
+    secure: port === 465,   // true = SSL (465), false = STARTTLS (25/587)
+    requireTLS: port !== 465, // force STARTTLS upgrade on port 25 / 587
     auth: { user, pass },
+    tls: { rejectUnauthorized: false }, // ICUK uses self-signed certs on some servers
   });
 }
 
