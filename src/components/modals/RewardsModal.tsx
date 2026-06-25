@@ -210,15 +210,6 @@ const RewardsModal: FC<ModalProps> = (props) => {
         {/* Actions */}
         <Flex justify="end" gap={2} pt={2}>
           <Button
-            variant="outline"
-            onClick={() => {
-              router.push("/dashboard");
-              props.onClose?.();
-            }}
-          >
-            Dashboard
-          </Button>
-          <Button
             disabled={rewards.remaining_rewards === 0 || isClaiming || !user?.email_verified}
             loading={isClaiming}
             onClick={() => claimRewards()}
