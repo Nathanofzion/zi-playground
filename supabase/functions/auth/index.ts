@@ -96,7 +96,7 @@ function uint8ArrayToArray(uint8Array: Uint8Array) {
 
 function generateToken(payload: any) {
   const options = {
-    expiresIn: "1h",
+    expiresIn: "7d",
   };
 
   return jwt.sign(payload, secretKey, options);

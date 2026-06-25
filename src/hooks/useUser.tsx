@@ -31,11 +31,18 @@ const useUser = () => {
             console.warn("Auth service unavailable");
             return null;
           }
+          // Token expired or invalid — clear it so reconnect generates a fresh one
+          if (error.message?.includes("400") || error.message?.includes("Invalid") || error.message?.includes("expired")) {
+            localStorage.removeItem("token");
+          }
           throw error;
         }
         return data;
       } catch (err: any) {
-        // Return null instead of crashing
+        // Clear stale tokens on auth failures
+        if (err.message?.includes("Invalid") || err.message?.includes("expired") || err.message?.includes("token")) {
+          localStorage.removeItem("token");
+        }
         console.warn("Failed to fetch user profile:", err.message);
         return null;
       }
