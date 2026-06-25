@@ -218,7 +218,7 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
               <Button
                 w="full"
                 size="sm"
-                onClick={() => { window.open(verificationUrl, "_blank", "noopener,noreferrer"); }}
+                onClick={() => { window.location.href = verificationUrl; }}
               >
                 ✓ Click here to verify
               </Button>

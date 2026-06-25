@@ -101,7 +101,7 @@ const RewardsModal: FC<ModalProps> = (props) => {
                     body: { action: "update-profile", data: { token: localStorage.getItem("token"), email: user.email } },
                   });
                   if (error) throw error;
-                  if (data?.verificationUrl) window.open(data.verificationUrl, "_blank", "noopener,noreferrer");
+                  if (data?.verificationUrl) window.location.href = data.verificationUrl;
                 } catch (e) {
                   console.error("Verify error:", e);
                 }
