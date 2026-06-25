@@ -133,6 +133,8 @@ Deno.serve((req) =>
             throw new BadRequestException("Valid token is required");
           }
           return await withTimeout(handleProfile(data), 5000, "Profile fetch timed out");
+        case "profile-by-address":
+          return await withTimeout(handleProfileByAddress(data), 5000, "Profile fetch timed out");
         case "update-profile":
           return await withTimeout(handleUpdateProfile(data), 20000, "Profile update timed out");
         case "verify-email-token":
@@ -195,6 +197,22 @@ async function handleProfile(data: any) {
     .single();
   if (error) {
     throw new NotFoundException(`User not found: ${error.message}`);
+  }
+  return user;
+}
+
+async function handleProfileByAddress(data: any) {
+  if (!data || !data.publicKey || typeof data.publicKey !== "string") {
+    throw new BadRequestException("publicKey is required");
+  }
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("id, publicKey, email, email_verified, role")
+    .eq("publicKey", data.publicKey)
+    .single();
+  if (error || !user) {
+    // Return empty profile rather than 404 so UI can show register state
+    return { id: null, publicKey: data.publicKey, email: null, email_verified: false, role: null };
   }
   return user;
 }
