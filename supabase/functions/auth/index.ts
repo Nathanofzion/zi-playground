@@ -190,7 +190,7 @@ async function handleProfile(data: any) {
     throw new BadRequestException("Invalid token payload");
   }
 
-  const { data: user, error } = await supabase
+  const { data: user, error } = await supabaseAdmin
     .from("users")
     .select("id, publicKey, email, email_verified, role")
     .eq("user_id", decoded.id)
@@ -205,7 +205,7 @@ async function handleProfileByAddress(data: any) {
   if (!data || !data.publicKey || typeof data.publicKey !== "string") {
     throw new BadRequestException("publicKey is required");
   }
-  const { data: user, error } = await supabase
+  const { data: user, error } = await supabaseAdmin
     .from("users")
     .select("id, publicKey, email, email_verified, role")
     .eq("publicKey", data.publicKey)
@@ -224,7 +224,7 @@ async function handleRegistration() {
     userName: "Smart wallet",
   });
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from("challenges")
     .insert({ user_id: options.user.id, challenge: options.challenge });
 
@@ -240,7 +240,7 @@ async function handleRegistrationVerification(
   user_id: string,
   referrer: string
 ) {
-  const { data: challenge } = await supabase
+  const { data: challenge } = await supabaseAdmin
     .from("challenges")
     .select()
     .eq("user_id", user_id)
@@ -248,7 +248,7 @@ async function handleRegistrationVerification(
   if (!challenge) {
     throw new NotFoundException();
   }
-  await supabase.from("challenges").delete().eq("user_id", user_id);
+  await supabaseAdmin.from("challenges").delete().eq("user_id", user_id);
 
   const verification = await verifyRegistrationResponse({
     response: assertionResponse,
@@ -321,7 +321,7 @@ async function handleAuthentication(challenge_id: string) {
     rpID: rpID,
   });
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from("challenges")
     .insert({ challenge_id, challenge: options.challenge });
 
@@ -336,7 +336,7 @@ async function handleAuthenticationVerification(
   assertionResponse: any,
   challenge_id: string
 ) {
-  const { data: challenge, error: challengeError } = await supabase
+  const { data: challenge, error: challengeError } = await supabaseAdmin
     .from("challenges")
     .select()
     .eq("challenge_id", challenge_id)
@@ -348,11 +348,11 @@ async function handleAuthenticationVerification(
   if (!challenge) {
     throw new NotFoundException("Challenge not found");
   }
-  await supabase.from("challenges").delete().eq("challenge_id", challenge_id);
+  await supabaseAdmin.from("challenges").delete().eq("challenge_id", challenge_id);
 
   const user_id = assertionResponse.response.userHandle;
 
-  const { data: user, error: userError } = await supabase
+  const { data: user, error: userError } = await supabaseAdmin
     .from("users")
     .select()
     .eq("user_id", user_id)
@@ -396,7 +396,7 @@ const handleSignTransaction = async (data: any) => {
   const { token, xdr, opts } = data;
 
   const decoded = jwt.verify(token, secretKey);
-  const { data: user, error } = await supabase
+  const { data: user, error } = await supabaseAdmin
     .from("users")
     .select()
     .eq("user_id", decoded.id)
