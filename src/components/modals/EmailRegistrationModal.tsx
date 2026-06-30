@@ -60,6 +60,11 @@ const EmailRegistrationModal: FC<ModalProps> = ({ onClose, ...props }) => {
         throw new Error("Please connect your wallet to sign up");
       }
 
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Session expired — please disconnect and reconnect your wallet, then try again.");
+      }
+
       const { data: authData, error } = await supabase.functions.invoke("auth", {
         method: "POST",
         body: {

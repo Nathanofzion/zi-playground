@@ -496,7 +496,20 @@ const handleRegisterWallet = async (data: any, referrer?: string) => {
 const handleUpdateProfile = async (data: any) => {
   const { token, email } = data;
 
-  const decoded = jwt.verify(token, secretKey);
+  if (!token || typeof token !== "string") {
+    throw new BadRequestException("Authentication token is required. Please reconnect your wallet.");
+  }
+
+  let decoded: any;
+  try {
+    decoded = jwt.verify(token, secretKey);
+  } catch (err: any) {
+    throw new BadRequestException(`Session expired — please reconnect your wallet: ${err.message}`);
+  }
+
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    throw new BadRequestException("A valid email address is required.");
+  }
 
   // Generate a verification token (expires in 24h)
   const verificationToken = crypto.randomUUID();

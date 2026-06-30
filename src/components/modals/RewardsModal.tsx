@@ -95,14 +95,20 @@ const RewardsModal: FC<ModalProps> = (props) => {
               w="full"
               onClick={async () => {
                 try {
+                  const token = localStorage.getItem("token");
+                  if (!token) {
+                    alert("Session expired — please disconnect and reconnect your wallet, then try again.");
+                    return;
+                  }
                   const { supabase } = await import("@/lib/supabase");
                   const { data, error } = await supabase.functions.invoke("auth", {
                     method: "POST",
-                    body: { action: "update-profile", data: { token: localStorage.getItem("token"), email: user.email } },
+                    body: { action: "update-profile", data: { token, email: user.email } },
                   });
                   if (error) throw error;
                   if (data?.verificationUrl) window.location.href = data.verificationUrl;
-                } catch (e) {
+                } catch (e: any) {
+                  alert(e?.message || "Failed to send verification email. Please try again.");
                   console.error("Verify error:", e);
                 }
               }}
