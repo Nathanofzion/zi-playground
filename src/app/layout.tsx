@@ -44,6 +44,7 @@ export default function RootLayout({
           <div className="app-layout">
             <Header />
             {children}
+            <Footer />
           </div>
           <ClientPlexChat />
         </Provider>
