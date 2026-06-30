@@ -594,42 +594,36 @@ const handleVerifyEmailToken = async (data: any) => {
  *   SMTP_PORT  — 587 (default) or 465 for implicit TLS
  */
 async function sendVerificationEmail(to: string, verificationUrl: string): Promise<boolean> {
-  const smtpHost = Deno.env.get("SMTP_HOST");
-  const smtpUser = Deno.env.get("SMTP_USER");
-  const smtpPass = Deno.env.get("SMTP_PASS");
-  // Port 465 = implicit TLS (connectTLS) — more reliable in Deno than 587 STARTTLS
-  const smtpPort = parseInt(Deno.env.get("SMTP_PORT") || "465", 10);
-
-  if (!smtpHost || !smtpUser || !smtpPass) {
-    console.log("[email] SMTP_HOST/SMTP_USER/SMTP_PASS not configured — skipping email send");
-    return false;
-  }
+  // Supabase/Deno Deploy is HTTPS-only — raw TCP (SMTP) connections are not supported.
+  // We relay through the Vercel Node.js API route which CAN open SMTP TCP on port 465.
+  const siteUrl = Deno.env.get("SITE_URL") || "https://zi-playground.vercel.app";
+  const internalSecret = Deno.env.get("INTERNAL_API_SECRET") || "";
 
   try {
-    // denomailer is a Deno-native SMTP client (uses Deno.connect, not Node.js net/tls)
-    const { SmtpClient } = await import("https://deno.land/x/denomailer@0.12.0/mod.ts");
-    const client = new SmtpClient();
-
-    const connectConfig = { hostname: smtpHost, port: smtpPort, username: smtpUser, password: smtpPass };
-    if (smtpPort === 465) {
-      await client.connectTLS(connectConfig);  // implicit TLS — preferred
-    } else {
-      await client.connect(connectConfig);     // STARTTLS on port 587 / 25
-    }
-
-    await client.send({
-      from: smtpUser,
-      to,
-      subject: "Verify your email — Zi Playground",
-      content: `Verify your Zi Playground email: ${verificationUrl}\n\nThis link expires in 24 hours.`,
-      html: `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#0a0a0a;padding:40px"><div style="max-width:480px;margin:0 auto;background:#111;border-radius:12px;padding:32px;border:1px solid #333"><h1 style="color:#a78bfa;margin-top:0">Verify your email</h1><p style="color:#ccc">Click the button below to verify your email and unlock your Zi token rewards.</p><a href="${verificationUrl}" style="display:inline-block;margin:24px 0;padding:14px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">Verify Email</a><p style="color:#666;font-size:12px">This link expires in 24 hours. If you did not register, ignore this email.</p><p style="color:#555;font-size:11px">Or copy: <span style="color:#888;word-break:break-all">${verificationUrl}</span></p></div></body></html>`,
+    const res = await fetch(`${siteUrl}/api/send-verification`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-secret": internalSecret,
+      },
+      body: JSON.stringify({ email: to, verificationUrl }),
     });
 
-    await client.close();
-    console.log("[email] Verification email sent to", to);
-    return true;
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      console.error("[email] send-verification route error:", body);
+      return false;
+    }
+
+    const result = await res.json();
+    if (result.sent) {
+      console.log("[email] Verification email sent to", to);
+      return true;
+    }
+    console.warn("[email] Email not sent:", result.message || result.error);
+    return false;
   } catch (e) {
-    console.error("[email] SMTP send failed:", e instanceof Error ? e.message : String(e));
+    console.error("[email] Failed to call send-verification route:", e instanceof Error ? e.message : String(e));
     return false;
   }
 }
