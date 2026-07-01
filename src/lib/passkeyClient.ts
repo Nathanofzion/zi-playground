@@ -409,8 +409,14 @@ const passkey = () => {
             throw new Error('Wrong passkey used. Please select the correct credential.');
           }
 
-          await ensureLocalSession(storedContractId, storedKeyId);
-          return storedContractId;
+          // Use the contractId returned by PasskeyKit (authoritative) —
+          // NOT the cached storedContractId. If the wallet was rotated or the
+          // cache is stale, connectResult.contractId is the correct value.
+          const resolvedContractId = connectResult.contractId || storedContractId;
+          console.log('Resolved contract address:', resolvedContractId);
+
+          await ensureLocalSession(resolvedContractId, storedKeyId);
+          return resolvedContractId;
         }
 
         // If keyId exists but contractId is missing, resolve via factory
