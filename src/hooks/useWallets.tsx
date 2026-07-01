@@ -40,17 +40,15 @@ const useWallets = () => {
         
 
         try {
-          if(activeConnector?.id == connector.id){
-            // await connect()
-            // if(connector.id == "lobstr"){
-            //   await setActiveConnectorAndConnect?.(connector);
-            // }
+          if(activeConnector?.id == connector.id && connector.id !== 'passkey'){
+            // For non-passkey connectors already active, use connect()
             await connectWithTimeout(connect, 30000);
           }else{
+            // For passkey connector (or switching connectors): always use
+            // setActiveConnectorAndConnect so SorobanReact does a full
+            // disconnect→reconnect, calling getPublicKey() fresh and
+            // updating the address state to the newly selected wallet.
             await setActiveConnectorAndConnect?.(connector);
-            // while (!addressRef.current) {
-            //   await new Promise((resolve) => setTimeout(resolve, 500));
-            // }
           } 
         } catch (error) {
           console.log("Error Connecting Wallet : ",error);
