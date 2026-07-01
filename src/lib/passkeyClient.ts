@@ -200,10 +200,10 @@ const isValidJwt = (token: string) => token.split(".").length === 3;
 const ensureLocalSession = async (contractId: string, keyId: string | null) => {
   initializeWallet(contractId);
 
-  let token = LocalKeyStorage.getToken();
-  if (!token || !isValidJwt(token)) {
-    token = await registerWalletAndGetToken(contractId);
-  }
+  // Always register/refresh token for THIS contractId.
+  // Reusing an old token from a different wallet would cause all wallets
+  // to appear as the same user (the one whose token is in localStorage).
+  const token = await registerWalletAndGetToken(contractId);
   storeSessionToken(token);
 
   // ── Hybrid PQC: activate session cache on reconnect ────────────────────
