@@ -394,29 +394,15 @@ const passkey = () => {
           storedContractId = activeWallet.contractId;
         }
 
-        // Returning user: localStorage has full session
+        // Returning user: localStorage has full session.
+        // Silently restore — no WebAuthn prompt needed here.
+        // The SimpleWalletModal calls connectToWallet() first, which updates the
+        // active wallet index, so storedContractId is already the correct wallet.
+        // WebAuthn is only required for new registrations or factory recovery below.
         if (storedKeyId && storedContractId) {
-          console.log('Found stored passkey session, reconnecting...');
-          setPasskeyStatus(null);
-
-          // Pass storedKeyId so Chrome populates allowCredentials and can find
-          // the credential without requiring it to be a discoverable/resident key.
-          // Safari is lenient and works without this; Chrome requires it.
-          const connectResult: any = await connectWithFactory(storedKeyId);
-  
-          // Verify the returned keyId matches what we expect
-          if (connectResult.keyIdBase64 !== storedKeyId) {
-            throw new Error('Wrong passkey used. Please select the correct credential.');
-          }
-
-          // Use the contractId returned by PasskeyKit (authoritative) —
-          // NOT the cached storedContractId. If the wallet was rotated or the
-          // cache is stale, connectResult.contractId is the correct value.
-          const resolvedContractId = connectResult.contractId || storedContractId;
-          console.log('Resolved contract address:', resolvedContractId);
-
-          await ensureLocalSession(resolvedContractId, storedKeyId);
-          return resolvedContractId;
+          console.log('Restoring stored passkey session for:', storedContractId.substring(0, 8) + '...');
+          await ensureLocalSession(storedContractId, storedKeyId);
+          return storedContractId;
         }
 
         // If keyId exists but contractId is missing, resolve via factory
