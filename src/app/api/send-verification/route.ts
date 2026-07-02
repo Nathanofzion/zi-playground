@@ -4,10 +4,11 @@ import nodemailer from "nodemailer";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SMTP_HOST = process.env.SMTP_HOST || "smtp.interdns.co.uk";
+const SMTP_HOST = process.env.SMTP_HOST || "email-smtp.us-east-1.amazonaws.com";
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || "465", 10);
 const SMTP_USER = process.env.SMTP_USER || "";
 const SMTP_PASS = process.env.SMTP_PASS || "";
+const SMTP_FROM = process.env.SMTP_FROM || "no-reply@zig3.net";
 const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || "";
 
 function buildEmailHtml(verificationUrl: string): string {
@@ -78,17 +79,13 @@ export async function POST(req: NextRequest) {
       port: SMTP_PORT,
       secure: SMTP_PORT === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
-      tls: {
-        servername: SMTP_HOST,   // explicit SNI — required by some hosts
-        rejectUnauthorized: false, // allow self-signed certs on shared hosting
-      },
       connectionTimeout: 15000,
       greetingTimeout: 10000,
       socketTimeout: 15000,
     });
 
     await transporter.sendMail({
-      from: `"Zi Playground" <${SMTP_USER}>`,
+      from: `"Zi Playground" <${SMTP_FROM}>`,
       to: email,
       subject: "Verify your email — Zi Playground",
       text: `Verify your Zi Playground email: ${verificationUrl}\n\nThis link expires in 24 hours.`,
