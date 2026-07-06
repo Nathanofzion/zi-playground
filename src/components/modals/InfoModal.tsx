@@ -28,7 +28,7 @@ const HISTORY = [
     year: "2022\u20132023",
     headline: "Proof of Concept",
     detail:
-      "Initial prototype of Zioncoin Foundation's DeFi playground on Stellar testnet. Introduced the Zi token concept and basic airdrop mechanics.",
+      "Built on StellarSwap open source code to give Zi holders a way to trade outside of Stellarport. Community feedback flagged trust concerns with the login flow — so we rebuilt from scratch, entered Stellar Community Fund round #11, and won.",
     link: "https://github.com/Nathanofzion/Stellarswap",
     linkLabel: "View V1 repo (Stellarswap) \u2192",
   },
