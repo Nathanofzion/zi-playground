@@ -28,7 +28,9 @@ const HISTORY = [
     year: "2022\u20132023",
     headline: "Proof of Concept",
     detail:
-      "Initial prototype of Zioncoin Foundation's DeFi playground on Stellar testnet. Introduced the Zi token concept, basic airdrop mechanics and the passkey wallet architecture.",
+      "Initial prototype of Zioncoin Foundation's DeFi playground on Stellar testnet. Introduced the Zi token concept and basic airdrop mechanics.",
+    link: "https://github.com/Nathanofzion/Stellarswap",
+    linkLabel: "View V1 repo (Stellarswap) \u2192",
   },
   {
     version: "V2",
@@ -90,6 +92,19 @@ const InfoModal: FC<ModalProps> = (props) => {
               </Flex>
               <Text fontWeight="700" fontSize="sm" mb={1}>{h.headline}</Text>
               <Text fontSize="xs" color="gray.400" lineHeight={1.6}>{h.detail}</Text>
+              {h.link && (
+                <Link
+                  href={h.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  fontSize="xs"
+                  color="blue.300"
+                  mt={1}
+                  display="inline-block"
+                >
+                  {h.linkLabel}
+                </Link>
+              )}
             </Box>
           ))}
         </VStack>
