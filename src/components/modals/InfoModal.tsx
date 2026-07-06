@@ -37,7 +37,9 @@ const HISTORY = [
     year: "2024",
     headline: "SCF #11 Award Winner \ud83c\udfc6",
     detail:
-      "Full rebuild with Soroban smart contracts, Space Invaders & Tetris play-to-earn games, ZI airdrop flows, and the referral rewards system. Won the Stellar Community Fund round #11 grant.",
+      "The winning rebuild. Multiple wallet login methods including biometric key storage and encryption. Soroban smart contracts powering Space Invaders & Tetris play-to-earn games, ZI airdrop flows, referral rewards, and SEP-24 Stellar Anchor integration for bank-connected faster payments.",
+    link: "https://zig3.org",
+    linkLabel: "View Zig3 V2 \u2192",
   },
   {
     version: "V3",
